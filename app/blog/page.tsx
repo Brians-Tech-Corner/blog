@@ -10,10 +10,10 @@ export const metadata = {
 export default async function BlogIndexPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tag?: string; q?: string }>;
+  searchParams: Promise<{ tag?: string; q?: string; year?: string }>;
 }) {
   const allPosts = await getAllPosts();
-  const { tag: selectedTag, q: searchQuery } = await searchParams;
+  const { tag: selectedTag, q: searchQuery, year: selectedYear } = await searchParams;
 
   // Filter by search query and tag
   let posts = allPosts;
@@ -32,6 +32,14 @@ export default async function BlogIndexPage({
   // Apply tag filter
   if (selectedTag) {
     posts = posts.filter((p) => p.tags?.includes(selectedTag));
+  }
+
+  // Apply year filter
+  if (selectedYear) {
+    posts = posts.filter((p) => {
+      const postYear = new Date(p.date).getFullYear().toString();
+      return postYear === selectedYear;
+    });
   }
 
   // Get all unique tags from all posts
@@ -99,6 +107,7 @@ export default async function BlogIndexPage({
                 allTags={allTags}
                 postCount={allPosts.length}
                 archivesByYear={archivesByYear}
+                selectedYear={selectedYear}
               />
             </Suspense>
           </div>
