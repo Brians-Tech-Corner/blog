@@ -15,7 +15,7 @@ export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarP
   const searchQuery = searchParams.get('q');
   const selectedYear = searchParams.get('year');
 
-  const buildHref = (params: { tag?: string; q?: string; year?: string }) => {
+  const buildHref = (params: { tag?: string | null; q?: string | null; year?: string | null }) => {
     const url = new URLSearchParams();
     if (params.q) url.set('q', params.q);
     if (params.tag) url.set('tag', params.tag);
@@ -50,7 +50,7 @@ export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarP
           </h3>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
-              href={buildHref({ q: searchQuery || undefined })}
+              href={buildHref({ q: searchQuery })}
               className={`rounded-full border px-3 py-1.5 text-sm transition ${
                 !selectedTag
                   ? 'border-zinc-900 bg-zinc-900 text-white'
@@ -64,7 +64,7 @@ export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarP
               return (
                 <Link
                   key={tag}
-                  href={buildHref({ q: searchQuery || undefined, tag })}
+                  href={buildHref({ q: searchQuery, tag })}
                   className={`rounded-full border px-3 py-1.5 text-sm transition ${
                     isSelected
                       ? 'border-zinc-900 bg-zinc-900 text-white'
@@ -91,7 +91,7 @@ export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarP
               return (
                 <Link
                   key={year}
-                  href={buildHref({ q: searchQuery || undefined, year })}
+                  href={buildHref({ q: searchQuery, year })}
                   className={`flex items-center justify-between text-sm transition ${
                     isSelected
                       ? 'font-semibold text-zinc-900'
