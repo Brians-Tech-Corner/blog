@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { compilePostBySlug, getAllPostSlugs } from '@/lib/posts';
 import { Prose } from '@/components/Prose';
 import { PostMeta } from '@/components/PostMeta';
-import { mdxComponents } from '@/components/mdx';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 

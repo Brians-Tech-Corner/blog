@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { Callout } from '@/components/Callout';
-import type { ComponentPropsWithoutRef } from 'react';
 
 export const mdxComponents: Record<string, React.ComponentType<any>> = {
   a: (props) => {
