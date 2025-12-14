@@ -136,7 +136,7 @@ export default async function BlogIndexPage({
 
           {/* Posts grid */}
           {posts.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-1">
+            <div className="grid gap-6">
               {posts.map((p) => (
                 <PostCard key={p.slug} post={p} />
               ))}
