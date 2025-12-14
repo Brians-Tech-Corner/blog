@@ -8,14 +8,14 @@ vi.mock('@/lib/posts', () => ({
     {
       slug: 'test-post-1',
       title: 'Test Post 1',
-      date: '2025-12-14',
+      date: '2025-12-13',
       description: 'First test post',
       tags: ['test'],
     },
     {
       slug: 'test-post-2',
       title: 'Test Post 2',
-      date: '2025-12-13',
+      date: '2025-12-12',
       description: 'Second test post',
       tags: ['test'],
     },
@@ -63,8 +63,8 @@ describe('HomePage', () => {
 
     if (latestSection) {
       expect(within(latestSection).getByText('Test Post 2')).toBeInTheDocument();
-      // Date should be formatted as "Dec 13, 2025" not "2025-12-13"
-      expect(within(latestSection).getByText(/Dec 13, 2025/)).toBeInTheDocument();
+      // Date should be formatted as "Dec 12, 2025" not "2025-12-12"
+      expect(within(latestSection).getByText(/Dec 12, 2025/)).toBeInTheDocument();
     }
   });
 
