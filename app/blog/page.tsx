@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getAllPosts } from '@/lib/posts';
 import { PostCard } from '@/components/PostCard';
 import { BlogSidebar } from '@/components/BlogSidebar';
@@ -115,7 +116,7 @@ export default async function BlogIndexPage({
                       ? `/blog?q=${encodeURIComponent(searchQuery)}&tag=${encodeURIComponent(tag)}`
                       : `/blog?tag=${encodeURIComponent(tag)}`;
                     return (
-                      <a
+                      <Link
                         key={tag}
                         href={href}
                         className={`rounded-full border px-3 py-1.5 text-sm transition ${
@@ -125,7 +126,7 @@ export default async function BlogIndexPage({
                         }`}
                       >
                         {tag}
-                      </a>
+                      </Link>
                     );
                   })}
                 </div>
