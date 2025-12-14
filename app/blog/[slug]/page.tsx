@@ -67,8 +67,8 @@ export default async function BlogPostPage({
       <div
         className={
           showToc
-            ? 'mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-[1fr_280px]'
-            : ''
+            ? 'mx-auto max-w-7xl grid grid-cols-1 gap-8 lg:grid-cols-[1fr_280px]'
+            : 'mx-auto max-w-7xl'
         }
       >
         <article className="min-w-0 space-y-8">
