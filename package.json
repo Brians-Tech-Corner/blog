@@ -12,7 +12,11 @@
     "typecheck": "tsc --noEmit",
     "validate": "node scripts/validate.cjs",
     "icons:help": "node scripts/generate-icons.mjs",
-    "icons:generate": "node scripts/generate-icons-sharp.mjs"
+    "icons:generate": "node scripts/generate-icons-sharp.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@mdx-js/react": "^3.1.1",
@@ -35,17 +39,24 @@
     "@mdx-js/loader": "^3.1.1",
     "@next/eslint-plugin-next": "^16.0.10",
     "@tailwindcss/typography": "^0.5.13",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
     "@types/node": "^20.14.10",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "@vitest/ui": "^4.0.15",
     "autoprefixer": "^10.4.20",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "happy-dom": "^20.0.11",
+    "jsdom": "^27.3.0",
     "postcss": "^8.4.41",
     "prettier": "^3.3.3",
     "sharp": "^0.34.5",
     "tailwindcss": "^3.4.10",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.49.0"
+    "typescript-eslint": "^8.49.0",
+    "vitest": "^4.0.15"
   }
 }

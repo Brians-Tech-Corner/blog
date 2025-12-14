@@ -14,10 +14,21 @@ A developer-first blog for **brianstechcorner.com** using:
 - GitHub Actions CI/CD
 - Vercel preview deployments
 
+## Quick Reference
+
+| Command | Description |
+|---------|-------------|
+| `make dev` | Start development server |
+| `make test` | Run all tests |
+| `make lint` | Run linter |
+| `make check-all` | Run all checks before commit |
+| `make help` | See all available commands |
+
 ## Prereqs
 
 - Node.js 24+ (LTS)
 - pnpm (`corepack enable`)
+- make (usually pre-installed on Linux/macOS)
 
 ## Setup
 
@@ -29,6 +40,25 @@ pnpm dev
 ```
 
 Open http://localhost:3000
+
+### Using Make
+
+A Makefile is provided for convenience:
+
+```bash
+# See all available commands
+make help
+
+# Quick start
+make install    # Install dependencies
+make dev        # Start development server
+
+# Code quality
+make lint       # Run ESLint
+make typecheck  # Run TypeScript checks
+make test       # Run all tests
+make check-all  # Run all checks (lint, typecheck, test, validate)
+```
 
 ## Writing posts
 
@@ -59,6 +89,34 @@ image: "/images/k8s-homelab.png"
 
 Your content here...
 ```
+
+## Testing
+
+This project uses [Vitest](https://vitest.dev/) for unit and component testing.
+
+```bash
+# Run tests once
+make test
+# or
+pnpm test
+
+# Watch mode (re-runs on changes)
+make test-watch
+# or
+pnpm test:watch
+
+# Test UI
+make test-ui
+# or
+pnpm test:ui
+
+# Coverage report
+make test-coverage
+# or
+pnpm test:coverage
+```
+
+Tests are co-located with the code (`*.test.tsx`). See [docs/TESTING.md](docs/TESTING.md) for detailed testing guide.
 
 ## Features
 
