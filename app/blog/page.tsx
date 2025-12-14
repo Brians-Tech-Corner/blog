@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-import Link from 'next/link';
 import { getAllPosts } from '@/lib/posts';
 import { PostCard } from '@/components/PostCard';
 import { BlogSidebar } from '@/components/BlogSidebar';
@@ -11,10 +9,10 @@ export const metadata = {
 export default async function BlogIndexPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tag?: string; q?: string }>;
+  searchParams: Promise<{ tag?: string; q?: string; year?: string }>;
 }) {
   const allPosts = await getAllPosts();
-  const { tag: selectedTag, q: searchQuery } = await searchParams;
+  const { tag: selectedTag, q: searchQuery, year: selectedYear } = await searchParams;
 
   // Filter by search query and tag
   let posts = allPosts;
@@ -33,6 +31,14 @@ export default async function BlogIndexPage({
   // Apply tag filter
   if (selectedTag) {
     posts = posts.filter((p) => p.tags?.includes(selectedTag));
+  }
+
+  // Apply year filter
+  if (selectedYear) {
+    posts = posts.filter((p) => {
+      const postYear = new Date(p.date).getFullYear().toString();
+      return postYear === selectedYear;
+    });
   }
 
   // Get all unique tags from all posts
@@ -93,15 +99,11 @@ export default async function BlogIndexPage({
         {/* Sticky Sidebar - Hidden on mobile, visible on lg+ screens */}
         <div className="hidden lg:block lg:w-80">
           <div className="sticky top-6">
-            <Suspense
-              fallback={<div className="h-96 animate-pulse rounded-xl bg-zinc-100" />}
-            >
-              <BlogSidebar
-                allTags={allTags}
-                postCount={allPosts.length}
-                archivesByYear={archivesByYear}
-              />
-            </Suspense>
+            <BlogSidebar
+              allTags={allTags}
+              postCount={allPosts.length}
+              archivesByYear={archivesByYear}
+            />
           </div>
         </div>
 
@@ -121,7 +123,7 @@ export default async function BlogIndexPage({
                       ? `/blog?q=${encodeURIComponent(searchQuery)}&tag=${encodeURIComponent(tag)}`
                       : `/blog?tag=${encodeURIComponent(tag)}`;
                     return (
-                      <Link
+                      <a
                         key={tag}
                         href={href}
                         className={`rounded-full border px-3 py-1.5 text-sm transition ${
@@ -131,7 +133,7 @@ export default async function BlogIndexPage({
                         }`}
                       >
                         {tag}
-                      </Link>
+                      </a>
                     );
                   })}
                 </div>
@@ -141,7 +143,7 @@ export default async function BlogIndexPage({
 
           {/* Posts grid */}
           {posts.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-1">
+            <div className="grid gap-6">
               {posts.map((p) => (
                 <PostCard key={p.slug} post={p} />
               ))}
