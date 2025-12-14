@@ -17,7 +17,7 @@ export function extractTocHeadings(content: string): TocHeading[] {
   const slugger = new GithubSlugger();
 
   // Remove code blocks first to avoid matching headings within them
-  // Match both fenced code blocks (```) and indented code blocks
+  // Match fenced code blocks (```)
   const contentWithoutCodeBlocks = content.replace(/```[\s\S]*?```/g, '');
 
   // Match h2 and h3 markdown headings
