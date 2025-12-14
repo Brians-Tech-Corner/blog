@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,9 +24,7 @@ export const metadata: Metadata = {
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [
-      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
+    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   manifest: '/manifest.json',
   openGraph: {
@@ -45,12 +44,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.className}>
-      <body>
-        <SiteHeader />
-        <main className="mx-auto w-full max-w-5xl px-4 py-10">{children}</main>
-        <SiteFooter />
-        <Analytics />
+    <html lang="en" className={inter.className} suppressHydrationWarning>
+      <body className="bg-white text-zinc-900 transition-colors dark:bg-zinc-900 dark:text-zinc-100">
+        <ThemeProvider>
+          <SiteHeader />
+          <main className="mx-auto w-full max-w-5xl px-4 py-10">{children}</main>
+          <SiteFooter />
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   );

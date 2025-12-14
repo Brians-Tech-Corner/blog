@@ -5,10 +5,10 @@ export function PostCard({ post }: { post: PostListItem }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group block rounded-2xl border border-zinc-200 bg-white p-6 no-underline shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+      className="group block rounded-2xl border border-zinc-200 bg-white p-6 no-underline shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:shadow-zinc-900/50"
     >
       {/* Date and Read Time */}
-      <div className="flex items-center gap-3 text-sm text-zinc-600">
+      <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
         <div className="flex items-center gap-1.5">
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -22,7 +22,7 @@ export function PostCard({ post }: { post: PostListItem }) {
         </div>
         {post.readTime && (
           <>
-            <span className="text-zinc-400">•</span>
+            <span className="text-zinc-400 dark:text-zinc-600">•</span>
             <div className="flex items-center gap-1.5">
               <svg
                 className="h-4 w-4"
@@ -44,13 +44,13 @@ export function PostCard({ post }: { post: PostListItem }) {
       </div>
 
       {/* Title */}
-      <div className="mt-3 text-xl font-semibold tracking-tight text-zinc-900 group-hover:text-zinc-950">
+      <div className="mt-3 text-xl font-semibold tracking-tight text-zinc-900 group-hover:text-zinc-950 dark:text-zinc-100 dark:group-hover:text-white">
         {post.title}
       </div>
 
       {/* Description */}
       {post.description ? (
-        <div className="mt-3 line-clamp-3 text-sm leading-relaxed text-zinc-700">
+        <div className="mt-3 line-clamp-3 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
           {post.description}
         </div>
       ) : null}
@@ -61,7 +61,7 @@ export function PostCard({ post }: { post: PostListItem }) {
           {post.tags.slice(0, 4).map((t) => (
             <span
               key={t}
-              className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-700"
+              className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
             >
               {t}
             </span>
