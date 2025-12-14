@@ -34,7 +34,7 @@ export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarP
             <span className="text-lg font-semibold text-zinc-900">{postCount}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-zinc-600">Categories</span>
+            <span className="text-sm text-zinc-600">Tags</span>
             <span className="text-lg font-semibold text-zinc-900">{allTags.length}</span>
           </div>
         </div>
