@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { compilePostBySlug, getAllPostSlugs } from '@/lib/posts';
 import { Prose } from '@/components/Prose';
 import { PostMeta } from '@/components/PostMeta';
+import { TableOfContents } from '@/components/TableOfContents';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
@@ -11,14 +12,20 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const post = await compilePostBySlug(slug);
   if (!post) return {};
 
   const { meta } = post;
   const postUrl = `${siteUrl}/blog/${slug}`;
-  const ogImage = meta.image ? `${siteUrl}${meta.image}` : `${siteUrl}/brand/X-Banner-Black.jpg`;
+  const ogImage = meta.image
+    ? `${siteUrl}${meta.image}`
+    : `${siteUrl}/brand/X-Banner-Black.jpg`;
 
   return {
     title: meta.title,
@@ -42,19 +49,40 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
 
   const post = await compilePostBySlug(slug);
   if (!post) return notFound();
 
-  return (
-    <article className="space-y-8">
-      <PostMeta post={post.meta} />
+  // Only show TOC if there are 3 or more headings
+  const showToc = post.headings.length >= 3;
 
-      <Prose>
-        {post.content}
-      </Prose>
-    </article>
+  return (
+    <div className="relative">
+      <div
+        className={
+          showToc
+            ? 'mx-auto max-w-7xl grid grid-cols-1 gap-8 lg:grid-cols-[1fr_280px]'
+            : 'mx-auto max-w-7xl'
+        }
+      >
+        <article className="min-w-0 space-y-8">
+          <PostMeta post={post.meta} />
+
+          <Prose>{post.content}</Prose>
+        </article>
+
+        {showToc && (
+          <aside className="hidden lg:block">
+            <TableOfContents headings={post.headings} />
+          </aside>
+        )}
+      </div>
+    </div>
   );
 }

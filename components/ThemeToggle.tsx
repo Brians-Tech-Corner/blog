@@ -1,9 +1,21 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useTheme } from './ThemeProvider';
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  // Don't render anything until mounted to avoid hydration mismatch
+  if (!mounted) {
+    return <div className="h-9 w-9" aria-hidden="true" />;
+  }
 
   return (
     <button

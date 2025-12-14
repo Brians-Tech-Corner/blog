@@ -29,10 +29,7 @@ describe('posts', () => {
 
       const slugs = await getAllPostSlugs();
 
-      expect(slugs).toEqual([
-        '2025-12-14-welcome',
-        '2025-12-15-another-post',
-      ]);
+      expect(slugs).toEqual(['2025-12-14-welcome', '2025-12-15-another-post']);
     });
 
     it('should handle empty directory', async () => {
@@ -93,7 +90,7 @@ Content here`;
 
     it('should sort posts by date (newest first)', async () => {
       const mockFiles = ['old.mdx', 'new.mdx', 'middle.mdx'];
-      
+
       const posts = [
         { date: '2025-01-01', content: 'old' },
         { date: '2025-12-14', content: 'new' },
@@ -103,7 +100,7 @@ Content here`;
       vi.mocked(fs.readdir).mockResolvedValue(mockFiles as any);
       vi.mocked(fs.readFile).mockImplementation((path) => {
         const filename = path.toString().split('/').pop();
-        const post = posts.find(p => filename?.includes(p.content));
+        const post = posts.find((p) => filename?.includes(p.content));
         return Promise.resolve(`---
 title: "${post?.content}"
 date: "${post?.date}"
@@ -176,9 +173,109 @@ This is a custom MDX component with some text inside.
       // After stripping markdown, the word count should be much lower
       expect(posts[0].readTime).toBeDefined();
       expect(posts[0].readTime).toBeGreaterThan(0);
-      
+
       // With ~50-60 plain words after stripping, should be 1 minute at 200 wpm
       expect(posts[0].readTime).toBe(1);
+    });
+  });
+
+  describe('compilePostBySlug', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should compile a valid post with headings', async () => {
+      const { compilePostBySlug } = await import('./posts');
+      const mockPostContent = `---
+title: "Test Post"
+date: "2025-12-14"
+description: "A test post"
+tags: ["test"]
+---
+
+## First Heading
+
+Some content here.
+
+## Second Heading
+
+More content here.`;
+
+      vi.mocked(fs.readFile).mockResolvedValue(mockPostContent);
+
+      const result = await compilePostBySlug('test-post');
+
+      expect(result).toBeTruthy();
+      expect(result?.meta.title).toBe('Test Post');
+      expect(result?.meta.slug).toBe('test-post');
+      expect(result?.content).toBeDefined();
+      expect(result?.headings).toHaveLength(2);
+      expect(result?.headings[0].text).toBe('First Heading');
+    });
+
+    it('should return null for post without title', async () => {
+      const { compilePostBySlug } = await import('./posts');
+      const mockPostContent = `---
+date: "2025-12-14"
+---
+
+Content without title`;
+
+      vi.mocked(fs.readFile).mockResolvedValue(mockPostContent);
+
+      const result = await compilePostBySlug('invalid-post');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null for post without date', async () => {
+      const { compilePostBySlug } = await import('./posts');
+      const mockPostContent = `---
+title: "Test Post"
+---
+
+Content without date`;
+
+      vi.mocked(fs.readFile).mockResolvedValue(mockPostContent);
+
+      const result = await compilePostBySlug('invalid-post');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when file read fails', async () => {
+      const { compilePostBySlug } = await import('./posts');
+
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('File not found'));
+
+      const result = await compilePostBySlug('nonexistent-post');
+
+      expect(result).toBeNull();
+    });
+
+    it('should extract headings correctly', async () => {
+      const { compilePostBySlug } = await import('./posts');
+      const mockPostContent = `---
+title: "Post with Multiple Headings"
+date: "2025-12-14"
+---
+
+## Main Section
+
+### Subsection
+
+## Another Section
+
+Regular content.`;
+
+      vi.mocked(fs.readFile).mockResolvedValue(mockPostContent);
+
+      const result = await compilePostBySlug('test-post');
+
+      expect(result?.headings).toHaveLength(3);
+      expect(result?.headings[0].level).toBe(2);
+      expect(result?.headings[1].level).toBe(3);
+      expect(result?.headings[2].level).toBe(2);
     });
   });
 });

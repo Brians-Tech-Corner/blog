@@ -3,8 +3,10 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import rehypePrism from 'rehype-prism-plus';
+import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 import { mdxComponents } from '@/components/mdx';
+import { extractTocHeadings, type TocHeading } from './toc';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
 
@@ -60,6 +62,7 @@ export async function getAllPosts(includeDrafts = false): Promise<PostListItem[]
 export async function compilePostBySlug(slug: string): Promise<{
   meta: PostMeta & { slug: string };
   content: React.ReactNode;
+  headings: TocHeading[];
 } | null> {
   try {
     const raw = await readPostFile(slug);
@@ -75,12 +78,15 @@ export async function compilePostBySlug(slug: string): Promise<{
       options: {
         mdxOptions: {
           remarkPlugins: [remarkGfm],
-          rehypePlugins: [rehypePrism],
+          rehypePlugins: [rehypeSlug, rehypePrism],
         },
       },
     });
 
-    return { meta: { ...(meta as any), slug }, content: compiled.content };
+    // Extract TOC headings from the raw content
+    const headings = extractTocHeadings(content);
+
+    return { meta: { ...(meta as any), slug }, content: compiled.content, headings };
   } catch {
     return null;
   }
