@@ -1,16 +1,22 @@
-# Brian's Tech Corner — Next.js Blog Starter
+# Brian's Tech Corner — Next.js Blog
 
-This is a developer-first blog starter for **brianstechcorner.com** using:
+![CI](https://github.com/Brians-Tech-Corner/blog/actions/workflows/ci.yml/badge.svg)
+![Deployment](https://img.shields.io/badge/deployed%20on-Vercel-black)
 
-- Next.js (App Router) + TypeScript
+A developer-first blog for **brianstechcorner.com** using:
+
+- Next.js 16 (App Router) + TypeScript
+- React 19
 - Tailwind CSS + typography
 - MDX blog posts in `content/blog`
 - Prism highlighting via `rehype-prism-plus`
 - RSS + sitemap + robots
+- GitHub Actions CI/CD
+- Vercel preview deployments
 
 ## Prereqs
 
-- Node.js 20+
+- Node.js 24+ (LTS)
 - pnpm (`corepack enable`)
 
 ## Setup
@@ -102,11 +108,26 @@ public/                 # Static assets
 scripts/                # Helper scripts
 ```
 
-## 📚 Additional Documentation
+## � Deployment Workflow
 
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Complete Vercel deployment guide with troubleshooting
-- **[ICONS.md](ICONS.md)** - How to generate favicons and app icons from your logo
-- **[PRE-LAUNCH.md](PRE-LAUNCH.md)** - Comprehensive checklist before going live
+### Environments
+- **Production**: `www.brianstechcorner.com` (auto-deploys from `main` branch)
+- **PR Previews**: Auto-generated Vercel preview URLs for every pull request
+
+### Development Workflow
+```bash
+# Create feature branch
+git checkout -b feature/new-post
+
+# Make changes and push
+git push origin feature/new-post
+
+# Open PR to main
+# → CI runs automatically
+# → Vercel creates preview URL (check PR comments)
+# → Review preview, get approval
+# → Merge to main = deploys to production
+```
 
 ## 🎨 Icons & Branding
 
@@ -123,7 +144,41 @@ node scripts/generate-icons.js
 
 See [ICONS.md](ICONS.md) for detailed instructions.
 
-## 🚀 Ready to Launch?
+## � CI/CD & Workflows
+
+### GitHub Actions
+Every PR automatically runs:
+- ✅ ESLint + TypeScript checks
+- ✅ Build validation
+- ✅ Content validation (frontmatter, drafts)
+- ✅ Dependency security review
+
+### Vercel Deployments
+- **Production** (`main` branch): https://www.brianstechcorner.com
+- **PR Previews**: Unique URL for each pull request
+
+### Recommended Git Flow
+
+```bash
+# Feature development
+git checkout -b feature/new-post
+# ... make changes ...
+git push origin feature/new-post
+
+# Open PR to main → CI runs → Vercel creates preview
+# Review preview URL → Get approval → Merge
+# → Automatically deploys to www.brianstechcorner.com
+```
+
+## 🔒 Branch Protection
+
+GitHub → Settings → Branches → Add rule for `main`:
+- ✅ Require pull request before merging
+- ✅ Require status checks: `Lint & Type Check`, `Build`, `Content Checks`, `vercel`
+- ✅ Require conversation resolution before merging
+- This prevents accidental direct pushes to production
+
+## �🚀 Ready to Launch?
 
 Follow the [PRE-LAUNCH.md](PRE-LAUNCH.md) checklist to ensure everything is ready:
 - [ ] Icons generated
