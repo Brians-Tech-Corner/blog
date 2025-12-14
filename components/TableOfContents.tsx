@@ -35,13 +35,20 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       { rootMargin: '-20% 0% -35% 0%' },
     );
 
-    // Observe all headings
+    // Observe all headings and keep track of observed elements
+    const observedElements: Element[] = [];
     headings.forEach(({ id }) => {
       const element = document.getElementById(id);
-      if (element) observer.observe(element);
+      if (element) {
+        observer.observe(element);
+        observedElements.push(element);
+      }
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observedElements.forEach((element) => observer.unobserve(element));
+      observer.disconnect();
+    };
   }, [headings]);
 
   if (headings.length === 0) return null;
