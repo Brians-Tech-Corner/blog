@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BlogSidebar } from './BlogSidebar';
 
@@ -42,7 +42,7 @@ describe('BlogSidebar', () => {
   describe('Tag filters section', () => {
     it('renders all tags', () => {
       vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams() as any);
-      const { container } = render(<BlogSidebar {...mockProps} />);
+      render(<BlogSidebar {...mockProps} />);
       const tagsSection = screen.getByText('Tags').closest('div');
       expect(tagsSection?.textContent).toContain('React');
       expect(tagsSection?.textContent).toContain('TypeScript');
@@ -67,7 +67,7 @@ describe('BlogSidebar', () => {
       const params = new URLSearchParams();
       params.set('tag', 'React');
       vi.mocked(useSearchParams).mockReturnValue(params as any);
-      const { container } = render(<BlogSidebar {...mockProps} />);
+      render(<BlogSidebar {...mockProps} />);
       const tagsSection = screen.getByText('Tags').closest('div');
       const reactLink = tagsSection?.querySelector('a[href="/blog?tag=React"]');
       expect(reactLink).toHaveClass('border-zinc-900', 'bg-zinc-900', 'text-white');
@@ -77,7 +77,7 @@ describe('BlogSidebar', () => {
       const params = new URLSearchParams();
       params.set('tag', 'React');
       vi.mocked(useSearchParams).mockReturnValue(params as any);
-      const { container } = render(<BlogSidebar {...mockProps} />);
+      render(<BlogSidebar {...mockProps} />);
       const tagsSection = screen.getByText('Tags').closest('div');
       const typeScriptLink = tagsSection?.querySelector('a[href="/blog?tag=TypeScript"]');
       expect(typeScriptLink).toHaveClass('border-zinc-200', 'bg-white', 'text-zinc-800');
@@ -85,17 +85,15 @@ describe('BlogSidebar', () => {
 
     it('does not render tags section when no tags exist', () => {
       vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams() as any);
-      const { container } = render(
-        <BlogSidebar {...mockProps} allTags={[]} />
-      );
-      expect(container.textContent).not.toContain('Tags');
+      render(<BlogSidebar {...mockProps} allTags={[]} />);
+      expect(screen.queryByText('Tags')).not.toBeInTheDocument();
     });
   });
 
   describe('URL building logic', () => {
     it('builds URL with only tag parameter', () => {
       vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams() as any);
-      const { container } = render(<BlogSidebar {...mockProps} />);
+      render(<BlogSidebar {...mockProps} />);
       // Find the Tags section
       const tagsSection = screen.getByText('Tags').closest('div');
       const reactLink = tagsSection?.querySelector('a[href="/blog?tag=React"]');
@@ -106,7 +104,7 @@ describe('BlogSidebar', () => {
       const params = new URLSearchParams();
       params.set('q', 'test query');
       vi.mocked(useSearchParams).mockReturnValue(params as any);
-      const { container } = render(<BlogSidebar {...mockProps} />);
+      render(<BlogSidebar {...mockProps} />);
       // Find the Tags section
       const tagsSection = screen.getByText('Tags').closest('div');
       const reactLink = tagsSection?.querySelector('a[href="/blog?q=test+query&tag=React"]');
@@ -134,7 +132,7 @@ describe('BlogSidebar', () => {
 
     it('builds URL with tag in popular topics section', () => {
       vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams() as any);
-      const { container } = render(<BlogSidebar {...mockProps} />);
+      render(<BlogSidebar {...mockProps} />);
       // Find the Popular Topics section
       const popularSection = screen.getByText('Popular Topics').closest('div');
       const popularTopicLink = popularSection?.querySelector('a[href="/blog?tag=React"]');
@@ -155,10 +153,8 @@ describe('BlogSidebar', () => {
 
     it('does not render archives section when no archives exist', () => {
       vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams() as any);
-      const { container } = render(
-        <BlogSidebar {...mockProps} archivesByYear={[]} />
-      );
-      expect(container.textContent).not.toContain('Archives');
+      render(<BlogSidebar {...mockProps} archivesByYear={[]} />);
+      expect(screen.queryByText('Archives')).not.toBeInTheDocument();
     });
   });
 
@@ -216,9 +212,9 @@ describe('BlogSidebar', () => {
           allTags={['React & Redux', 'C++']}
         />
       );
-      // Get all occurrences and check the first one (in the Tags section)
-      const reactReduxLinks = screen.getAllByText('React & Redux');
-      const reactReduxLink = reactReduxLinks[0].closest('a');
+      // Find the Tags section and check the link there
+      const tagsSection = screen.getByText('Tags').closest('div');
+      const reactReduxLink = tagsSection?.querySelector('a[href*="React"]');
       expect(reactReduxLink).toHaveAttribute('href', '/blog?tag=React+%26+Redux');
     });
   });
