@@ -92,15 +92,11 @@ export default async function BlogIndexPage({
         {/* Sticky Sidebar - Hidden on mobile, visible on lg+ screens */}
         <div className="hidden lg:block lg:w-80">
           <div className="sticky top-6">
-            <Suspense
-              fallback={<div className="h-96 animate-pulse rounded-xl bg-zinc-100" />}
-            >
-              <BlogSidebar
-                allTags={allTags}
-                postCount={allPosts.length}
-                archivesByYear={archivesByYear}
-              />
-            </Suspense>
+            <BlogSidebar
+              allTags={allTags}
+              postCount={allPosts.length}
+              archivesByYear={archivesByYear}
+            />
           </div>
         </div>
 
