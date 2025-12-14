@@ -135,7 +135,6 @@ describe('TableOfContents', () => {
 
     // Get the link elements
     const firstLink = screen.getByText('First Heading').closest('a');
-    const secondLink = screen.getByText('Second Heading').closest('a');
 
     // Initially, no heading should be active (highlighted)
     expect(firstLink).toHaveClass('text-zinc-600');
@@ -149,7 +148,10 @@ describe('TableOfContents', () => {
       };
 
       await act(async () => {
-        observeCallback([mockEntry as IntersectionObserverEntry], {} as IntersectionObserver);
+        observeCallback(
+          [mockEntry as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        );
       });
 
       // Wait for state update
