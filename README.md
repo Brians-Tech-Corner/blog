@@ -165,7 +165,7 @@ GitHub → Settings → Branches → Add rule for `main`:
 - ✅ Require conversation resolution before merging
 - This prevents accidental direct pushes to production
 
-## �🚀 Ready to Launch?
+## 🚀 Ready to Launch?
 
 Follow the [PRE-LAUNCH.md](PRE-LAUNCH.md) checklist to ensure everything is ready:
 - [ ] Icons generated
