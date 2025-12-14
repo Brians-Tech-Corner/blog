@@ -9,10 +9,10 @@ export const metadata = {
 export default async function BlogIndexPage({
   searchParams,
 }: {
-  searchParams: { tag?: string };
+  searchParams: Promise<{ tag?: string }>;
 }) {
   const allPosts = await getAllPosts();
-  const selectedTag = searchParams.tag;
+  const { tag: selectedTag } = await searchParams;
 
   // Filter by tag if provided
   const posts = selectedTag

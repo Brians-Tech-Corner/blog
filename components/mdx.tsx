@@ -1,8 +1,8 @@
-import type { MDXComponents } from 'mdx/types';
 import Link from 'next/link';
 import { Callout } from '@/components/Callout';
+import type { ComponentPropsWithoutRef } from 'react';
 
-export const mdxComponents: MDXComponents = {
+export const mdxComponents: Record<string, React.ComponentType<any>> = {
   a: (props) => {
     const href = String(props.href ?? '');
     const isInternal = href.startsWith('/') || href.startsWith('#');

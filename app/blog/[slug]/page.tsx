@@ -12,12 +12,13 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = await compilePostBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await compilePostBySlug(slug);
   if (!post) return {};
 
   const { meta } = post;
-  const postUrl = `${siteUrl}/blog/${params.slug}`;
+  const postUrl = `${siteUrl}/blog/${slug}`;
   const ogImage = meta.image ? `${siteUrl}${meta.image}` : `${siteUrl}/brand/X-Banner-Black.jpg`;
 
   return {
@@ -42,8 +43,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
 
   const post = await compilePostBySlug(slug);
   if (!post) return notFound();
