@@ -157,19 +157,6 @@ Every PR automatically runs:
 - **Production** (`main` branch): https://www.brianstechcorner.com
 - **PR Previews**: Unique URL for each pull request
 
-### Recommended Git Flow
-
-```bash
-# Feature development
-git checkout -b feature/new-post
-# ... make changes ...
-git push origin feature/new-post
-
-# Open PR to main → CI runs → Vercel creates preview
-# Review preview URL → Get approval → Merge
-# → Automatically deploys to www.brianstechcorner.com
-```
-
 ## 🔒 Branch Protection
 
 GitHub → Settings → Branches → Add rule for `main`:
