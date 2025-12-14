@@ -4,7 +4,6 @@ import matter from 'gray-matter';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import rehypePrism from 'rehype-prism-plus';
 import remarkGfm from 'remark-gfm';
-import removeMd from 'remove-markdown';
 import { mdxComponents } from '@/components/mdx';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
