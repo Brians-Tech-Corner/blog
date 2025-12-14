@@ -17,7 +17,15 @@ export type PostMeta = {
   image?: string; // OpenGraph image path
 };
 
-export type PostListItem = PostMeta & { slug: string };
+export type PostListItem = PostMeta & { slug: string; readTime?: number };
+
+// Calculate estimated read time in minutes
+function calculateReadTime(content: string): number {
+  const wordsPerMinute = 200;
+  const words = content.trim().split(/\s+/).length;
+  const minutes = Math.ceil(words / wordsPerMinute);
+  return Math.max(1, minutes); // At least 1 minute
+}
 
 async function readPostFile(slug: string) {
   const filePath = path.join(BLOG_DIR, `${slug}.mdx`);
@@ -27,9 +35,7 @@ async function readPostFile(slug: string) {
 
 export async function getAllPostSlugs(): Promise<string[]> {
   const files = await fs.readdir(BLOG_DIR);
-  return files
-    .filter((f) => f.endsWith('.mdx'))
-    .map((f) => f.replace(/\.mdx$/, ''));
+  return files.filter((f) => f.endsWith('.mdx')).map((f) => f.replace(/\.mdx$/, ''));
 }
 
 export async function getAllPosts(includeDrafts = false): Promise<PostListItem[]> {
@@ -37,28 +43,24 @@ export async function getAllPosts(includeDrafts = false): Promise<PostListItem[]
   const posts = await Promise.all(
     slugs.map(async (slug) => {
       const raw = await readPostFile(slug);
-      const { data } = matter(raw);
+      const { data, content } = matter(raw);
       const meta = data as PostMeta;
-      return { ...meta, slug };
+      const readTime = calculateReadTime(content);
+      return { ...meta, slug, readTime };
     }),
   );
 
   // Filter out drafts unless explicitly included
-  const filtered = includeDrafts
-    ? posts
-    : posts.filter((p) => !p.draft);
+  const filtered = includeDrafts ? posts : posts.filter((p) => !p.draft);
 
   // newest first
   return filtered.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-export async function compilePostBySlug(slug: string): Promise<
-  | {
-      meta: PostMeta & { slug: string };
-      content: React.ReactNode;
-    }
-  | null
-> {
+export async function compilePostBySlug(slug: string): Promise<{
+  meta: PostMeta & { slug: string };
+  content: React.ReactNode;
+} | null> {
   try {
     const raw = await readPostFile(slug);
     const { data, content } = matter(raw);

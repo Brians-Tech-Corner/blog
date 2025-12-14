@@ -24,8 +24,14 @@ describe('PostCard', () => {
 
   it('renders formatted date', () => {
     render(<PostCard post={mockPost} />);
-    // The PostCard renders date in format like "12/13/2025"
-    expect(screen.getByText(/\d{1,2}\/\d{1,2}\/\d{4}/)).toBeInTheDocument();
+    // The PostCard renders date in format like "Dec 14, 2025"
+    expect(screen.getByText(/[A-Z][a-z]{2} \d{1,2}, \d{4}/)).toBeInTheDocument();
+  });
+
+  it('renders read time when present', () => {
+    const postWithReadTime = { ...mockPost, readTime: 5 };
+    render(<PostCard post={postWithReadTime} />);
+    expect(screen.getByText(/5 min read/)).toBeInTheDocument();
   });
 
   it('renders tags when present', () => {

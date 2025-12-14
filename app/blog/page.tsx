@@ -1,6 +1,7 @@
-import Link from 'next/link';
+import { Suspense } from 'react';
 import { getAllPosts } from '@/lib/posts';
 import { PostCard } from '@/components/PostCard';
+import { BlogSidebar } from '@/components/BlogSidebar';
 
 export const metadata = {
   title: 'Blog',
@@ -16,7 +17,7 @@ export default async function BlogIndexPage({
 
   // Filter by search query and tag
   let posts = allPosts;
-  
+
   // Apply search filter
   if (searchQuery && searchQuery.trim()) {
     const query = searchQuery.toLowerCase();
@@ -27,16 +28,31 @@ export default async function BlogIndexPage({
       return titleMatch || descMatch || tagMatch;
     });
   }
-  
+
   // Apply tag filter
   if (selectedTag) {
     posts = posts.filter((p) => p.tags?.includes(selectedTag));
   }
 
   // Get all unique tags from all posts
-  const allTags = Array.from(
-    new Set(allPosts.flatMap((p) => p.tags ?? []))
-  ).sort();
+  const allTags = Array.from(new Set(allPosts.flatMap((p) => p.tags ?? []))).sort();
+
+  // Calculate archives by year
+  const archivesByYear = allPosts
+    .reduce(
+      (acc, post) => {
+        const year = new Date(post.date).getFullYear().toString();
+        const existing = acc.find((a) => a.year === year);
+        if (existing) {
+          existing.count++;
+        } else {
+          acc.push({ year, count: 1 });
+        }
+        return acc;
+      },
+      [] as { year: string; count: number }[],
+    )
+    .sort((a, b) => b.year.localeCompare(a.year));
 
   return (
     <div className="space-y-6">
@@ -71,57 +87,75 @@ export default async function BlogIndexPage({
         </svg>
       </form>
 
-      {/* Tag filters */}
-      {allTags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-zinc-600">Filter by tag:</span>
-          <Link
-            href={searchQuery ? `/blog?q=${encodeURIComponent(searchQuery)}` : '/blog'}
-            className={`rounded-full border px-3 py-1 text-sm transition ${
-              !selectedTag
-                ? 'border-zinc-900 bg-zinc-900 text-white'
-                : 'border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50'
-            }`}
-          >
-            All
-          </Link>
-          {allTags.map((tag) => {
-            const href = searchQuery
-              ? `/blog?q=${encodeURIComponent(searchQuery)}&tag=${encodeURIComponent(tag)}`
-              : `/blog?tag=${encodeURIComponent(tag)}`;
-            return (
-              <Link
-                key={tag}
-                href={href}
-                className={`rounded-full border px-3 py-1 text-sm transition ${
-                  selectedTag === tag
-                    ? 'border-zinc-900 bg-zinc-900 text-white'
-                    : 'border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50'
-                }`}
-              >
-                {tag}
-              </Link>
-            );
-          })}
+      {/* Two-column layout: Sidebar + Content */}
+      <div className="flex flex-col gap-8 lg:flex-row">
+        {/* Sticky Sidebar - Hidden on mobile, visible on lg+ screens */}
+        <div className="hidden lg:block lg:w-80">
+          <div className="sticky top-6">
+            <Suspense
+              fallback={<div className="h-96 animate-pulse rounded-xl bg-zinc-100" />}
+            >
+              <BlogSidebar
+                allTags={allTags}
+                postCount={allPosts.length}
+                archivesByYear={archivesByYear}
+              />
+            </Suspense>
+          </div>
         </div>
-      )}
 
-      {/* Posts grid */}
-      {posts.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          {posts.map((p) => (
-            <PostCard key={p.slug} post={p} />
-          ))}
+        {/* Main Content Area */}
+        <div className="flex-1 space-y-6">
+          {/* Mobile Tag Filters (shown only on small screens) */}
+          <div className="lg:hidden">
+            {allTags.length > 0 && (
+              <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                  Filter by Tag
+                </h3>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {allTags.map((tag) => {
+                    const isSelected = selectedTag === tag;
+                    const href = searchQuery
+                      ? `/blog?q=${encodeURIComponent(searchQuery)}&tag=${encodeURIComponent(tag)}`
+                      : `/blog?tag=${encodeURIComponent(tag)}`;
+                    return (
+                      <a
+                        key={tag}
+                        href={href}
+                        className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                          isSelected
+                            ? 'border-zinc-900 bg-zinc-900 text-white'
+                            : 'border-zinc-200 bg-white text-zinc-800'
+                        }`}
+                      >
+                        {tag}
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Posts grid */}
+          {posts.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-1">
+              {posts.map((p) => (
+                <PostCard key={p.slug} post={p} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-8 text-center text-zinc-600">
+              {searchQuery && selectedTag
+                ? `No posts found matching "${searchQuery}" with tag "${selectedTag}"`
+                : searchQuery
+                  ? `No posts found matching "${searchQuery}"`
+                  : `No posts found with tag "${selectedTag}"`}
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-8 text-center text-zinc-600">
-          {searchQuery && selectedTag
-            ? `No posts found matching "${searchQuery}" with tag "${selectedTag}"`
-            : searchQuery
-            ? `No posts found matching "${searchQuery}"`
-            : `No posts found with tag "${selectedTag}"`}
-        </div>
-      )}
+      </div>
     </div>
   );
 }
