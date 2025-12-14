@@ -2,6 +2,7 @@
 
 ![CI](https://github.com/Brians-Tech-Corner/blog/actions/workflows/ci.yml/badge.svg)
 ![Deployment](https://img.shields.io/badge/deployed%20on-Vercel-black)
+[![codecov](https://codecov.io/gh/Brians-Tech-Corner/blog/branch/main/graph/badge.svg)](https://codecov.io/gh/Brians-Tech-Corner/blog)
 
 A developer-first blog for **brianstechcorner.com** using:
 
@@ -92,7 +93,7 @@ Your content here...
 
 ## Testing
 
-This project uses [Vitest](https://vitest.dev/) for unit and component testing.
+This project uses [Vitest](https://vitest.dev/) for unit and component testing with [Codecov](https://codecov.io) for coverage tracking.
 
 ```bash
 # Run tests once
@@ -116,7 +117,9 @@ make test-coverage
 pnpm test:coverage
 ```
 
-Tests are co-located with the code (`*.test.tsx`). See [docs/TESTING.md](docs/TESTING.md) for detailed testing guide.
+**Coverage:** Open `coverage/index.html` after running coverage to see detailed reports.
+
+Tests are co-located with the code (`*.test.tsx`). See [docs/TESTING.md](docs/TESTING.md) for testing guide and [docs/CODECOV.md](docs/CODECOV.md) for coverage setup.
 
 ## Features
 

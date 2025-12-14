@@ -24,3 +24,7 @@ dist
 # editors
 .vscode
 .idea
+
+# test coverage
+coverage
+.nyc_output
