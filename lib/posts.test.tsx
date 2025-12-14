@@ -1,15 +1,15 @@
-import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getAllPosts, getAllPostSlugs } from './posts';
-import * as fs from 'node:fs/promises';
 
 // Mock the fs module
+const mockReaddir = vi.fn();
+const mockReadFile = vi.fn();
+
 vi.mock('node:fs/promises', () => ({
   default: {
-    readdir: vi.fn(),
-    readFile: vi.fn(),
+    readdir: mockReaddir,
+    readFile: mockReadFile,
   },
-  readdir: vi.fn(),
-  readFile: vi.fn(),
 }));
 
 describe('posts', () => {
@@ -25,7 +25,7 @@ describe('posts', () => {
         'README.md', // Should be filtered out
       ];
 
-      (fs.default.readdir as Mock).mockResolvedValue(mockFiles as any);
+      mockReaddir.mockResolvedValue(mockFiles as any);
 
       const slugs = await getAllPostSlugs();
 
@@ -36,7 +36,7 @@ describe('posts', () => {
     });
 
     it('should handle empty directory', async () => {
-      (fs.default.readdir as Mock).mockResolvedValue([] as any);
+      mockReaddir.mockResolvedValue([] as any);
 
       const slugs = await getAllPostSlugs();
 
@@ -61,8 +61,8 @@ draft: true
 
 Content here`;
 
-      (fs.default.readdir as Mock).mockResolvedValue(mockFiles as any);
-      (fs.default.readFile as Mock).mockResolvedValue(mockPostContent);
+      mockReaddir.mockResolvedValue(mockFiles as any);
+      mockReadFile.mockResolvedValue(mockPostContent);
 
       const posts = await getAllPosts();
 
@@ -81,8 +81,8 @@ draft: true
 
 Content here`;
 
-      (fs.default.readdir as Mock).mockResolvedValue(mockFiles as any);
-      (fs.default.readFile as Mock).mockResolvedValue(mockPostContent);
+      mockReaddir.mockResolvedValue(mockFiles as any);
+      mockReadFile.mockResolvedValue(mockPostContent);
 
       const posts = await getAllPosts(true);
 
@@ -100,8 +100,8 @@ Content here`;
         { date: '2025-06-15', content: 'middle' },
       ];
 
-      (fs.default.readdir as Mock).mockResolvedValue(mockFiles as any);
-      (fs.default.readFile as Mock).mockImplementation((path) => {
+      mockReaddir.mockResolvedValue(mockFiles as any);
+      mockReadFile.mockImplementation((path) => {
         const filename = path.toString().split('/').pop();
         const post = posts.find(p => filename?.includes(p.content));
         return Promise.resolve(`---
@@ -129,8 +129,8 @@ description: "Test"
 
 Content`;
 
-      (fs.default.readdir as Mock).mockResolvedValue(mockFiles as any);
-      (fs.default.readFile as Mock).mockResolvedValue(mockPostContent);
+      mockReaddir.mockResolvedValue(mockFiles as any);
+      mockReadFile.mockResolvedValue(mockPostContent);
 
       const posts = await getAllPosts();
 
