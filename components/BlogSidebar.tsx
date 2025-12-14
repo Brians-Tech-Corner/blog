@@ -7,19 +7,17 @@ type BlogSidebarProps = {
   allTags: string[];
   postCount: number;
   archivesByYear: { year: string; count: number }[];
-  selectedYear?: string;
 };
 
-export function BlogSidebar({ allTags, postCount, archivesByYear, selectedYear }: BlogSidebarProps) {
+export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarProps) {
   const searchParams = useSearchParams();
   const selectedTag = searchParams.get('tag');
   const searchQuery = searchParams.get('q');
 
-  const buildHref = (params: { tag?: string; q?: string; year?: string }) => {
+  const buildHref = (params: { tag?: string; q?: string }) => {
     const url = new URLSearchParams();
     if (params.q) url.set('q', params.q);
     if (params.tag) url.set('tag', params.tag);
-    if (params.year) url.set('year', params.year);
     return `/blog${url.toString() ? `?${url.toString()}` : ''}`;
   };
 
@@ -36,7 +34,7 @@ export function BlogSidebar({ allTags, postCount, archivesByYear, selectedYear }
             <span className="text-lg font-semibold text-zinc-900">{postCount}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-zinc-600">Categories</span>
+            <span className="text-sm text-zinc-600">Tags</span>
             <span className="text-lg font-semibold text-zinc-900">{allTags.length}</span>
           </div>
         </div>
@@ -86,27 +84,12 @@ export function BlogSidebar({ allTags, postCount, archivesByYear, selectedYear }
             Archives
           </h3>
           <div className="mt-4 space-y-2">
-            {archivesByYear.map(({ year, count }) => {
-              const isSelected = selectedYear === year;
-              return (
-                <Link
-                  key={year}
-                  href={buildHref({ 
-                    q: searchQuery || undefined, 
-                    tag: selectedTag || undefined,
-                    year 
-                  })}
-                  className={`flex items-center justify-between text-sm transition ${
-                    isSelected
-                      ? 'font-semibold text-zinc-900'
-                      : 'text-zinc-700 hover:text-zinc-900'
-                  }`}
-                >
-                  <span>{year}</span>
-                  <span className="text-zinc-500">({count})</span>
-                </Link>
-              );
-            })}
+            {archivesByYear.map(({ year, count }) => (
+              <div key={year} className="flex items-center justify-between text-sm">
+                <span className="text-zinc-800 hover:text-zinc-900">{year}</span>
+                <span className="text-zinc-500">({count})</span>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -117,20 +100,12 @@ export function BlogSidebar({ allTags, postCount, archivesByYear, selectedYear }
           Popular Topics
         </h3>
         <div className="mt-4 flex flex-wrap gap-2">
-          {allTags.slice(0, 6).map((tag, idx) => {
-            const sizes = [
-              'text-base',
-              'text-sm',
-              'text-lg',
-              'text-sm',
-              'text-base',
-              'text-xs',
-            ];
+          {allTags.slice(0, 6).map((tag) => {
             return (
               <Link
                 key={tag}
                 href={buildHref({ tag })}
-                className={`${sizes[idx]} font-medium text-blue-600 hover:text-blue-800 hover:underline`}
+                className="text-base font-medium text-blue-600 hover:text-blue-800 hover:underline"
               >
                 {tag}
               </Link>
