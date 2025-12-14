@@ -4,6 +4,7 @@ import matter from 'gray-matter';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import rehypePrism from 'rehype-prism-plus';
 import remarkGfm from 'remark-gfm';
+import removeMd from 'remove-markdown';
 import { mdxComponents } from '@/components/mdx';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
@@ -22,7 +23,9 @@ export type PostListItem = PostMeta & { slug: string; readTime?: number };
 // Calculate estimated read time in minutes
 function calculateReadTime(content: string): number {
   const wordsPerMinute = 200;
-  const words = content.trim().split(/\s+/).length;
+  // Strip markdown/MDX syntax to get plain text for accurate word count
+  const plainText = removeMd(content);
+  const words = plainText.trim().split(/\s+/).length;
   const minutes = Math.ceil(words / wordsPerMinute);
   return Math.max(1, minutes); // At least 1 minute
 }
