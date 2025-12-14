@@ -91,7 +91,11 @@ export function BlogSidebar({ allTags, postCount, archivesByYear, selectedYear }
               return (
                 <Link
                   key={year}
-                  href={buildHref({ q: searchQuery || undefined, year })}
+                  href={buildHref({ 
+                    q: searchQuery || undefined, 
+                    tag: selectedTag || undefined,
+                    year 
+                  })}
                   className={`flex items-center justify-between text-sm transition ${
                     isSelected
                       ? 'font-semibold text-zinc-900'
