@@ -12,30 +12,49 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 
   useEffect(() => {
     // Track which heading is currently in view
+    const visibleHeadings = new Set<string>();
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          const id = entry.target.id;
           if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
+            visibleHeadings.add(id);
+          } else {
+            visibleHeadings.delete(id);
           }
         });
+        // Find the topmost visible heading according to the order in `headings`
+        const firstVisible = headings.find(h => visibleHeadings.has(h.id));
+        if (firstVisible) {
+          setActiveId(firstVisible.id);
+        } else if (headings.length > 0) {
+          // If none are visible (e.g., scrolled above first heading), set to first heading
+          setActiveId(headings[0].id);
+        }
       },
       { rootMargin: '-20% 0% -35% 0%' },
     );
 
-    // Observe all headings
+    // Observe all headings and keep track of observed elements
+    const observedElements: Element[] = [];
     headings.forEach(({ id }) => {
       const element = document.getElementById(id);
-      if (element) observer.observe(element);
+      if (element) {
+        observer.observe(element);
+        observedElements.push(element);
+      }
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observedElements.forEach((element) => observer.unobserve(element));
+      observer.disconnect();
+    };
   }, [headings]);
 
   if (headings.length === 0) return null;
 
   return (
-    <nav className="sticky top-24 hidden max-h-[calc(100vh-8rem)] overflow-y-auto lg:block">
+    <nav className="sticky top-24 hidden max-h-[calc(100vh-8rem)] overflow-y-auto lg:block" aria-label="Table of contents">
       <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
           On This Page
