@@ -64,8 +64,8 @@ export default async function BlogIndexPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Blog</h1>
-        <p className="mt-2 max-w-prose text-zinc-700">
+        <h1 className="text-3xl font-semibold tracking-tight dark:text-zinc-100">Blog</h1>
+        <p className="mt-2 max-w-prose text-zinc-700 dark:text-zinc-300">
           Practical guides and build logs. Mostly homelab, automation, DevOps, and coding.
         </p>
       </div>
@@ -77,10 +77,10 @@ export default async function BlogIndexPage({
           name="q"
           defaultValue={searchQuery}
           placeholder="Search posts by title, description, or tags..."
-          className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 pr-10 text-sm placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+          className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 pr-10 text-sm placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600"
         />
         <svg
-          className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400"
+          className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -112,8 +112,8 @@ export default async function BlogIndexPage({
           {/* Mobile Tag Filters (shown only on small screens) */}
           <div className="lg:hidden">
             {allTags.length > 0 && (
-              <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+              <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                   Filter by Tag
                 </h3>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -128,8 +128,8 @@ export default async function BlogIndexPage({
                         href={href}
                         className={`rounded-full border px-3 py-1.5 text-sm transition ${
                           isSelected
-                            ? 'border-zinc-900 bg-zinc-900 text-white'
-                            : 'border-zinc-200 bg-white text-zinc-800'
+                            ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900'
+                            : 'border-zinc-200 bg-white text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200'
                         }`}
                       >
                         {tag}
@@ -149,7 +149,7 @@ export default async function BlogIndexPage({
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-8 text-center text-zinc-600">
+            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-8 text-center text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
               {searchQuery && selectedTag
                 ? `No posts found matching "${searchQuery}" with tag "${selectedTag}"`
                 : searchQuery
