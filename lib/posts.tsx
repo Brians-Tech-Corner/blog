@@ -23,9 +23,7 @@ export type PostListItem = PostMeta & { slug: string; readTime?: number };
 // Calculate estimated read time in minutes
 function calculateReadTime(content: string): number {
   const wordsPerMinute = 200;
-  // Strip markdown/MDX syntax to get plain text for accurate word count
-  const plainText = removeMd(content);
-  const words = plainText.trim().split(/\s+/).length;
+  const words = content.trim().split(/\s+/).length;
   const minutes = Math.ceil(words / wordsPerMinute);
   return Math.max(1, minutes); // At least 1 minute
 }
