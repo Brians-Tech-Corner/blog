@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { getAllPosts } from '@/lib/posts';
 import { PostCard } from '@/components/PostCard';
 import { BlogSidebar } from '@/components/BlogSidebar';
@@ -92,15 +91,11 @@ export default async function BlogIndexPage({
         {/* Sticky Sidebar - Hidden on mobile, visible on lg+ screens */}
         <div className="hidden lg:block lg:w-80">
           <div className="sticky top-6">
-            <Suspense
-              fallback={<div className="h-96 animate-pulse rounded-xl bg-zinc-100" />}
-            >
-              <BlogSidebar
-                allTags={allTags}
-                postCount={allPosts.length}
-                archivesByYear={archivesByYear}
-              />
-            </Suspense>
+            <BlogSidebar
+              allTags={allTags}
+              postCount={allPosts.length}
+              archivesByYear={archivesByYear}
+            />
           </div>
         </div>
 
@@ -140,7 +135,7 @@ export default async function BlogIndexPage({
 
           {/* Posts grid */}
           {posts.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-1">
+            <div className="grid gap-6">
               {posts.map((p) => (
                 <PostCard key={p.slug} post={p} />
               ))}
