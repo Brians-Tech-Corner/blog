@@ -110,7 +110,7 @@ jobs:
       - name: Build application
         run: pnpm build
         env:
-          NEXT_PUBLIC_SITE_URL: https://brianstechcorner.com
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
