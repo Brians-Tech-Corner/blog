@@ -103,6 +103,7 @@ export default async function BlogIndexPage({
               allTags={allTags}
               postCount={allPosts.length}
               archivesByYear={archivesByYear}
+              selectedYear={selectedYear}
             />
           </div>
         </div>
