@@ -12,13 +12,25 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 
   useEffect(() => {
     // Track which heading is currently in view
+    const visibleHeadings = new Set<string>();
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          const id = entry.target.id;
           if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
+            visibleHeadings.add(id);
+          } else {
+            visibleHeadings.delete(id);
           }
         });
+        // Find the topmost visible heading according to the order in `headings`
+        const firstVisible = headings.find(h => visibleHeadings.has(h.id));
+        if (firstVisible) {
+          setActiveId(firstVisible.id);
+        } else if (headings.length > 0) {
+          // If none are visible (e.g., scrolled above first heading), set to first heading
+          setActiveId(headings[0].id);
+        }
       },
       { rootMargin: '-20% 0% -35% 0%' },
     );
