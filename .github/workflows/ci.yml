@@ -142,13 +142,7 @@ jobs:
       - name: Validate frontmatter
         run: |
           echo "Checking all MDX files have required frontmatter..."
-          shopt -s nullglob
-          files=(content/blog/*.mdx)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "ℹ️ No MDX files found in content/blog/"
-            exit 0
-          fi
-          for file in "${files[@]}"; do
+          for file in content/blog/*.mdx; do
             if ! grep -q "^title:" "$file"; then
               echo "❌ Missing title in $file"
               exit 1

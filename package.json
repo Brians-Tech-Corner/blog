@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs --max-warnings=0",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "validate": "node scripts/validate.cjs",
@@ -17,6 +17,8 @@
   "dependencies": {
     "@mdx-js/react": "^3.1.1",
     "@next/mdx": "^16.0.10",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.0.10",
     "gray-matter": "^4.0.3",
     "next": "^16.0.10",
     "next-mdx-remote": "^5.0.0",
@@ -27,18 +29,22 @@
     "slugify": "^1.6.6"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/js": "^9.39.2",
     "@mdx-js/loader": "^3.1.1",
+    "@next/eslint-plugin-next": "^16.0.10",
     "@tailwindcss/typography": "^0.5.13",
     "@types/node": "^20.14.10",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.20",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "^16.0.10",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "postcss": "^8.4.41",
     "prettier": "^3.3.3",
     "sharp": "^0.34.5",
     "tailwindcss": "^3.4.10",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.49.0"
   }
 }

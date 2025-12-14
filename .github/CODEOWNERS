@@ -1,22 +1,22 @@
 # Default owner for everything
-* @Brians-Tech-Corner
+* @brian
 
 # Blog content
-/content/blog/ @Brians-Tech-Corner
+/content/blog/ @brian
 
 # Core application code
-/app/ @Brians-Tech-Corner
-/components/ @Brians-Tech-Corner
-/lib/ @Brians-Tech-Corner
+/app/ @brian
+/components/ @brian
+/lib/ @brian
 
 # Configuration files (extra scrutiny)
-package.json @Brians-Tech-Corner
-next.config.mjs @Brians-Tech-Corner
-tsconfig.json @Brians-Tech-Corner
-tailwind.config.ts @Brians-Tech-Corner
+package.json @brian
+next.config.mjs @brian
+tsconfig.json @brian
+tailwind.config.ts @brian
 
 # CI/CD workflows
-/.github/ @Brians-Tech-Corner
+/.github/ @brian
 
 # Documentation
-*.md @Brians-Tech-Corner
+*.md @brian
