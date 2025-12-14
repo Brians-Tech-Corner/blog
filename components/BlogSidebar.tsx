@@ -13,11 +13,13 @@ export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarP
   const searchParams = useSearchParams();
   const selectedTag = searchParams.get('tag');
   const searchQuery = searchParams.get('q');
+  const selectedYear = searchParams.get('year');
 
-  const buildHref = (params: { tag?: string; q?: string }) => {
+  const buildHref = (params: { tag?: string; q?: string; year?: string }) => {
     const url = new URLSearchParams();
     if (params.q) url.set('q', params.q);
     if (params.tag) url.set('tag', params.tag);
+    if (params.year) url.set('year', params.year);
     return `/blog${url.toString() ? `?${url.toString()}` : ''}`;
   };
 
@@ -84,12 +86,23 @@ export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarP
             Archives
           </h3>
           <div className="mt-4 space-y-2">
-            {archivesByYear.map(({ year, count }) => (
-              <div key={year} className="flex items-center justify-between text-sm">
-                <span className="text-zinc-800 hover:text-zinc-900">{year}</span>
-                <span className="text-zinc-500">({count})</span>
-              </div>
-            ))}
+            {archivesByYear.map(({ year, count }) => {
+              const isSelected = selectedYear === year;
+              return (
+                <Link
+                  key={year}
+                  href={buildHref({ q: searchQuery || undefined, year })}
+                  className={`flex items-center justify-between text-sm transition ${
+                    isSelected
+                      ? 'font-semibold text-zinc-900'
+                      : 'text-zinc-800 hover:text-zinc-900'
+                  }`}
+                >
+                  <span>{year}</span>
+                  <span className="text-zinc-500">({count})</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
