@@ -18,8 +18,10 @@ export function extractTocHeadings(content: string): TocHeading[] {
   // Match h2 and h3 markdown headings
   const headingRegex = /^(#{2,3})\s+(.+)$/gm;
 
-  let match;
-  while ((match = headingRegex.exec(content)) !== null) {
+  // Extract all matches using matchAll for better readability
+  const matches = Array.from(content.matchAll(headingRegex));
+
+  for (const match of matches) {
     const level = match[1].length;
     const text = match[2].trim();
 
