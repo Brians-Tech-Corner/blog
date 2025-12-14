@@ -1,14 +1,6 @@
 import Link from 'next/link';
 import { getAllPosts } from '@/lib/posts';
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
+import { formatDate } from '@/lib/formatDate';
 
 const TOPICS = [
   { label: 'Homelab', tag: 'homelab' },
