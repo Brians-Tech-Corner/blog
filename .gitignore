@@ -30,3 +30,6 @@ dist
 # test coverage
 coverage
 .nyc_output
+
+# playwright
+test-results

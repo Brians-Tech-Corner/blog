@@ -136,5 +136,49 @@ Content`;
 
       expect(posts[0].slug).toBe('2025-12-14-my-post');
     });
+
+    it('should calculate read time based on plain text, not markdown syntax', async () => {
+      const mockFiles = ['post-with-markdown.mdx'];
+      // Content with markdown syntax: links, bold, italic, code blocks, etc.
+      // Plain text would be much shorter than raw content with all the syntax
+      const mockPostContent = `---
+title: "Post with Markdown"
+date: "2025-12-14"
+description: "Testing read time calculation"
+---
+
+## This is a heading
+
+This is **bold text** and this is *italic text*.
+
+Here's a [link](https://example.com) and some \`inline code\`.
+
+\`\`\`javascript
+function example() {
+  return "This is a code block";
+}
+\`\`\`
+
+<Callout type="info">
+This is a custom MDX component with some text inside.
+</Callout>
+
+- List item 1
+- List item 2
+- List item 3`;
+
+      vi.mocked(fs.readdir).mockResolvedValue(mockFiles as any);
+      vi.mocked(fs.readFile).mockResolvedValue(mockPostContent);
+
+      const posts = await getAllPosts();
+
+      // The readTime should be calculated based on the plain text content
+      // After stripping markdown, the word count should be much lower
+      expect(posts[0].readTime).toBeDefined();
+      expect(posts[0].readTime).toBeGreaterThan(0);
+      
+      // With ~50-60 plain words after stripping, should be 1 minute at 200 wpm
+      expect(posts[0].readTime).toBe(1);
+    });
   });
 });
