@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { getAllPosts } from '@/lib/posts';
 import { PostCard } from '@/components/PostCard';
 import { BlogSidebar } from '@/components/BlogSidebar';
