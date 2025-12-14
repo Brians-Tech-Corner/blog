@@ -100,20 +100,12 @@ export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarP
           Popular Topics
         </h3>
         <div className="mt-4 flex flex-wrap gap-2">
-          {allTags.slice(0, 6).map((tag, idx) => {
-            const sizes = [
-              'text-base',
-              'text-sm',
-              'text-lg',
-              'text-sm',
-              'text-base',
-              'text-xs',
-            ];
+          {allTags.slice(0, 6).map((tag) => {
             return (
               <Link
                 key={tag}
                 href={buildHref({ tag })}
-                className={`${sizes[idx]} font-medium text-blue-600 hover:text-blue-800 hover:underline`}
+                className="text-base font-medium text-blue-600 hover:text-blue-800 hover:underline"
               >
                 {tag}
               </Link>
