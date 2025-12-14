@@ -1,0 +1,26 @@
+# dependencies
+node_modules
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# next
+.next
+out
+
+# production
+dist
+
+# misc
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# editors
+.vscode
+.idea

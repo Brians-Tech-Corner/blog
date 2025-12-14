@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Prism styles (minimal, let the browser handle colors) */
+code[class*="language-"],
+pre[class*="language-"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.9rem;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  @apply bg-white text-zinc-900 antialiased;
+}
+
+/* nicer links */
+a {
+  @apply underline decoration-zinc-300 underline-offset-4 hover:decoration-zinc-600;
+}
