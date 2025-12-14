@@ -72,5 +72,77 @@ with no headings at all`;
 
       expect(headings).toEqual([]);
     });
+
+    it('should ignore headings inside code blocks', () => {
+      const content = `## Real Heading
+
+Some content here.
+
+\`\`\`markdown
+## Fake Heading in Code
+### Another Fake Heading
+\`\`\`
+
+## Another Real Heading`;
+
+      const headings = extractTocHeadings(content);
+
+      expect(headings).toEqual([
+        { id: 'real-heading', text: 'Real Heading', level: 2 },
+        { id: 'another-real-heading', text: 'Another Real Heading', level: 2 },
+      ]);
+    });
+
+    it('should ignore headings in multiple code blocks', () => {
+      const content = `## First Heading
+
+\`\`\`js
+// ## This is not a heading
+console.log("test");
+\`\`\`
+
+### Real Subheading
+
+\`\`\`python
+## Also not a heading
+### Neither is this
+\`\`\`
+
+## Second Heading`;
+
+      const headings = extractTocHeadings(content);
+
+      expect(headings).toEqual([
+        { id: 'first-heading', text: 'First Heading', level: 2 },
+        { id: 'real-subheading', text: 'Real Subheading', level: 3 },
+        { id: 'second-heading', text: 'Second Heading', level: 2 },
+      ]);
+    });
+
+    it('should handle code blocks with backticks at various positions', () => {
+      const content = `## Before Code
+
+\`\`\`
+## Inside Code Block
+\`\`\`
+
+## After Code
+
+Content here.
+
+\`\`\`bash
+### Command Example
+\`\`\`
+
+### Real Heading After`;
+
+      const headings = extractTocHeadings(content);
+
+      expect(headings).toEqual([
+        { id: 'before-code', text: 'Before Code', level: 2 },
+        { id: 'after-code', text: 'After Code', level: 2 },
+        { id: 'real-heading-after', text: 'Real Heading After', level: 3 },
+      ]);
+    });
   });
 });

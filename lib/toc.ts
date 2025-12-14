@@ -10,16 +10,21 @@ export type TocHeading = {
  * Extracts heading structure from MDX content for table of contents
  * Supports h2 and h3 headings
  * Uses github-slugger to match rehype-slug's ID generation
+ * Filters out headings within code blocks
  */
 export function extractTocHeadings(content: string): TocHeading[] {
   const headings: TocHeading[] = [];
   const slugger = new GithubSlugger();
 
+  // Remove code blocks first to avoid matching headings within them
+  // Match both fenced code blocks (```) and indented code blocks
+  const contentWithoutCodeBlocks = content.replace(/```[\s\S]*?```/g, '');
+
   // Match h2 and h3 markdown headings
   const headingRegex = /^(#{2,3})\s+(.+)$/gm;
 
   let match;
-  while ((match = headingRegex.exec(content)) !== null) {
+  while ((match = headingRegex.exec(contentWithoutCodeBlocks)) !== null) {
     const level = match[1].length;
     const text = match[2].trim();
 
