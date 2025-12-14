@@ -108,7 +108,7 @@ public/                 # Static assets
 scripts/                # Helper scripts
 ```
 
-## � Deployment Workflow
+## 🚀 Deployment Workflow
 
 ### Environments
 - **Production**: `www.brianstechcorner.com` (auto-deploys from `main` branch)
