@@ -108,7 +108,7 @@ public/                 # Static assets
 scripts/                # Helper scripts
 ```
 
-## � Deployment Workflow
+## 🚀 Deployment Workflow
 
 ### Environments
 - **Production**: `www.brianstechcorner.com` (auto-deploys from `main` branch)
@@ -157,19 +157,6 @@ Every PR automatically runs:
 - **Production** (`main` branch): https://www.brianstechcorner.com
 - **PR Previews**: Unique URL for each pull request
 
-### Recommended Git Flow
-
-```bash
-# Feature development
-git checkout -b feature/new-post
-# ... make changes ...
-git push origin feature/new-post
-
-# Open PR to main → CI runs → Vercel creates preview
-# Review preview URL → Get approval → Merge
-# → Automatically deploys to www.brianstechcorner.com
-```
-
 ## 🔒 Branch Protection
 
 GitHub → Settings → Branches → Add rule for `main`:
@@ -178,7 +165,7 @@ GitHub → Settings → Branches → Add rule for `main`:
 - ✅ Require conversation resolution before merging
 - This prevents accidental direct pushes to production
 
-## �🚀 Ready to Launch?
+## 🚀 Ready to Launch?
 
 Follow the [PRE-LAUNCH.md](PRE-LAUNCH.md) checklist to ensure everything is ready:
 - [ ] Icons generated
