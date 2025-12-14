@@ -144,7 +144,7 @@ node scripts/generate-icons.js
 
 See [ICONS.md](ICONS.md) for detailed instructions.
 
-## � CI/CD & Workflows
+## 🔄 CI/CD & Workflows
 
 ### GitHub Actions
 Every PR automatically runs:
