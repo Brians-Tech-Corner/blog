@@ -121,7 +121,7 @@ export function BlogSidebar({ allTags, postCount, archivesByYear, selectedYear }
             return (
               <Link
                 key={tag}
-                href={buildHref({ tag })}
+                href={buildHref({ q: searchQuery || undefined, tag })}
                 className="text-base font-medium text-blue-600 hover:text-blue-800 hover:underline"
               >
                 {tag}
