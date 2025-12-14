@@ -19,7 +19,7 @@ export function PostCard({ post }: { post: PostListItem }) {
       {/* Date and Read Time */}
       <div className="flex items-center gap-3 text-sm text-zinc-600">
         <div className="flex items-center gap-1.5">
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -38,6 +38,7 @@ export function PostCard({ post }: { post: PostListItem }) {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
