@@ -22,6 +22,12 @@ describe('PostCard', () => {
     expect(screen.getByText('This is a test description')).toBeInTheDocument();
   });
 
+  it('does not render description when absent', () => {
+    const postWithoutDescription = { ...mockPost, description: undefined };
+    render(<PostCard post={postWithoutDescription} />);
+    expect(screen.queryByText('This is a test description')).not.toBeInTheDocument();
+  });
+
   it('renders formatted date', () => {
     render(<PostCard post={mockPost} />);
     // The PostCard renders date in format like "Dec 14, 2025"
@@ -38,6 +44,15 @@ describe('PostCard', () => {
     render(<PostCard post={mockPost} />);
     expect(screen.getByText('test')).toBeInTheDocument();
     expect(screen.getByText('vitest')).toBeInTheDocument();
+  });
+
+  it('renders at most four tags when more are provided', () => {
+    const manyTagsPost = { ...mockPost, tags: ['t1', 't2', 't3', 't4', 't5', 't6'] };
+    render(<PostCard post={manyTagsPost} />);
+    expect(screen.getByText('t1')).toBeInTheDocument();
+    expect(screen.getByText('t4')).toBeInTheDocument();
+    expect(screen.queryByText('t5')).not.toBeInTheDocument();
+    expect(screen.queryByText('t6')).not.toBeInTheDocument();
   });
 
   it('renders without tags', () => {
@@ -69,6 +84,12 @@ describe('PostCard', () => {
     const seriesPost = { ...mockPost, series: 'kubernetes-homelab', seriesOrder: 2 };
     render(<PostCard post={seriesPost} />);
     expect(screen.getByText('Part 2')).toBeInTheDocument();
+  });
+
+  it("renders '?' for series badge when order is missing", () => {
+    const seriesPostNoOrder = { ...mockPost, series: 'kubernetes-homelab', seriesOrder: undefined };
+    render(<PostCard post={seriesPostNoOrder} />);
+    expect(screen.getByText('Part ?')).toBeInTheDocument();
   });
 
   it('does not render series badge when post is not in a series', () => {
