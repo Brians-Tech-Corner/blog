@@ -5,10 +5,11 @@ import { useState, useEffect } from 'react';
 interface SearchBarProps {
   onSearch: (query: string) => void;
   placeholder?: string;
+  initialQuery?: string;
 }
 
-export function SearchBar({ onSearch, placeholder = 'Search posts...' }: SearchBarProps) {
-  const [query, setQuery] = useState('');
+export function SearchBar({ onSearch, placeholder = 'Search posts...', initialQuery = '' }: SearchBarProps) {
+  const [query, setQuery] = useState(initialQuery);
 
   useEffect(() => {
     // Debounce search to avoid excessive filtering

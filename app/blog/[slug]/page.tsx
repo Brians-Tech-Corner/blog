@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { compilePostBySlug, getAllPostSlugs, getSeriesNavigation } from '@/lib/posts';
 import { Prose } from '@/components/Prose';
 import { PostMeta } from '@/components/PostMeta';
@@ -98,6 +99,20 @@ export default async function BlogPostPage({
       >
         <article className="min-w-0 space-y-8">
           <PostMeta post={post.meta} />
+
+          {/* Hero Image */}
+          {post.meta.image && (
+            <div className="relative aspect-[2/1] w-full overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
+              <Image
+                src={post.meta.image}
+                alt={post.meta.title}
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+              />
+            </div>
+          )}
 
           <Prose>{post.content}</Prose>
 

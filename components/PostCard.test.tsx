@@ -42,8 +42,21 @@ describe('PostCard', () => {
 
   it('renders without tags', () => {
     const postWithoutTags = { ...mockPost, tags: undefined };
-    const { container } = render(<PostCard post={postWithoutTags} />);
-    expect(container.querySelector('.tag')).not.toBeInTheDocument();
+    render(<PostCard post={postWithoutTags} />);
+    expect(screen.queryByText('test')).not.toBeInTheDocument();
+    expect(screen.queryByText('vitest')).not.toBeInTheDocument();
+  });
+
+  it('renders thumbnail image when image is provided', () => {
+    const postWithImage = { ...mockPost, image: '/images/hero.jpg' };
+    render(<PostCard post={postWithImage} />);
+    const img = screen.getByRole('img', { name: 'Test Post Title' });
+    expect(img).toBeInTheDocument();
+  });
+
+  it('does not render image when none provided', () => {
+    render(<PostCard post={mockPost} />);
+    expect(screen.queryByRole('img', { name: 'Test Post Title' })).not.toBeInTheDocument();
   });
 
   it('links to the correct post URL', () => {

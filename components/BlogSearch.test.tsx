@@ -40,7 +40,7 @@ describe('BlogSearch', () => {
     // Fast-forward debounce
     await vi.advanceTimersByTimeAsync(300);
     
-    expect(mockPush).toHaveBeenCalledWith('/blog?q=kubernetes');
+    expect(mockPush).toHaveBeenCalledWith('/blog?q=kubernetes', { scroll: false });
     
     vi.useRealTimers();
   });
@@ -48,6 +48,9 @@ describe('BlogSearch', () => {
   it('should navigate to /blog without query when cleared', async () => {
     vi.useFakeTimers();
     
+    // Start with an existing q so clearing triggers navigation
+    const existingQ = new URLSearchParams('q=kubernetes');
+    vi.mocked(useSearchParams).mockReturnValue(existingQ as any);
     render(<BlogSearch />);
     const input = screen.getByPlaceholderText(/Search posts/i);
     
@@ -57,7 +60,7 @@ describe('BlogSearch', () => {
     // Fast-forward debounce
     await vi.advanceTimersByTimeAsync(300);
     
-    expect(mockPush).toHaveBeenCalledWith('/blog');
+    expect(mockPush).toHaveBeenCalledWith('/blog', { scroll: false });
     
     vi.useRealTimers();
   });
@@ -78,7 +81,7 @@ describe('BlogSearch', () => {
     // Fast-forward debounce
     await vi.advanceTimersByTimeAsync(300);
     
-    expect(mockPush).toHaveBeenCalledWith('/blog?tag=kubernetes&q=homelab');
+    expect(mockPush).toHaveBeenCalledWith('/blog?tag=kubernetes&q=homelab', { scroll: false });
     
     vi.useRealTimers();
   });
