@@ -11,7 +11,7 @@ export async function generateStaticParams() {
   const isDev = process.env.NODE_ENV === 'development';
   const allPosts = await getAllPosts(isDev);
   const years = Array.from(new Set(allPosts.map((p) => new Date(p.date).getFullYear().toString()))).sort(
-    (a, b) => b.localeCompare(a),
+    (a, b) => Number(b) - Number(a),
   );
 
   return years.map((year) => ({
