@@ -24,7 +24,7 @@ export default async function ArchiveIndexPage() {
     {} as Record<string, typeof allPosts>,
   );
 
-  const sortedYears = Object.keys(archivesByYear).sort((a, b) => b.localeCompare(a));
+  const sortedYears = Object.keys(archivesByYear).sort((a, b) => Number(b) - Number(a));
 
   return (
     <div className="space-y-6">
