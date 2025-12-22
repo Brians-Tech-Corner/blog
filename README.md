@@ -111,7 +111,7 @@ image: "/post-images/2025-12-14-welcome.webp"
 
 Notes:
 - Images are optional. If omitted, posts render cleanly without them.
-- If `image` is set, it is used for the hero (post page), the thumbnail (card), and as the OG image (social sharing). If you want a fully custom social card, you can still provide `image` and we will use that instead of the dynamic OG image.
+- If `image` is set, that single image is used in three places: as the hero (post page), as the thumbnail (card), and as the OpenGraph (OG) image for social sharing. Setting `image` disables dynamic OG image generation for that post and uses the provided static image instead.
 
 
 ### Social Sharing (OpenGraph Images)
