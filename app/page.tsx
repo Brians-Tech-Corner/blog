@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getAllPosts } from '@/lib/posts';
 import { formatDate } from '@/lib/formatDate';
 
@@ -60,19 +61,31 @@ export default async function HomePage() {
 
           <Link
             href={`/blog/${featured.slug}`}
-            className="block rounded-2xl border border-zinc-200 p-6 transition hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            className="block overflow-hidden rounded-2xl border border-zinc-200 transition hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >
-            <div className="text-sm text-zinc-500 dark:text-zinc-400">
-              {formatDate(featured.date)}
-            </div>
-            <h3 className="mt-2 text-2xl font-semibold tracking-tight dark:text-zinc-100">
-              {featured.title}
-            </h3>
-            <p className="mt-2 text-zinc-600 dark:text-zinc-300">
-              {featured.description}
-            </p>
-            <div className="mt-4 text-sm font-medium text-zinc-800 dark:text-zinc-200">
-              Read the post →
+            {/* Featured image (optional) */}
+            {featured.image && (
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-900">
+                <Image
+                  src={featured.image}
+                  alt={featured.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+                />
+              </div>
+            )}
+            <div className="p-6">
+              <div className="text-sm text-zinc-500 dark:text-zinc-400">
+                {formatDate(featured.date)}
+              </div>
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight dark:text-zinc-100">
+                {featured.title}
+              </h3>
+              <p className="mt-2 text-zinc-600 dark:text-zinc-300">{featured.description}</p>
+              <div className="mt-4 text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                Read the post →
+              </div>
             </div>
           </Link>
         </section>
