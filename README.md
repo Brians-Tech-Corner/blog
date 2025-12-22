@@ -95,6 +95,37 @@ seriesOrder: 1
 Your content here...
 ```
 
+### Social Sharing (OpenGraph Images)
+
+Every post automatically gets a dynamic OpenGraph (OG) image for social media sharing (Twitter, LinkedIn, Discord, etc.). The image is generated on-demand with:
+- Your post title
+- Post description (if provided)
+- Branded "Brian's Tech Corner" design
+- Standard 1200x630 social sharing size
+
+**Automatic OG Images:**
+By default, posts use dynamically generated images based on the title and description:
+```
+/api/og?title=Your Post Title&description=Your description
+```
+
+**Custom OG Images:**
+To use a custom image instead, add the `image` field to frontmatter:
+```yaml
+---
+title: "My Post"
+date: "2025-12-15"
+image: "/images/custom-og.png"  # Use this instead of dynamic
+---
+```
+
+**Testing OG Images:**
+- **Locally:** Visit `http://localhost:3000/api/og?title=Test`
+- **Production:** Use social media card validators:
+  - Twitter: https://cards-dev.twitter.com/validator
+  - LinkedIn: https://www.linkedin.com/post-inspector/
+  - Facebook: https://developers.facebook.com/tools/debug/
+
 ## Testing
 
 This project uses [Vitest](https://vitest.dev/) for unit and component testing with [Codecov](https://codecov.io) for coverage tracking.

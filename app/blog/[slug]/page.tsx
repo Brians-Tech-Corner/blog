@@ -25,9 +25,18 @@ export async function generateMetadata({
 
   const { meta } = post;
   const postUrl = `${siteUrl}/blog/${slug}`;
+  
+  // Generate dynamic OG image URL with post title and description
+  const ogImageUrl = new URL(`${siteUrl}/api/og`);
+  ogImageUrl.searchParams.set('title', meta.title);
+  if (meta.description) {
+    ogImageUrl.searchParams.set('description', meta.description);
+  }
+  
+  // Use custom image if specified, otherwise use dynamic OG image
   const ogImage = meta.image
     ? `${siteUrl}${meta.image}`
-    : `${siteUrl}/brand/X-Banner-Black.jpg`;
+    : ogImageUrl.toString();
 
   return {
     title: meta.title,
