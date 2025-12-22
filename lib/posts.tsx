@@ -112,14 +112,15 @@ export async function getSeriesPosts(
 export async function getSeriesNavigation(
   slug: string,
 ): Promise<{ prev: PostListItem | null; next: PostListItem | null; allInSeries: PostListItem[] }> {
-  const allPosts = await getAllPosts();
+  const isDev = process.env.NODE_ENV === 'development';
+  const allPosts = await getAllPosts(isDev);
   const currentPost = allPosts.find((p) => p.slug === slug);
 
   if (!currentPost?.series) {
     return { prev: null, next: null, allInSeries: [] };
   }
 
-  const seriesPosts = await getSeriesPosts(currentPost.series);
+  const seriesPosts = await getSeriesPosts(currentPost.series, isDev);
   const currentIndex = seriesPosts.findIndex((p) => p.slug === slug);
 
   return {
