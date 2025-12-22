@@ -1,5 +1,6 @@
 import { getAllPosts } from '@/lib/posts';
 import Link from 'next/link';
+import { BackLink } from '@/components/BackLink';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -28,20 +29,7 @@ export default async function TagsIndexPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <Link
-          href="/blog"
-          className="inline-flex items-center gap-1.5 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-          Back to blog
-        </Link>
+        <BackLink href="/blog">Back to blog</BackLink>
 
         <h1 className="mt-3 text-3xl font-semibold tracking-tight dark:text-zinc-100">
           All Tags

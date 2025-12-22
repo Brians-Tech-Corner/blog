@@ -71,16 +71,16 @@ describe('BlogSidebar', () => {
 
     // Find the Archives heading and get the parent section
     const archivesHeading = screen.getByText('Archives');
-    const archivesSection = archivesHeading.closest('.rounded-xl');
+    const archivesSection = archivesHeading.closest('.rounded-xl') as HTMLElement;
 
     // Use within to scope to the archives section
-    const viewAllLink = within(archivesSection!).getByRole('link', { name: /View all →/i });
+    const viewAllLink = within(archivesSection).getByRole('link', { name: /View all →/i });
     expect(viewAllLink).toHaveAttribute('href', '/archive');
 
-    const year2025Link = within(archivesSection!).getByText('2025').closest('a');
+    const year2025Link = within(archivesSection).getByText('2025').closest('a');
     expect(year2025Link).toHaveAttribute('href', '/archive/2025');
 
-    const year2024Link = within(archivesSection!).getByText('2024').closest('a');
+    const year2024Link = within(archivesSection).getByText('2024').closest('a');
     expect(year2024Link).toHaveAttribute('href', '/archive/2024');
 
     expect(screen.getByText('(3)')).toBeInTheDocument();
@@ -102,10 +102,10 @@ describe('BlogSidebar', () => {
     // Find the Tags section - get all Tags headings and find the one that's an H3
     const tagsHeadings = screen.getAllByText('Tags');
     const tagsHeading = tagsHeadings.find(el => el.tagName === 'H3');
-    const tagsSection = tagsHeading!.closest('.rounded-xl');
+    const tagsSection = tagsHeading!.closest('.rounded-xl') as HTMLElement;
 
     // Find kubernetes link in the Tags section using within and getAllByRole
-    const allLinks = within(tagsSection!).getAllByRole('link');
+    const allLinks = within(tagsSection).getAllByRole('link');
     const kubernetesLink = allLinks.find(link => link.textContent === 'kubernetes');
     expect(kubernetesLink).toHaveClass('border-zinc-900', 'bg-zinc-900', 'text-white');
   });
@@ -125,10 +125,10 @@ describe('BlogSidebar', () => {
     // Find the Tags section - get all Tags headings and find the one that's an H3
     const tagsHeadings = screen.getAllByText('Tags');
     const tagsHeading = tagsHeadings.find(el => el.tagName === 'H3');
-    const tagsSection = tagsHeading!.closest('.rounded-xl');
+    const tagsSection = tagsHeading!.closest('.rounded-xl') as HTMLElement;
 
     // Find kubernetes link in the Tags section using within and getAllByRole
-    const allLinks = within(tagsSection!).getAllByRole('link');
+    const allLinks = within(tagsSection).getAllByRole('link');
     const kubernetesLink = allLinks.find(link => link.textContent === 'kubernetes');
     expect(kubernetesLink).toHaveAttribute('href', '/blog?q=test&tag=kubernetes');
   });
