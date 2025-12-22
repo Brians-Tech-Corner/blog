@@ -40,7 +40,7 @@ describe('BlogSearch', () => {
     // Fast-forward debounce
     await vi.advanceTimersByTimeAsync(300);
     
-    expect(mockPush).toHaveBeenCalledWith('/blog?q=kubernetes');
+    expect(mockPush).toHaveBeenCalledWith('/blog?q=kubernetes', { scroll: false });
     
     vi.useRealTimers();
   });
@@ -48,6 +48,9 @@ describe('BlogSearch', () => {
   it('should navigate to /blog without query when cleared', async () => {
     vi.useFakeTimers();
     
+    // Start with an existing q so clearing triggers navigation
+    const existingQ = new URLSearchParams('q=kubernetes');
+    vi.mocked(useSearchParams).mockReturnValue(existingQ as any);
     render(<BlogSearch />);
     const input = screen.getByPlaceholderText(/Search posts/i);
     
@@ -57,7 +60,7 @@ describe('BlogSearch', () => {
     // Fast-forward debounce
     await vi.advanceTimersByTimeAsync(300);
     
-    expect(mockPush).toHaveBeenCalledWith('/blog');
+    expect(mockPush).toHaveBeenCalledWith('/blog', { scroll: false });
     
     vi.useRealTimers();
   });
@@ -78,8 +81,30 @@ describe('BlogSearch', () => {
     // Fast-forward debounce
     await vi.advanceTimersByTimeAsync(300);
     
-    expect(mockPush).toHaveBeenCalledWith('/blog?tag=kubernetes&q=homelab');
+    expect(mockPush).toHaveBeenCalledWith('/blog?tag=kubernetes&q=homelab', { scroll: false });
     
+    vi.useRealTimers();
+  });
+
+  it('does not navigate when typing the same query already in URL (guarded no-op)', async () => {
+    vi.useFakeTimers();
+
+    // Start with existing q in URL
+    const existingParams = new URLSearchParams('q=homelab');
+    vi.mocked(useSearchParams).mockReturnValue(existingParams as any);
+
+    render(<BlogSearch />);
+    const input = screen.getByPlaceholderText(/Search posts/i);
+
+    // Type the same query but with extra spaces to exercise trim() path
+    fireEvent.change(input, { target: { value: '  homelab  ' } });
+
+    // Fast-forward debounce
+    await vi.advanceTimersByTimeAsync(300);
+
+    // Should not push because after trim it's identical to current q
+    expect(mockPush).not.toHaveBeenCalled();
+
     vi.useRealTimers();
   });
 });

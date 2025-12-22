@@ -75,6 +75,7 @@ Frontmatter fields:
 - `tags` (optional, array for categorization)
 - `draft` (optional, set to `true` to hide from production)
 - `image` (optional, path to custom OpenGraph image)
+  - Shown as the post hero image, blog card thumbnail, and OG preview when provided
 - `series` (optional, series identifier like "kubernetes-homelab")
 - `seriesOrder` (optional, position in series: 1, 2, 3, etc.)
 
@@ -94,6 +95,24 @@ seriesOrder: 1
 
 Your content here...
 ```
+
+### Image Guidelines
+
+- Recommended size: 1600×900 (or 1200×675 minimum)
+- Aspect ratio: 16:9 (works well for both hero and card thumbnails)
+- Format: Prefer WebP (smaller) or optimized JPEG
+- Location: place files in `public/post-images/`
+- Naming: lowercase, hyphenated, no spaces — e.g. `2025-12-14-welcome.webp`
+- Frontmatter example:
+
+```yaml
+image: "/post-images/2025-12-14-welcome.webp"
+```
+
+Notes:
+- Images are optional. If omitted, posts render cleanly without them.
+- If `image` is set, that single image is used in three places: as the hero (post page), as the thumbnail (card), and as the OpenGraph (OG) image for social sharing. Setting `image` disables dynamic OG image generation for that post and uses the provided static image instead.
+
 
 ### Social Sharing (OpenGraph Images)
 

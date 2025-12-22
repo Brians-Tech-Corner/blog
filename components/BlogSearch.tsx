@@ -11,19 +11,31 @@ export function BlogSearch() {
   const handleSearch = useCallback(
     (query: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      
-      if (query.trim()) {
-        params.set('q', query);
+
+      const currentQ = searchParams.get('q') ?? '';
+      const nextQ = query.trim();
+
+      // No-op if query hasn't changed (prevents navigation loops)
+      if (currentQ === nextQ) return;
+
+      if (nextQ) {
+        params.set('q', nextQ);
       } else {
         params.delete('q');
       }
-      
-      // Navigate to the new URL
+
+      // Navigate to the new URL without auto-scrolling to top
       const newUrl = params.toString() ? `/blog?${params.toString()}` : '/blog';
-      router.push(newUrl);
+      router.push(newUrl, { scroll: false });
     },
     [router, searchParams],
   );
 
-  return <SearchBar onSearch={handleSearch} placeholder="Search posts by title, description, or tags..." />;
+  return (
+    <SearchBar
+      onSearch={handleSearch}
+      initialQuery={searchParams.get('q') ?? ''}
+      placeholder="Search posts by title, description, or tags..."
+    />
+  );
 }
