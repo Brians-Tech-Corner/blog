@@ -100,7 +100,12 @@ export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarP
               href="/archive"
               className="text-xs text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
             >
-              View all →
+              <span className="inline-flex items-center gap-1">
+                <span>View all</span>
+                <span aria-hidden="true" className="text-xs">
+                  &rarr;
+                </span>
+              </span>
             </Link>
           </div>
           <div className="mt-4 space-y-2">
