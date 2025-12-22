@@ -85,4 +85,26 @@ describe('BlogSearch', () => {
     
     vi.useRealTimers();
   });
+
+  it('does not navigate when typing the same query already in URL (guarded no-op)', async () => {
+    vi.useFakeTimers();
+
+    // Start with existing q in URL
+    const existingParams = new URLSearchParams('q=homelab');
+    vi.mocked(useSearchParams).mockReturnValue(existingParams as any);
+
+    render(<BlogSearch />);
+    const input = screen.getByPlaceholderText(/Search posts/i);
+
+    // Type the same query but with extra spaces to exercise trim() path
+    fireEvent.change(input, { target: { value: '  homelab  ' } });
+
+    // Fast-forward debounce
+    await vi.advanceTimersByTimeAsync(300);
+
+    // Should not push because after trim it's identical to current q
+    expect(mockPush).not.toHaveBeenCalled();
+
+    vi.useRealTimers();
+  });
 });
