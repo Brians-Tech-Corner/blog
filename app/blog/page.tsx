@@ -11,7 +11,8 @@ export default async function BlogIndexPage({
 }: {
   searchParams: Promise<{ tag?: string; q?: string; year?: string }>;
 }) {
-  const allPosts = await getAllPosts();
+  const isDev = process.env.NODE_ENV === 'development';
+  const allPosts = await getAllPosts(isDev);
   const { tag: selectedTag, q: searchQuery, year: selectedYear } = await searchParams;
 
   // Filter by search query and tag

@@ -75,6 +75,8 @@ Frontmatter fields:
 - `tags` (optional, array for categorization)
 - `draft` (optional, set to `true` to hide from production)
 - `image` (optional, path to custom OpenGraph image)
+- `series` (optional, series identifier like "kubernetes-homelab")
+- `seriesOrder` (optional, position in series: 1, 2, 3, etc.)
 
 Example:
 
@@ -86,6 +88,8 @@ description: "A complete guide to running K3s on Raspberry Pi"
 tags: ["kubernetes", "homelab", "raspberry-pi"]
 draft: false
 image: "/images/k8s-homelab.png"
+series: "kubernetes-homelab"
+seriesOrder: 1
 ---
 
 Your content here...
@@ -122,6 +126,14 @@ pnpm test:coverage
 Tests are co-located with the code (`*.test.tsx`). See [docs/TESTING.md](docs/TESTING.md) for testing guide and [docs/CODECOV.md](docs/CODECOV.md) for coverage setup.
 
 ## Features
+
+### Series Posts
+Group related posts into a series with automatic navigation:
+- Set `series: "your-series-name"` and `seriesOrder: 1` in frontmatter
+- Posts in a series display a navigation component at the bottom
+- Previous/Next links for easy sequential reading
+- Series overview showing all parts
+- "Part X" badge on post cards
 
 ### Draft Posts
 Set `draft: true` in frontmatter to hide posts from production. They'll only show in development.

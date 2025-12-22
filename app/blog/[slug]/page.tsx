@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { compilePostBySlug, getAllPostSlugs } from '@/lib/posts';
+import { compilePostBySlug, getAllPostSlugs, getSeriesNavigation } from '@/lib/posts';
 import { Prose } from '@/components/Prose';
 import { PostMeta } from '@/components/PostMeta';
 import { TableOfContents } from '@/components/TableOfContents';
+import { SeriesNavigation } from '@/components/SeriesNavigation';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
@@ -59,6 +60,9 @@ export default async function BlogPostPage({
   const post = await compilePostBySlug(slug);
   if (!post) return notFound();
 
+  // Get series navigation if this post is part of a series
+  const seriesNav = await getSeriesNavigation(slug);
+
   // Only show TOC if there are 3 or more headings
   const showToc = post.headings.length >= 3;
 
@@ -75,6 +79,16 @@ export default async function BlogPostPage({
           <PostMeta post={post.meta} />
 
           <Prose>{post.content}</Prose>
+
+          {/* Series Navigation */}
+          {seriesNav.allInSeries.length > 0 && (
+            <SeriesNavigation
+              prev={seriesNav.prev}
+              next={seriesNav.next}
+              allInSeries={seriesNav.allInSeries}
+              currentSlug={slug}
+            />
+          )}
         </article>
 
         {showToc && (

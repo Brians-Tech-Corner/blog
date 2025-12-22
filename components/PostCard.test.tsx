@@ -51,4 +51,15 @@ describe('PostCard', () => {
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '/blog/2025-12-14-test-post');
   });
+
+  it('renders series badge when post is part of a series', () => {
+    const seriesPost = { ...mockPost, series: 'kubernetes-homelab', seriesOrder: 2 };
+    render(<PostCard post={seriesPost} />);
+    expect(screen.getByText('Part 2')).toBeInTheDocument();
+  });
+
+  it('does not render series badge when post is not in a series', () => {
+    render(<PostCard post={mockPost} />);
+    expect(screen.queryByText(/Part/)).not.toBeInTheDocument();
+  });
 });

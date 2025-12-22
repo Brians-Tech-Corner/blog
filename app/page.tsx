@@ -12,7 +12,8 @@ const TOPICS = [
 ];
 
 export default async function HomePage() {
-  const posts = await getAllPosts();
+  const isDev = process.env.NODE_ENV === 'development';
+  const posts = await getAllPosts(isDev);
   const featured = posts[0];
   const latest = posts.slice(0, 5);
 

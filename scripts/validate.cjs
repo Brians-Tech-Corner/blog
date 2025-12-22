@@ -66,6 +66,26 @@ if (mdxFiles.length > 0) {
   check('First post has title', firstPost.includes('title:'));
   check('First post has date', firstPost.includes('date:'));
   check('First post has description', firstPost.includes('description:'), 'warn');
+  
+  // Check series posts if they exist
+  const postsWithSeries = mdxFiles.filter(file => {
+    const content = fs.readFileSync(path.join(blogDir, file), 'utf-8');
+    return content.includes('series:');
+  });
+  
+  if (postsWithSeries.length > 0) {
+    let seriesValid = true;
+    postsWithSeries.forEach(file => {
+      const content = fs.readFileSync(path.join(blogDir, file), 'utf-8');
+      const hasSeries = content.includes('series:');
+      const hasSeriesOrder = content.includes('seriesOrder:');
+      if (hasSeries && !hasSeriesOrder) {
+        seriesValid = false;
+        console.log(`   ⚠ ${file} has series but missing seriesOrder`);
+      }
+    });
+    check('Series posts have seriesOrder', seriesValid, 'warn');
+  }
 }
 
 // Check package.json scripts

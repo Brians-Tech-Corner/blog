@@ -2,12 +2,145 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Prism styles (minimal, let the browser handle colors) */
+/* Prism Syntax Highlighting */
 code[class*="language-"],
 pre[class*="language-"] {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  tab-size: 2;
+  hyphens: none;
+  color: var(--prism-base);
+}
+
+/* Light mode syntax highlighting - vibrant colors with strong contrast */
+:root {
+  --prism-comment: #6a737d;
+  --prism-keyword: #cf222e;
+  --prism-string: #0550ae;
+  --prism-function: #8250df;
+  --prism-number: #0969da;
+  --prism-operator: #cf222e;
+  --prism-punctuation: #1f2328;
+  --prism-property: #0969da;
+  --prism-tag: #116329;
+  --prism-attr-name: #8250df;
+  --prism-attr-value: #0a3069;
+  --prism-boolean: #0969da;
+  --prism-constant: #0969da;
+  --prism-class-name: #8250df;
+  --prism-base: #0f4c81; /* Rich blue for light mode */
+}
+
+/* Dark mode syntax highlighting - bright, vibrant colors */
+:root.dark {
+  --prism-comment: #8b949e;
+  --prism-keyword: #ff7b72;
+  --prism-string: #a5d6ff;
+  --prism-function: #d2a8ff;
+  --prism-number: #79c0ff;
+  --prism-operator: #ff7b72;
+  --prism-punctuation: #7ee787;
+  --prism-property: #79c0ff;
+  --prism-tag: #7ee787;
+  --prism-attr-name: #d2a8ff;
+  --prism-attr-value: #a5d6ff;
+  --prism-boolean: #79c0ff;
+  --prism-constant: #79c0ff;
+  --prism-class-name: #d2a8ff;
+  --prism-base: #7ee787; /* Bright green for dark mode */
+}
+
+/* Token styles */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: var(--prism-comment);
+  font-style: italic;
+}
+
+.token.namespace {
+  opacity: 0.7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: var(--prism-tag);
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: var(--prism-string);
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: var(--prism-operator);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: var(--prism-keyword);
+}
+
+.token.function,
+.token.class-name {
+  color: var(--prism-function);
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: var(--prism-number);
+}
+
+.token.punctuation {
+  color: var(--prism-punctuation);
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+/* Line highlighting */
+.line-highlight {
+  background: rgba(255, 255, 255, 0.1);
+  border-left: 3px solid var(--prism-keyword);
+  padding-left: 0.5em;
+  margin-left: -1em;
+}
+
+/* Inline code */
+:not(pre) > code {
+  @apply rounded bg-zinc-100 px-1.5 py-0.5 text-[0.875em] font-medium text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100;
 }
 
 :root {

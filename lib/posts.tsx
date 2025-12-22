@@ -17,6 +17,8 @@ export type PostMeta = {
   tags?: string[];
   draft?: boolean;
   image?: string; // OpenGraph image path
+  series?: string; // Series identifier (e.g., "kubernetes-homelab")
+  seriesOrder?: number; // Position in series (1, 2, 3, etc.)
 };
 
 export type PostListItem = PostMeta & { slug: string; readTime?: number };
@@ -90,4 +92,39 @@ export async function compilePostBySlug(slug: string): Promise<{
   } catch {
     return null;
   }
+}
+
+// Get all posts in a specific series, sorted by seriesOrder
+export async function getSeriesPosts(
+  seriesName: string,
+  includeDrafts = false,
+): Promise<PostListItem[]> {
+  const allPosts = await getAllPosts(includeDrafts);
+  const seriesPosts = allPosts.filter((p) => p.series === seriesName);
+  return seriesPosts.sort((a, b) => {
+    const orderA = a.seriesOrder ?? 999;
+    const orderB = b.seriesOrder ?? 999;
+    return orderA - orderB;
+  });
+}
+
+// Get the previous and next posts in a series
+export async function getSeriesNavigation(
+  slug: string,
+): Promise<{ prev: PostListItem | null; next: PostListItem | null; allInSeries: PostListItem[] }> {
+  const allPosts = await getAllPosts();
+  const currentPost = allPosts.find((p) => p.slug === slug);
+
+  if (!currentPost?.series) {
+    return { prev: null, next: null, allInSeries: [] };
+  }
+
+  const seriesPosts = await getSeriesPosts(currentPost.series);
+  const currentIndex = seriesPosts.findIndex((p) => p.slug === slug);
+
+  return {
+    prev: currentIndex > 0 ? seriesPosts[currentIndex - 1] : null,
+    next: currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : null,
+    allInSeries: seriesPosts,
+  };
 }
