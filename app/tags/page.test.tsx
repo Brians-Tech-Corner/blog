@@ -86,4 +86,14 @@ describe('TagsIndexPage', () => {
     render(await TagsIndexPage());
     expect(screen.getByText(/No tags found/)).toBeInTheDocument();
   });
+
+  it('renders tag icons with aria-hidden and focusable attributes', async () => {
+    render(await TagsIndexPage());
+    
+    const kubernetesCard = screen.getByText('kubernetes').closest('a');
+    const tagIcon = kubernetesCard?.querySelector('svg');
+    expect(tagIcon).toBeInTheDocument();
+    expect(tagIcon).toHaveAttribute('aria-hidden', 'true');
+    expect(tagIcon).toHaveAttribute('focusable', 'false');
+  });
 });
