@@ -91,4 +91,13 @@ describe('ArchiveIndexPage', () => {
     render(await ArchiveIndexPage());
     expect(screen.getByText(/No posts found/)).toBeInTheDocument();
   });
+
+  it('renders calendar icons with aria-hidden for accessibility', async () => {
+    render(await ArchiveIndexPage());
+    
+    const year2025Card = screen.getByText('2025').closest('a');
+    const calendarIcon = year2025Card?.querySelector('svg');
+    expect(calendarIcon).toBeInTheDocument();
+    expect(calendarIcon).toHaveAttribute('aria-hidden', 'true');
+  });
 });
