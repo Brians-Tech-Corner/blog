@@ -143,4 +143,27 @@ describe('CopyButton', () => {
 
     consoleErrorSpy.mockRestore();
   });
+
+  it('should clear existing success timeout when error occurs', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(<CopyButton text={mockText} />);
+    const button = screen.getByRole('button');
+
+    // First click succeeds and sets a timeout
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(screen.getByText('Copied!')).toBeInTheDocument();
+    });
+
+    // Second click fails before the first timeout completes
+    mockWriteText.mockRejectedValueOnce(new Error('Clipboard API not available'));
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed!')).toBeInTheDocument();
+    });
+
+    consoleErrorSpy.mockRestore();
+  });
 });
