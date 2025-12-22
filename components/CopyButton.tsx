@@ -8,6 +8,7 @@ type CopyButtonProps = {
 
 export function CopyButton({ text }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Cleanup timeout on unmount
@@ -23,6 +24,7 @@ export function CopyButton({ text }: CopyButtonProps) {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      setError(false);
       
       // Clear any existing timeout
       if (timeoutRef.current) {
@@ -33,6 +35,16 @@ export function CopyButton({ text }: CopyButtonProps) {
       timeoutRef.current = setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+      setError(true);
+      setCopied(false);
+      
+      // Clear any existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
+      // Clear error state after 2 seconds
+      timeoutRef.current = setTimeout(() => setError(false), 2000);
     }
   };
 
@@ -43,7 +55,25 @@ export function CopyButton({ text }: CopyButtonProps) {
       aria-label="Copy code to clipboard"
       type="button"
     >
-      {copied ? (
+      {error ? (
+        <span className="flex items-center gap-1 text-red-400">
+          <svg
+            className="h-3.5 w-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+          Failed!
+        </span>
+      ) : copied ? (
         <span className="flex items-center gap-1">
           <svg
             className="h-3.5 w-3.5"

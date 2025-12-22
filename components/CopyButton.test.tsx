@@ -85,13 +85,19 @@ describe('CopyButton', () => {
 
     fireEvent.click(button);
 
-    // Should log error
+    // Should log error and show "Failed!" message
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(screen.getByText('Failed!')).toBeInTheDocument();
     });
-    
-    // Should still show "Copy" text
-    expect(screen.getByText('Copy')).toBeInTheDocument();
+
+    // After 2 seconds should revert to "Copy"
+    await waitFor(
+      () => {
+        expect(screen.getByText('Copy')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     consoleErrorSpy.mockRestore();
   });
