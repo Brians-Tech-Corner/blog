@@ -12,6 +12,10 @@ export function SearchBar({ onSearch, placeholder = 'Search posts...', initialQu
   const [query, setQuery] = useState(initialQuery);
 
   useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
+
+  useEffect(() => {
     // Debounce search to avoid excessive filtering
     const timeoutId = setTimeout(() => {
       onSearch(query);
