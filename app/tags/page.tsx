@@ -58,8 +58,6 @@ export default async function TagsIndexPage() {
                     viewBox="0 0 24 24"
                     aria-hidden="true"
                     focusable="false"
-                    aria-hidden="true"
-                    focusable="false"
                   >
                     <path
                       strokeLinecap="round"
