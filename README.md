@@ -135,6 +135,28 @@ Group related posts into a series with automatic navigation:
 - Series overview showing all parts
 - "Part X" badge on post cards
 
+### Comments (Giscus)
+GitHub Discussions-powered commenting system:
+- Readers comment using GitHub accounts
+- Automatically matches light/dark theme
+- Comments stored in your repo's Discussions
+
+**Setup:**
+1. Enable GitHub Discussions on your repository
+2. Install [Giscus app](https://github.com/apps/giscus) for your repo
+3. Visit https://giscus.app and configure:
+   - Enter your repository (e.g., `username/repo`)
+   - Choose Discussion category (e.g., "General" or "Announcements")
+   - Copy the generated values
+4. Add to `.env.local`:
+   ```
+   NEXT_PUBLIC_GISCUS_REPO=username/repo
+   NEXT_PUBLIC_GISCUS_REPO_ID=R_xxxxx
+   NEXT_PUBLIC_GISCUS_CATEGORY=General
+   NEXT_PUBLIC_GISCUS_CATEGORY_ID=DIC_xxxxx
+   ```
+5. Comments will automatically appear at the bottom of all blog posts
+
 ### Draft Posts
 Set `draft: true` in frontmatter to hide posts from production. They'll only show in development.
 
@@ -151,8 +173,12 @@ Tags automatically appear as filters on `/blog`. Click any tag to filter posts.
 
 1. Push to GitHub
 2. Import repository in Vercel
-3. Set environment variable in Vercel dashboard:
+3. Set environment variables in Vercel dashboard:
    - `NEXT_PUBLIC_SITE_URL` = `https://brianstechcorner.com` (or your domain)
+   - `NEXT_PUBLIC_GISCUS_REPO` = your repo (e.g., `username/repo`)
+   - `NEXT_PUBLIC_GISCUS_REPO_ID` = from giscus.app
+   - `NEXT_PUBLIC_GISCUS_CATEGORY` = your discussion category
+   - `NEXT_PUBLIC_GISCUS_CATEGORY_ID` = from giscus.app
 4. Deploy!
 
 Vercel will automatically:

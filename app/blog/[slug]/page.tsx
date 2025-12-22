@@ -5,6 +5,7 @@ import { Prose } from '@/components/Prose';
 import { PostMeta } from '@/components/PostMeta';
 import { TableOfContents } from '@/components/TableOfContents';
 import { SeriesNavigation } from '@/components/SeriesNavigation';
+import { Comments } from '@/components/Comments';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
@@ -66,6 +67,17 @@ export default async function BlogPostPage({
   // Only show TOC if there are 3 or more headings
   const showToc = post.headings.length >= 3;
 
+  // Giscus configuration from environment variables
+  const giscusConfig = {
+    repo: process.env.NEXT_PUBLIC_GISCUS_REPO || '',
+    repoId: process.env.NEXT_PUBLIC_GISCUS_REPO_ID || '',
+    category: process.env.NEXT_PUBLIC_GISCUS_CATEGORY || '',
+    categoryId: process.env.NEXT_PUBLIC_GISCUS_CATEGORY_ID || '',
+  };
+
+  const commentsEnabled =
+    giscusConfig.repo && giscusConfig.repoId && giscusConfig.category && giscusConfig.categoryId;
+
   return (
     <div className="relative">
       <div
@@ -87,6 +99,16 @@ export default async function BlogPostPage({
               next={seriesNav.next}
               allInSeries={seriesNav.allInSeries}
               currentSlug={slug}
+            />
+          )}
+
+          {/* Comments */}
+          {commentsEnabled && (
+            <Comments
+              repo={giscusConfig.repo}
+              repoId={giscusConfig.repoId}
+              category={giscusConfig.category}
+              categoryId={giscusConfig.categoryId}
             />
           )}
         </article>
