@@ -1,6 +1,7 @@
 import { getAllPosts } from '@/lib/posts';
 import { PostCard } from '@/components/PostCard';
 import { BackLink } from '@/components/BackLink';
+import { EmptyState } from '@/components/EmptyState';
 import type { Metadata } from 'next';
 
 type Props = {
@@ -61,9 +62,7 @@ export default async function ArchiveYearPage({ params }: Props) {
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-8 text-center text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
-          No posts found from {year}
-        </div>
+        <EmptyState message={`No posts found from ${year}`} />
       )}
     </div>
   );

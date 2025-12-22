@@ -1,6 +1,7 @@
 import { getAllPosts } from '@/lib/posts';
 import { PostCard } from '@/components/PostCard';
 import { BackLink } from '@/components/BackLink';
+import { EmptyState } from '@/components/EmptyState';
 import type { Metadata } from 'next';
 
 type Props = {
@@ -58,9 +59,7 @@ export default async function TagPage({ params }: Props) {
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-8 text-center text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
-          No posts found with tag &ldquo;{decodedTag}&rdquo;
-        </div>
+        <EmptyState message={`No posts found with tag \u201c${decodedTag}\u201d`} />
       )}
     </div>
   );
