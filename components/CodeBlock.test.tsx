@@ -162,4 +162,30 @@ describe('CodeBlock', () => {
     // Should extract: "Text42NestedArrayItems"
     expect(button.textContent).toContain('Copy Text42Ne');
   });
+
+  it('should handle empty React element props', () => {
+    // Test the case where a React element has no children prop
+    const emptySpan = <span />;
+    render(<CodeBlock className="language-javascript">{emptySpan}</CodeBlock>);
+    const button = screen.getByTestId('copy-button');
+    // Should handle gracefully and return empty string for copy text
+    expect(button).toBeInTheDocument();
+  });
+
+  it('should handle null and undefined in nested structure', () => {
+    const withNulls = (
+      <pre>
+        <code>
+          <span>Before</span>
+          {null}
+          {undefined}
+          <span>After</span>
+        </code>
+      </pre>
+    );
+    render(<CodeBlock className="language-javascript">{withNulls}</CodeBlock>);
+    const button = screen.getByTestId('copy-button');
+    // Should skip null/undefined and extract: "BeforeAfter"
+    expect(button.textContent).toContain('Copy BeforeAf');
+  });
 });
