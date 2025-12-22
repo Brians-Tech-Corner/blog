@@ -22,7 +22,7 @@ export function CopyButton({ text }: CopyButtonProps) {
   return (
     <button
       onClick={handleCopy}
-      className="absolute right-2 top-2 rounded-md bg-zinc-700 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 transition-opacity hover:bg-zinc-600 group-hover:opacity-100 dark:bg-zinc-600 dark:hover:bg-zinc-500"
+      className="absolute right-2 top-2 rounded-md bg-zinc-700 px-2.5 py-1.5 text-xs font-medium text-white opacity-70 transition-opacity hover:bg-zinc-600 hover:opacity-100 focus-visible:opacity-100 group-hover:opacity-100 dark:bg-zinc-600 dark:hover:bg-zinc-500"
       aria-label="Copy code to clipboard"
       type="button"
     >
