@@ -11,13 +11,14 @@ describe('BackLink', () => {
     expect(link).toHaveTextContent('Back to blog');
   });
 
-  it('renders SVG back arrow icon', () => {
+  it('renders SVG back arrow icon with aria-hidden', () => {
     render(<BackLink href="/archive">All archives</BackLink>);
     
     const link = screen.getByRole('link', { name: /All archives/i });
     const svg = link.querySelector('svg');
     expect(svg).toBeInTheDocument();
     expect(svg).toHaveAttribute('viewBox', '0 0 24 24');
+    expect(svg).toHaveAttribute('aria-hidden', 'true');
   });
 
   it('applies correct styling classes', () => {
