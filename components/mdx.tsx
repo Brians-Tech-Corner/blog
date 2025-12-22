@@ -10,9 +10,23 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
     return <a {...props} target="_blank" rel="noreferrer" />;
   },
   pre: ({ children, ...props }) => {
-    // Extract code element and its properties
+    // Extract code element and its properties with type guards
     const codeElement = Array.isArray(children) ? children[0] : children;
-    const className = codeElement?.props?.className || '';
+    
+    // Safely extract className with proper type checking
+    let className = '';
+    if (
+      codeElement &&
+      typeof codeElement === 'object' &&
+      'props' in codeElement &&
+      codeElement.props &&
+      typeof codeElement.props === 'object' &&
+      'className' in codeElement.props &&
+      typeof codeElement.props.className === 'string'
+    ) {
+      className = codeElement.props.className;
+    }
+    
     const filename = props['data-filename'] as string | undefined;
     
     return (

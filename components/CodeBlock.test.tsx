@@ -87,6 +87,24 @@ describe('CodeBlock', () => {
     expect(screen.queryByText('text')).not.toBeInTheDocument();
   });
 
+  it('should default to text language when className is undefined', () => {
+    render(<CodeBlock>{mockCode}</CodeBlock>);
+    // Should not display language badge for 'text' type
+    expect(screen.queryByText('text')).not.toBeInTheDocument();
+    // Should still render the code content
+    expect(screen.getByText(mockCode)).toBeInTheDocument();
+    // Should still render copy button
+    expect(screen.getByTestId('copy-button')).toBeInTheDocument();
+  });
+
+  it('should default to text language when className is empty string', () => {
+    render(<CodeBlock className="">{mockCode}</CodeBlock>);
+    // Should not display language badge for 'text' type
+    expect(screen.queryByText('text')).not.toBeInTheDocument();
+    // Copy button should still work
+    expect(screen.getByTestId('copy-button')).toBeInTheDocument();
+  });
+
   it('should extract text from Prism-like token structures', () => {
     // Simulate Prism's syntax highlighting structure
     const prismContent = (
