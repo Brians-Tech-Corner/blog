@@ -10,6 +10,9 @@ const inter = Inter({ subsets: ['latin'] });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
+// Default OG image for homepage
+const defaultOgImage = `${siteUrl}/api/og?title=Brian's Tech Corner&description=Homelab, home automation, DevOps, platform engineering, and coding — built in public.`;
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
@@ -34,11 +37,11 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: "Brian's Tech Corner",
     type: 'website',
-    images: [{ url: '/brand/X-Banner-Blue.jpg', width: 1500, height: 500 }],
+    images: [{ url: defaultOgImage, width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
-    images: ['/brand/X-Banner-Blue.jpg'],
+    images: [defaultOgImage],
   },
 };
 

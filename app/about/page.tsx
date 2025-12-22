@@ -1,3 +1,30 @@
+import type { Metadata } from 'next';
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
+
+export const metadata: Metadata = {
+  title: 'About',
+  description: "Learn about Brian's Tech Corner - a personal space for documenting homelab projects, automation, infrastructure, and backend development.",
+  openGraph: {
+    title: 'About | Brian\'s Tech Corner',
+    description: "Learn about Brian's Tech Corner - a personal space for documenting homelab projects, automation, infrastructure, and backend development.",
+    url: `${siteUrl}/about`,
+    siteName: "Brian's Tech Corner",
+    type: 'website',
+    images: [{ 
+      url: `${siteUrl}/api/og?title=About&description=A personal space for documenting homelab projects, automation, and infrastructure`,
+      width: 1200,
+      height: 630
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About | Brian\'s Tech Corner',
+    description: "Learn about Brian's Tech Corner - a personal space for documenting homelab projects, automation, infrastructure, and backend development.",
+    images: [`${siteUrl}/api/og?title=About&description=A personal space for documenting homelab projects, automation, and infrastructure`],
+  },
+};
+
 export default function AboutPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
