@@ -278,4 +278,154 @@ Regular content.`;
       expect(result?.headings[2].level).toBe(2);
     });
   });
+
+  describe('getSeriesPosts', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should return only posts from specified series', async () => {
+      const { getSeriesPosts } = await import('./posts');
+      const mockFiles = ['post1.mdx', 'post2.mdx', 'post3.mdx'];
+
+      const mockPosts = [
+        { series: 'kubernetes-homelab', seriesOrder: 1, title: 'Part 1', date: '2025-01-01' },
+        { series: 'kubernetes-homelab', seriesOrder: 2, title: 'Part 2', date: '2025-01-02' },
+        { series: 'docker-guide', seriesOrder: 1, title: 'Docker Intro', date: '2025-01-03' },
+      ];
+
+      vi.mocked(fs.readdir).mockResolvedValue(mockFiles as any);
+      vi.mocked(fs.readFile).mockImplementation((path) => {
+        const filename = path.toString().split('/').pop();
+        const idx = mockFiles.indexOf(filename as string);
+        const post = mockPosts[idx];
+        return Promise.resolve(`---
+title: "${post.title}"
+date: "${post.date}"
+series: "${post.series}"
+seriesOrder: ${post.seriesOrder}
+---
+Content`) as any;
+      });
+
+      const result = await getSeriesPosts('kubernetes-homelab');
+
+      expect(result).toHaveLength(2);
+      expect(result[0].title).toBe('Part 1');
+      expect(result[1].title).toBe('Part 2');
+    });
+
+    it('should sort series posts by seriesOrder', async () => {
+      const { getSeriesPosts } = await import('./posts');
+      const mockFiles = ['post1.mdx', 'post2.mdx', 'post3.mdx'];
+
+      const mockPosts = [
+        { series: 'test-series', seriesOrder: 3, title: 'Part 3', date: '2025-01-03' },
+        { series: 'test-series', seriesOrder: 1, title: 'Part 1', date: '2025-01-01' },
+        { series: 'test-series', seriesOrder: 2, title: 'Part 2', date: '2025-01-02' },
+      ];
+
+      vi.mocked(fs.readdir).mockResolvedValue(mockFiles as any);
+      vi.mocked(fs.readFile).mockImplementation((path) => {
+        const filename = path.toString().split('/').pop();
+        const idx = mockFiles.indexOf(filename as string);
+        const post = mockPosts[idx];
+        return Promise.resolve(`---
+title: "${post.title}"
+date: "${post.date}"
+series: "${post.series}"
+seriesOrder: ${post.seriesOrder}
+---
+Content`) as any;
+      });
+
+      const result = await getSeriesPosts('test-series');
+
+      expect(result[0].seriesOrder).toBe(1);
+      expect(result[1].seriesOrder).toBe(2);
+      expect(result[2].seriesOrder).toBe(3);
+    });
+  });
+
+  describe('getSeriesNavigation', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should return empty navigation when post is not in a series', async () => {
+      const { getSeriesNavigation } = await import('./posts');
+      const mockFiles = ['post1.mdx'];
+
+      vi.mocked(fs.readdir).mockResolvedValue(mockFiles as any);
+      vi.mocked(fs.readFile).mockResolvedValue(`---
+title: "Standalone Post"
+date: "2025-01-01"
+---
+Content`);
+
+      const result = await getSeriesNavigation('post1');
+
+      expect(result.prev).toBeNull();
+      expect(result.next).toBeNull();
+      expect(result.allInSeries).toHaveLength(0);
+    });
+
+    it('should return correct prev and next for middle post in series', async () => {
+      const { getSeriesNavigation } = await import('./posts');
+      const mockFiles = ['post1.mdx', 'post2.mdx', 'post3.mdx'];
+
+      const mockPosts = [
+        { series: 'test-series', seriesOrder: 1, title: 'Part 1', slug: 'post1', date: '2025-01-01' },
+        { series: 'test-series', seriesOrder: 2, title: 'Part 2', slug: 'post2', date: '2025-01-02' },
+        { series: 'test-series', seriesOrder: 3, title: 'Part 3', slug: 'post3', date: '2025-01-03' },
+      ];
+
+      vi.mocked(fs.readdir).mockResolvedValue(mockFiles as any);
+      vi.mocked(fs.readFile).mockImplementation((path) => {
+        const filename = path.toString().split('/').pop()?.replace('.mdx', '');
+        const post = mockPosts.find((p) => p.slug === filename);
+        return Promise.resolve(`---
+title: "${post?.title}"
+date: "${post?.date}"
+series: "${post?.series}"
+seriesOrder: ${post?.seriesOrder}
+---
+Content`) as any;
+      });
+
+      const result = await getSeriesNavigation('post2');
+
+      expect(result.prev?.title).toBe('Part 1');
+      expect(result.next?.title).toBe('Part 3');
+      expect(result.allInSeries).toHaveLength(3);
+    });
+
+    it('should have no prev for first post in series', async () => {
+      const { getSeriesNavigation } = await import('./posts');
+      const mockFiles = ['post1.mdx', 'post2.mdx'];
+
+      const mockPosts = [
+        { series: 'test-series', seriesOrder: 1, title: 'Part 1', slug: 'post1', date: '2025-01-01' },
+        { series: 'test-series', seriesOrder: 2, title: 'Part 2', slug: 'post2', date: '2025-01-02' },
+      ];
+
+      vi.mocked(fs.readdir).mockResolvedValue(mockFiles as any);
+      vi.mocked(fs.readFile).mockImplementation((path) => {
+        const filename = path.toString().split('/').pop()?.replace('.mdx', '');
+        const post = mockPosts.find((p) => p.slug === filename);
+        return Promise.resolve(`---
+title: "${post?.title}"
+date: "${post?.date}"
+series: "${post?.series}"
+seriesOrder: ${post?.seriesOrder}
+---
+Content`) as any;
+      });
+
+      const result = await getSeriesNavigation('post1');
+
+      expect(result.prev).toBeNull();
+      expect(result.next?.title).toBe('Part 2');
+    });
+  });
 });
