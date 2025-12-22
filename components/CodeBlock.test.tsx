@@ -86,4 +86,62 @@ describe('CodeBlock', () => {
     render(<CodeBlock>{mockCode}</CodeBlock>);
     expect(screen.queryByText('text')).not.toBeInTheDocument();
   });
+
+  it('should extract text from Prism-like token structures', () => {
+    // Simulate Prism's syntax highlighting structure
+    const prismContent = (
+      <pre>
+        <code className="language-javascript">
+          <span className="token keyword">const</span>
+          <span className="token plain"> greeting </span>
+          <span className="token operator">=</span>
+          <span className="token plain"> </span>
+          <span className="token string">&quot;Hello&quot;</span>
+          <span className="token punctuation">;</span>
+        </code>
+      </pre>
+    );
+    render(<CodeBlock className="language-javascript">{prismContent}</CodeBlock>);
+    const button = screen.getByTestId('copy-button');
+    // Should extract all text content, joining the tokens
+    expect(button.textContent).toContain('Copy const gre'); // Verifies text extraction works
+  });
+
+  it('should extract text from deeply nested token structures', () => {
+    const deeplyNested = (
+      <pre>
+        <code>
+          <span className="line">
+            <span className="token function">
+              <span>console</span>
+            </span>
+            <span className="token punctuation">.</span>
+            <span className="token function">log</span>
+          </span>
+        </code>
+      </pre>
+    );
+    render(<CodeBlock className="language-javascript">{deeplyNested}</CodeBlock>);
+    const button = screen.getByTestId('copy-button');
+    expect(button.textContent).toContain('Copy console.l');
+  });
+
+  it('should handle mixed content types in nested structure', () => {
+    const mixedContent = (
+      <pre>
+        <code>
+          <span>Text</span>
+          {42}
+          <span>
+            <span>Nested</span>
+          </span>
+          {['Array', 'Items']}
+        </code>
+      </pre>
+    );
+    render(<CodeBlock className="language-javascript">{mixedContent}</CodeBlock>);
+    const button = screen.getByTestId('copy-button');
+    // Should extract: "Text42NestedArrayItems"
+    expect(button.textContent).toContain('Copy Text42Ne');
+  });
 });
