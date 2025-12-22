@@ -61,7 +61,7 @@ export default async function BlogIndexPage({
       },
       [] as { year: string; count: number }[],
     )
-    .sort((a, b) => b.year.localeCompare(a.year));
+    .sort((a, b) => Number(b.year) - Number(a.year));
 
   return (
     <div className="space-y-6">

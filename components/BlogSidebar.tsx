@@ -47,9 +47,17 @@ export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarP
       {/* Tag Filters */}
       {allTags.length > 0 && (
         <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Tags
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              Tags
+            </h3>
+            <Link
+              href="/tags"
+              className="text-xs text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            >
+              View all →
+            </Link>
+          </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
               href={buildHref({ q: searchQuery || undefined })}
@@ -84,17 +92,32 @@ export function BlogSidebar({ allTags, postCount, archivesByYear }: BlogSidebarP
       {/* Archives by Year */}
       {archivesByYear.length > 0 && (
         <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Archives
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              Archives
+            </h3>
+            <Link
+              href="/archive"
+              className="text-xs text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            >
+              <span className="inline-flex items-center gap-1">
+                <span>View all</span>
+                <span aria-hidden="true" className="text-xs">
+                  &rarr;
+                </span>
+              </span>
+            </Link>
+          </div>
           <div className="mt-4 space-y-2">
             {archivesByYear.map(({ year, count }) => (
-              <div key={year} className="flex items-center justify-between text-sm">
-                <span className="text-zinc-800 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100">
-                  {year}
-                </span>
+              <Link
+                key={year}
+                href={`/archive/${year}`}
+                className="flex items-center justify-between text-sm hover:text-zinc-900 dark:hover:text-zinc-100"
+              >
+                <span className="text-zinc-800 dark:text-zinc-200">{year}</span>
                 <span className="text-zinc-500 dark:text-zinc-400">({count})</span>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { compilePostBySlug, getAllPostSlugs, getSeriesNavigation } from '@/lib/posts';
+import { compilePostBySlug, getAllPosts, getSeriesNavigation } from '@/lib/posts';
 import { Prose } from '@/components/Prose';
 import { PostMeta } from '@/components/PostMeta';
 import { TableOfContents } from '@/components/TableOfContents';
@@ -11,8 +11,10 @@ import { Comments } from '@/components/Comments';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
 export async function generateStaticParams() {
-  const slugs = await getAllPostSlugs();
-  return slugs.map((slug) => ({ slug }));
+  // Always exclude drafts from static generation
+  // Draft posts are accessible in dev mode via dynamic rendering
+  const posts = await getAllPosts(false);
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
