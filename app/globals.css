@@ -18,6 +18,15 @@ pre[class*="language-"] {
   color: var(--prism-base);
 }
 
+/* Add padding to push code content below the language label */
+pre[class*="language-"] {
+  padding-top: 2.5rem;
+}
+
+code[class*="language-"] {
+  display: block;
+}
+
 /* Light mode syntax highlighting - vibrant colors with strong contrast */
 :root {
   --prism-comment: #6a737d;
