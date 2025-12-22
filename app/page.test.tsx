@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import HomePage from './page';
+import { getAllPosts } from '@/lib/posts';
 
 // Mock the posts module
 vi.mock('@/lib/posts', () => ({
@@ -73,5 +74,32 @@ describe('HomePage', () => {
     const { container } = render(await HomePage());
     // Should not find raw ISO format dates like "2025-12-14"
     expect(container.textContent).not.toMatch(/\d{4}-\d{2}-\d{2}/);
+  });
+
+  it('renders the featured image when the featured post has an image', async () => {
+    // Override the mocked posts to include an image on the latest post
+    vi.mocked(getAllPosts).mockResolvedValueOnce([
+      {
+        slug: 'test-post-1',
+        title: 'Test Post 1',
+        date: '2025-12-14',
+        description: 'First test post',
+        tags: ['test'],
+        image: '/post-images/welcome-hero.jpg',
+      },
+      {
+        slug: 'test-post-2',
+        title: 'Test Post 2',
+        date: '2025-12-13',
+        description: 'Second test post',
+        tags: ['test'],
+      },
+    ] as any);
+
+    render(await HomePage());
+
+    // The featured image should render with alt equal to the post title
+    const img = screen.getByRole('img', { name: 'Test Post 1' });
+    expect(img).toBeInTheDocument();
   });
 });
