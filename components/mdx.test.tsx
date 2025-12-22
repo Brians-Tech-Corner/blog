@@ -38,4 +38,41 @@ describe('mdxComponents', () => {
   it('should include Callout component', () => {
     expect(mdxComponents.Callout).toBeDefined();
   });
+
+  describe('pre (code block) component', () => {
+    it('should wrap pre elements with CodeBlock', () => {
+      const PreComponent = mdxComponents.pre;
+      const mockCode = (
+        <code className="language-javascript">const x = 1;</code>
+      );
+      
+      const { container } = render(<PreComponent>{mockCode}</PreComponent>);
+      
+      // Should have the CodeBlock wrapper (group div)
+      expect(container.querySelector('.group')).toBeInTheDocument();
+    });
+
+    it('should handle children as array', () => {
+      const PreComponent = mdxComponents.pre;
+      const mockCode = [
+        <code key="1" className="language-typescript">const x = 1;</code>,
+      ];
+      
+      const { container } = render(<PreComponent>{mockCode}</PreComponent>);
+      
+      expect(container.querySelector('.group')).toBeInTheDocument();
+    });
+
+    it('should extract className from code element', () => {
+      const PreComponent = mdxComponents.pre;
+      const mockCode = (
+        <code className="language-python">print("hello")</code>
+      );
+      
+      render(<PreComponent>{mockCode}</PreComponent>);
+      
+      // Language badge should be shown
+      expect(screen.getByText('python')).toBeInTheDocument();
+    });
+  });
 });

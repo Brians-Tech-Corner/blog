@@ -55,4 +55,35 @@ describe('CodeBlock', () => {
     const button = screen.getByTestId('copy-button');
     expect(button).toHaveTextContent('Copy const gree'); // First 10 chars
   });
+
+  it('should extract text from nested React elements', () => {
+    const nestedContent = (
+      <pre>
+        <code>
+          <span>Line 1</span>
+          <span>Line 2</span>
+        </code>
+      </pre>
+    );
+    render(<CodeBlock className="language-javascript">{nestedContent}</CodeBlock>);
+    const button = screen.getByTestId('copy-button');
+    expect(button).toHaveTextContent('Copy Line 1Lin'); // Nested text extraction
+  });
+
+  it('should handle number children', () => {
+    render(<CodeBlock className="language-javascript">{42}</CodeBlock>);
+    const button = screen.getByTestId('copy-button');
+    expect(button).toHaveTextContent('Copy 42');
+  });
+
+  it('should handle array children', () => {
+    render(<CodeBlock className="language-javascript">{['const ', 'x = 1;']}</CodeBlock>);
+    const button = screen.getByTestId('copy-button');
+    expect(button).toHaveTextContent('Copy const x =');
+  });
+
+  it('should handle undefined className', () => {
+    render(<CodeBlock>{mockCode}</CodeBlock>);
+    expect(screen.queryByText('text')).not.toBeInTheDocument();
+  });
 });
