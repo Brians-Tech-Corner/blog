@@ -20,7 +20,7 @@ pre[class*="language-"] {
 
 /* Add padding to push code content below the language label */
 pre[class*="language-"] {
-  padding-top: 2.5rem !important;
+  padding-top: 2.5rem;
 }
 
 code[class*="language-"] {
