@@ -127,6 +127,14 @@ Tests are co-located with the code (`*.test.tsx`). See [docs/TESTING.md](docs/TE
 
 ## Features
 
+### Code Copy Button
+All code blocks include a copy-to-clipboard button:
+- Hover over any code block to reveal the copy button
+- Click to copy the code to your clipboard
+- Visual feedback with "Copied!" confirmation
+- Automatically reverts after 2 seconds
+- Works in both light and dark themes
+
 ### Series Posts
 Group related posts into a series with automatic navigation:
 - Set `series: "your-series-name"` and `seriesOrder: 1` in frontmatter

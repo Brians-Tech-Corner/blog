@@ -80,7 +80,10 @@ export async function compilePostBySlug(slug: string): Promise<{
       options: {
         mdxOptions: {
           remarkPlugins: [remarkGfm],
-          rehypePlugins: [rehypeSlug, rehypePrism],
+          rehypePlugins: [
+            rehypeSlug,
+            [rehypePrism, { showLineNumbers: false, ignoreMissing: true }],
+          ],
         },
       },
     });

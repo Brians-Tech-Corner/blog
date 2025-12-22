@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Callout } from '@/components/Callout';
+import { CodeBlock } from '@/components/CodeBlock';
 
 export const mdxComponents: Record<string, React.ComponentType<any>> = {
   a: (props) => {
@@ -7,6 +8,17 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
     const isInternal = href.startsWith('/') || href.startsWith('#');
     if (isInternal) return <Link {...(props as any)} href={href} />;
     return <a {...props} target="_blank" rel="noreferrer" />;
+  },
+  pre: ({ children, ...props }) => {
+    // Extract code element and its properties
+    const codeElement = Array.isArray(children) ? children[0] : children;
+    const className = codeElement?.props?.className || '';
+    
+    return (
+      <CodeBlock className={className}>
+        <pre {...props}>{children}</pre>
+      </CodeBlock>
+    );
   },
   Callout,
 };
