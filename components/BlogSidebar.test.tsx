@@ -71,7 +71,9 @@ describe('BlogSidebar', () => {
 
     // Find the Archives heading and get the parent section
     const archivesHeading = screen.getByText('Archives');
-    const archivesSection = archivesHeading.closest('.rounded-xl') as HTMLElement;
+    const archivesSection =
+      (archivesHeading.closest('section') as HTMLElement | null) ??
+      (archivesHeading.parentElement as HTMLElement);
 
     // Use within to scope to the archives section
     const viewAllLink = within(archivesSection).getByRole('link', { name: /View all →/i });
