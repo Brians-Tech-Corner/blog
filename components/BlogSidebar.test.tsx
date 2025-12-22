@@ -71,12 +71,10 @@ describe('BlogSidebar', () => {
 
     // Find the Archives heading and get the parent section
     const archivesHeading = screen.getByText('Archives');
-    const archivesSection =
-      (archivesHeading.closest('section') as HTMLElement | null) ??
-      (archivesHeading.parentElement as HTMLElement);
+    const archivesSection = archivesHeading.closest('.rounded-xl') as HTMLElement;
 
     // Use within to scope to the archives section
-    const viewAllLink = within(archivesSection).getByRole('link', { name: /View all →/i });
+    const viewAllLink = within(archivesSection).getByRole('link', { name: /View all/i });
     expect(viewAllLink).toHaveAttribute('href', '/archive');
 
     const year2025Link = within(archivesSection).getByText('2025').closest('a');

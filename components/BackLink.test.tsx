@@ -19,6 +19,7 @@ describe('BackLink', () => {
     expect(svg).toBeInTheDocument();
     expect(svg).toHaveAttribute('viewBox', '0 0 24 24');
     expect(svg).toHaveAttribute('aria-hidden', 'true');
+    expect(svg).toHaveAttribute('focusable', 'false');
   });
 
   it('applies correct styling classes', () => {
