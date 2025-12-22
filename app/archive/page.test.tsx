@@ -99,5 +99,6 @@ describe('ArchiveIndexPage', () => {
     const calendarIcon = year2025Card?.querySelector('svg');
     expect(calendarIcon).toBeInTheDocument();
     expect(calendarIcon).toHaveAttribute('aria-hidden', 'true');
+    expect(calendarIcon).toHaveAttribute('focusable', 'false');
   });
 });
