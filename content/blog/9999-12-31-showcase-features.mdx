@@ -1,0 +1,185 @@
+---
+title: "Blog Feature Showcase"
+date: "9999-12-31"
+description: "A comprehensive showcase of all blog features - kept as draft for testing and reference"
+tags: ["test", "showcase", "reference"]
+draft: true
+---
+
+<Callout type="info">
+This post is marked as draft and will only appear in development mode. It serves as a reference for all available blog features.
+</Callout>
+
+## Code Blocks
+
+### Basic Code Block
+
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+console.log(greet('World'));
+```
+
+### Different Languages
+
+```python
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+print(fibonacci(10))
+```
+
+```bash
+# Install dependencies
+pnpm install
+
+# Run development server
+pnpm dev
+
+# Run tests
+pnpm test
+```
+
+```typescript
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+function getUserById(id: number): User | null {
+  // Implementation here
+  return null;
+}
+```
+
+### Copy Button
+
+All code blocks automatically include a copy button that appears on hover. Click it to copy the code to your clipboard!
+
+## Callouts
+
+<Callout type="info">
+This is an **info** callout. Use it for general information and tips.
+</Callout>
+
+<Callout type="warning">
+This is a **warning** callout. Use it to highlight important caveats or things to watch out for.
+</Callout>
+
+<Callout type="error">
+This is an **error** callout. Use it for critical warnings or common mistakes.
+</Callout>
+
+<Callout type="success">
+This is a **success** callout. Use it for positive outcomes or successful completions.
+</Callout>
+
+## Text Formatting
+
+**Bold text** for emphasis.
+
+*Italic text* for subtle emphasis.
+
+`inline code` for commands or code snippets.
+
+[Internal link](/about) to another page.
+
+[External link](https://github.com) to external resources.
+
+## Lists
+
+### Unordered List
+
+- First item
+- Second item
+  - Nested item
+  - Another nested item
+- Third item
+
+### Ordered List
+
+1. First step
+2. Second step
+3. Third step
+
+### Task List
+
+- [x] Completed task
+- [ ] Pending task
+- [ ] Another pending task
+
+## Blockquotes
+
+> This is a blockquote. Use it for quotes or to highlight important text passages.
+
+## Tables
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Code Copy | ✅ | One-click code copying |
+| Dark Mode | ✅ | System-aware theme switching |
+| Series Posts | ✅ | Multi-part tutorial navigation |
+| Comments | ✅ | GitHub Discussions integration |
+| RSS Feed | ✅ | Subscribe to updates |
+
+## Images
+
+Standard markdown images work:
+
+```markdown
+![Alt text](/images/example.png)
+```
+
+## Horizontal Rule
+
+---
+
+## Series Posts
+
+To create a series, add these fields to frontmatter:
+
+```yaml
+series: "my-series-name"
+seriesOrder: 1
+```
+
+This post would then show navigation to other posts in the same series.
+
+## Draft Posts
+
+Set `draft: true` in frontmatter to hide posts from production (they'll only show in development).
+
+## Tags
+
+Add tags to frontmatter for categorization:
+
+```yaml
+tags: ["kubernetes", "docker", "devops"]
+```
+
+## Custom OpenGraph Images
+
+Specify a custom image for social sharing:
+
+```yaml
+image: "/images/custom-og-image.png"
+```
+
+---
+
+## Tips for Writing
+
+1. **Use descriptive titles** - They show up in search results and social shares
+2. **Add descriptions** - Helps with SEO and provides context
+3. **Use code blocks liberally** - They're syntax-highlighted and copyable
+4. **Break up text** - Use headings, lists, and callouts to improve readability
+5. **Test in development** - Use `draft: true` while writing and testing
+
+<Callout type="success">
+This showcase covers all the main features. Keep this file for reference when writing new posts!
+</Callout>

@@ -13,9 +13,10 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
     // Extract code element and its properties
     const codeElement = Array.isArray(children) ? children[0] : children;
     const className = codeElement?.props?.className || '';
+    const filename = props['data-filename'] as string | undefined;
     
     return (
-      <CodeBlock className={className}>
+      <CodeBlock className={className} filename={filename}>
         <pre {...props}>{children}</pre>
       </CodeBlock>
     );

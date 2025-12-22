@@ -134,6 +134,7 @@ All code blocks include a copy-to-clipboard button:
 - Visual feedback with "Copied!" confirmation
 - Automatically reverts after 2 seconds
 - Works in both light and dark themes
+- Optional filename badges (use `CodeBlock` component directly with `filename` prop)
 
 ### Series Posts
 Group related posts into a series with automatic navigation:

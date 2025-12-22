@@ -66,13 +66,25 @@ describe('mdxComponents', () => {
     it('should extract className from code element', () => {
       const PreComponent = mdxComponents.pre;
       const mockCode = (
-        <code className="language-python">print("hello")</code>
+        <code className="language-python">print(&quot;hello&quot;)</code>
       );
       
       render(<PreComponent>{mockCode}</PreComponent>);
       
       // Language badge should be shown
       expect(screen.getByText('python')).toBeInTheDocument();
+    });
+
+    it('should pass filename prop to CodeBlock', () => {
+      const PreComponent = mdxComponents.pre;
+      const mockCode = (
+        <code className="language-typescript">const x = 1;</code>
+      );
+      
+      render(<PreComponent data-filename="example.ts">{mockCode}</PreComponent>);
+      
+      // Filename should be displayed
+      expect(screen.getByText('example.ts')).toBeInTheDocument();
     });
   });
 });
