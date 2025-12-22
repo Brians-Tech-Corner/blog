@@ -8,8 +8,9 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  const isDev = process.env.NODE_ENV === 'development';
-  const allPosts = await getAllPosts(isDev);
+  // Always exclude drafts from static generation
+  // Draft posts are accessible in dev mode via dynamic rendering
+  const allPosts = await getAllPosts(false);
   const years = Array.from(new Set(allPosts.map((p) => new Date(p.date).getFullYear().toString()))).sort(
     (a, b) => Number(b) - Number(a),
   );

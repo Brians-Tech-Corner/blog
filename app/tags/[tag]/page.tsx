@@ -8,8 +8,9 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  const isDev = process.env.NODE_ENV === 'development';
-  const allPosts = await getAllPosts(isDev);
+  // Always exclude drafts from static generation
+  // Draft posts are accessible in dev mode via dynamic rendering
+  const allPosts = await getAllPosts(false);
   const tags = Array.from(new Set(allPosts.flatMap((p) => p.tags ?? []))).sort();
 
   return tags.map((tag) => ({
