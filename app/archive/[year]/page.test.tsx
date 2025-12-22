@@ -68,12 +68,15 @@ describe('ArchiveYearPage', () => {
     expect(screen.getByText(/No posts found from 2023/)).toBeInTheDocument();
   });
 
-  it('renders back to all archives link', async () => {
+  it('renders clickable back link to all archives with correct href', async () => {
     const params = Promise.resolve({ year: '2025' });
     render(await ArchiveYearPage({ params }));
     
     const backLink = screen.getByRole('link', { name: /All archives/i });
     expect(backLink).toHaveAttribute('href', '/archive');
+    // Verify it's a clickable anchor element with SVG icon
+    expect(backLink.tagName).toBe('A');
+    expect(backLink.querySelector('svg')).toBeInTheDocument();
   });
 
   it('correctly parses posts from different months in the same year', async () => {

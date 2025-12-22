@@ -63,20 +63,26 @@ describe('ArchiveIndexPage', () => {
     expect(years[1]).toBe('2024');
   });
 
-  it('links years to their detail pages', async () => {
+  it('renders clickable year links with correct href attributes', async () => {
     render(await ArchiveIndexPage());
     
+    // Verify 2025 year link
     const link2025 = screen.getByText('2025').closest('a');
     expect(link2025).toHaveAttribute('href', '/archive/2025');
+    expect(link2025?.tagName).toBe('A');
     
+    // Verify 2024 year link
     const link2024 = screen.getByText('2024').closest('a');
     expect(link2024).toHaveAttribute('href', '/archive/2024');
+    expect(link2024?.tagName).toBe('A');
   });
 
-  it('renders back to blog link', async () => {
+  it('renders back to blog link with correct href', async () => {
     render(await ArchiveIndexPage());
     const backLink = screen.getByRole('link', { name: /Back to blog/i });
     expect(backLink).toHaveAttribute('href', '/blog');
+    // Verify it's a clickable navigation element
+    expect(backLink.tagName).toBe('A');
   });
 
   it('handles empty archive gracefully', async () => {
