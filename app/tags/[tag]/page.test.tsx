@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import TagPage from './page';
+import TagPage, { generateStaticParams, generateMetadata } from './page';
 import { getAllPosts } from '@/lib/posts';
 
 // Mock the posts module
@@ -101,5 +101,29 @@ describe('TagPage', () => {
     
     const backLink = screen.getByRole('link', { name: /All tags/i });
     expect(backLink).toHaveAttribute('href', '/tags');
+  });
+
+  it('generateStaticParams returns all unique tags sorted', async () => {
+    const params = await generateStaticParams();
+    
+    expect(params).toContainEqual({ tag: 'kubernetes' });
+    expect(params).toContainEqual({ tag: 'homelab' });
+    expect(params).toContainEqual({ tag: 'docker' });
+  });
+
+  it('generateMetadata returns correct metadata for tag', async () => {
+    const params = Promise.resolve({ tag: 'kubernetes' });
+    const metadata = await generateMetadata({ params });
+    
+    expect(metadata.title).toBe('Posts tagged with "kubernetes"');
+    expect(metadata.description).toBe('All posts tagged with kubernetes');
+  });
+
+  it('generateMetadata handles URL encoded tags', async () => {
+    const params = Promise.resolve({ tag: 'home%20assistant' });
+    const metadata = await generateMetadata({ params });
+    
+    expect(metadata.title).toBe('Posts tagged with "home assistant"');
+    expect(metadata.description).toBe('All posts tagged with home assistant');
   });
 });

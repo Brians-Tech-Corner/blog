@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ArchiveYearPage from './page';
+import ArchiveYearPage, { generateStaticParams, generateMetadata } from './page';
 import { getAllPosts } from '@/lib/posts';
 
 // Mock the posts module
@@ -100,5 +100,22 @@ describe('ArchiveYearPage', () => {
     expect(screen.getByText('January Post')).toBeInTheDocument();
     expect(screen.getByText('December Post')).toBeInTheDocument();
     expect(screen.getByText('2 posts published')).toBeInTheDocument();
+  });
+
+  it('generateStaticParams returns all unique years sorted descending', async () => {
+    const params = await generateStaticParams();
+    
+    expect(params).toEqual([
+      { year: '2025' },
+      { year: '2024' },
+    ]);
+  });
+
+  it('generateMetadata returns correct metadata for year', async () => {
+    const params = Promise.resolve({ year: '2024' });
+    const metadata = await generateMetadata({ params });
+    
+    expect(metadata.title).toBe('Posts from 2024');
+    expect(metadata.description).toBe('All posts published in 2024');
   });
 });
