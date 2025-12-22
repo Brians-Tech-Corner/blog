@@ -101,4 +101,46 @@ describe('CopyButton', () => {
 
     consoleErrorSpy.mockRestore();
   });
+
+  it('should handle rapid successive clicks', async () => {
+    render(<CopyButton text={mockText} />);
+    const button = screen.getByRole('button');
+
+    // Click multiple times rapidly
+    fireEvent.click(button);
+    fireEvent.click(button);
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByText('Copied!')).toBeInTheDocument();
+    });
+
+    // Should only call writeText for each click
+    expect(mockWriteText).toHaveBeenCalledTimes(3);
+  });
+
+  it('should clear timeout when clicking again during error state', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockWriteText.mockRejectedValueOnce(new Error('Clipboard API not available'));
+
+    render(<CopyButton text={mockText} />);
+    const button = screen.getByRole('button');
+
+    // First click fails
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed!')).toBeInTheDocument();
+    });
+
+    // Second click succeeds (clear the mock rejection)
+    mockWriteText.mockResolvedValueOnce(undefined);
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByText('Copied!')).toBeInTheDocument();
+    });
+
+    consoleErrorSpy.mockRestore();
+  });
 });
