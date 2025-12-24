@@ -6,22 +6,31 @@ export async function GET() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const posts = await getAllPosts();
 
+  const defaultStaticLastModified = '2024-01-01T00:00:00.000Z';
+  const latestPostLastModified = posts.reduce<string | undefined>(
+    (latest, post) => {
+      if (!latest) return post.date;
+      return post.date > latest ? post.date : latest;
+    },
+    undefined,
+  );
+
   const staticPages = [
     {
       url: '',
-      lastModified: new Date().toISOString(),
+      lastModified: defaultStaticLastModified,
       changeFreq: 'weekly',
       priority: 1.0,
     },
     {
       url: '/about',
-      lastModified: new Date().toISOString(),
+      lastModified: defaultStaticLastModified,
       changeFreq: 'monthly',
       priority: 0.8,
     },
     {
       url: '/blog',
-      lastModified: posts[0]?.date || new Date().toISOString(),
+      lastModified: latestPostLastModified ?? defaultStaticLastModified,
       changeFreq: 'daily',
       priority: 0.9,
     },
