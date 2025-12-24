@@ -21,7 +21,7 @@ export function getOrganizationSchema() {
     description:
       'Homelab, home automation, DevOps, platform engineering, and coding — built in public.',
     sameAs: [
-      'https://github.com/Brians-Tech-Corner',
+      'https://github.com/brians-tech-corner',
       'https://x.com/brianstechcorn',
       'https://www.youtube.com/@brianstechcorner',
     ],
