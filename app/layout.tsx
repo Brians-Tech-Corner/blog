@@ -21,6 +21,31 @@ export const metadata: Metadata = {
   },
   description:
     'Homelab, home automation, DevOps, platform engineering, and coding — built in public.',
+  keywords: [
+    'homelab',
+    'home automation',
+    'DevOps',
+    'platform engineering',
+    'kubernetes',
+    'home assistant',
+    'python',
+    'networking',
+    'gitops',
+  ],
+  authors: [{ name: 'Brian' }],
+  creator: 'Brian',
+  publisher: "Brian's Tech Corner",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32' },
