@@ -36,9 +36,9 @@ export function getOrganizationSchema() {
 
 /**
  * WebSite schema for basic site information.
- * Note: SearchAction was removed because the blog's search is primarily
- * a client-side filtering mechanism without dedicated search result pages,
- * dynamic metadata, or full SEO optimization for search results.
+ * Note: SearchAction was removed because the blog's search is implemented as
+ * a server-side filtering mechanism in a React Server Component, without dedicated
+ * search result pages, dynamic metadata, or full SEO optimization for search results.
  */
 export function getWebSiteSchema() {
   const siteUrl = getSiteUrl();
