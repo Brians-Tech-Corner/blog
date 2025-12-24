@@ -1,29 +1,5 @@
 import { describe, it, expect } from 'vitest';
-
-// We need to extract and test the toISODateTime function
-// Since it's not exported, we'll create a standalone version for testing
-function toISODateTime(dateString: string): string {
-  // If already in ISO format with timezone, return as-is
-  if (dateString.includes('T')) {
-    return dateString;
-  }
-
-  // Validate YYYY-MM-DD format
-  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateRegex.test(dateString)) {
-    throw new Error(`Invalid date format: ${dateString}. Expected YYYY-MM-DD`);
-  }
-
-  // Convert YYYY-MM-DD to ISO 8601 datetime at midnight UTC
-  const date = new Date(`${dateString}T00:00:00.000Z`);
-
-  // Check if date is valid
-  if (isNaN(date.getTime())) {
-    throw new Error(`Invalid date value: ${dateString}`);
-  }
-
-  return date.toISOString();
-}
+import { toISODateTime } from '@/lib/formatDate';
 
 describe('sitemap.xml route', () => {
   describe('toISODateTime', () => {
