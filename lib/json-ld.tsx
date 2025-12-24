@@ -35,7 +35,10 @@ export function getOrganizationSchema() {
 }
 
 /**
- * WebSite schema with search capability
+ * WebSite schema without search capability.
+ * Note: SearchAction was removed because the blog's search is primarily
+ * a client-side filtering mechanism without dedicated search result pages,
+ * dynamic metadata, or full SEO optimization for search results.
  */
 export function getWebSiteSchema() {
   const siteUrl = getSiteUrl();
@@ -45,14 +48,6 @@ export function getWebSiteSchema() {
     name: SITE_NAME,
     url: siteUrl,
     description: SITE_DESCRIPTION,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${siteUrl}/blog?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
   };
 }
 
