@@ -36,7 +36,7 @@ export async function GET() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
   const posts = await getAllPosts();
 
-  const defaultStaticLastModified = new Date().toISOString();
+  const defaultStaticLastModified = '2024-01-01T00:00:00.000Z';
   // Find the most recent post date, returns undefined if no posts exist
   const latestPostLastModified = posts.reduce<string | undefined>((latest, post) => {
     if (!latest) return post.date;
