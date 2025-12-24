@@ -140,6 +140,22 @@ describe('SocialShare', () => {
     });
   });
 
+  it('should handle clipboard copy failure', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    clipboardWriteTextSpy.mockRejectedValueOnce(new Error('Copy failed'));
+
+    render(<SocialShare {...mockProps} />);
+
+    const copyButton = screen.getByLabelText('Copy link');
+    fireEvent.click(copyButton);
+
+    // Give it a moment for the async operation
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to copy:', expect.any(Error));
+    consoleErrorSpy.mockRestore();
+  });
+
   it('should work without tags', () => {
     const propsWithoutTags = { ...mockProps, tags: undefined };
     render(<SocialShare {...propsWithoutTags} />);
