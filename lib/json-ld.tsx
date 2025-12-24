@@ -113,12 +113,14 @@ export function getBreadcrumbSchema(items: Array<{ name: string; url: string }>)
 function safeJsonLdStringify(data: unknown): string {
   const json = JSON.stringify(data);
 
-  // Escape characters that can lead to XSS when embedding JSON in HTML
+  // Escape characters that can lead to XSS when embedding JSON in HTML,
+  // including forward slashes to defend against </script> breakouts.
   // See: https://react.dev/reference/react-dom/components/script#preventing-xss-attacks
   return json
     .replace(/</g, '\\u003C')
     .replace(/>/g, '\\u003E')
-    .replace(/&/g, '\\u0026');
+    .replace(/&/g, '\\u0026')
+    .replace(/\//g, '\\/');
 }
 
 /**
