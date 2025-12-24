@@ -115,7 +115,11 @@ export async function getSeriesPosts(
 // Get the previous and next posts in a series
 export async function getSeriesNavigation(
   slug: string,
-): Promise<{ prev: PostListItem | null; next: PostListItem | null; allInSeries: PostListItem[] }> {
+): Promise<{
+  prev: PostListItem | null;
+  next: PostListItem | null;
+  allInSeries: PostListItem[];
+}> {
   const isDev = process.env.NODE_ENV === 'development';
   const allPosts = await getAllPosts(isDev);
   const currentPost = allPosts.find((p) => p.slug === slug);
@@ -132,4 +136,53 @@ export async function getSeriesNavigation(
     next: currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : null,
     allInSeries: seriesPosts,
   };
+}
+
+/**
+ * Get related posts based on shared tags and recency
+ * @param slug - Current post slug to find related posts for
+ * @param limit - Maximum number of related posts to return (default: 3)
+ * @returns Array of related posts, sorted by relevance
+ */
+export async function getRelatedPosts(slug: string, limit = 3): Promise<PostListItem[]> {
+  const isDev = process.env.NODE_ENV === 'development';
+  const allPosts = await getAllPosts(isDev);
+  const currentPost = allPosts.find((p) => p.slug === slug);
+
+  if (!currentPost) {
+    return [];
+  }
+
+  // Calculate relevance score for each post
+  const postsWithScores = allPosts
+    .filter((p) => p.slug !== slug) // Exclude current post
+    .map((post) => {
+      let score = 0;
+
+      // Score based on shared tags (most important factor)
+      if (currentPost.tags && post.tags) {
+        const sharedTags = currentPost.tags.filter((tag) => post.tags?.includes(tag));
+        score += sharedTags.length * 10; // 10 points per shared tag
+      }
+
+      // Bonus for posts in the same series
+      if (currentPost.series && post.series === currentPost.series) {
+        score += 15;
+      }
+
+      // Small recency bonus (newer posts get slight preference)
+      const daysSincePublished = Math.floor(
+        (new Date().getTime() - new Date(post.date).getTime()) / (1000 * 60 * 60 * 24),
+      );
+      const recencyScore = Math.max(0, 5 - daysSincePublished / 100); // Up to 5 points
+      score += recencyScore;
+
+      return { post, score };
+    })
+    .filter((item) => item.score > 0) // Only include posts with some relevance
+    .sort((a, b) => b.score - a.score) // Sort by score descending
+    .slice(0, limit) // Take top N
+    .map((item) => item.post);
+
+  return postsWithScores;
 }

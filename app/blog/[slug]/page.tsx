@@ -1,11 +1,17 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { compilePostBySlug, getAllPosts, getSeriesNavigation } from '@/lib/posts';
+import {
+  compilePostBySlug,
+  getAllPosts,
+  getSeriesNavigation,
+  getRelatedPosts,
+} from '@/lib/posts';
 import { Prose } from '@/components/Prose';
 import { PostMeta } from '@/components/PostMeta';
 import { TableOfContents } from '@/components/TableOfContents';
 import { SeriesNavigation } from '@/components/SeriesNavigation';
+import { RelatedPosts } from '@/components/RelatedPosts';
 import { Comments } from '@/components/Comments';
 import { JsonLd, getBlogPostingSchema, getBreadcrumbSchema } from '@/lib/json-ld';
 
@@ -78,6 +84,9 @@ export default async function BlogPostPage({
   // Get series navigation if this post is part of a series
   const seriesNav = await getSeriesNavigation(slug);
 
+  // Get related posts based on tags
+  const relatedPosts = await getRelatedPosts(slug, 3);
+
   // Only show TOC if there are 3 or more headings
   const showToc = post.headings.length >= 3;
 
@@ -143,6 +152,9 @@ export default async function BlogPostPage({
                 currentSlug={slug}
               />
             )}
+
+            {/* Related Posts */}
+            <RelatedPosts posts={relatedPosts} />
 
             {/* Comments */}
             {commentsEnabled && (
