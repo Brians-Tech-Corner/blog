@@ -67,6 +67,16 @@ if (mdxFiles.length > 0) {
   check('First post has date', firstPost.includes('date:'));
   check('First post has description', firstPost.includes('description:'), 'warn');
   
+  // Check for updated field consistency
+  const postsWithUpdated = mdxFiles.filter(file => {
+    const content = fs.readFileSync(path.join(blogDir, file), 'utf-8');
+    return content.includes('updated:');
+  });
+  
+  if (postsWithUpdated.length > 0) {
+    console.log(`   ℹ Found ${postsWithUpdated.length} post(s) with 'updated' field for content freshness tracking`);
+  }
+  
   // Check series posts if they exist
   const postsWithSeries = mdxFiles.filter(file => {
     const content = fs.readFileSync(path.join(blogDir, file), 'utf-8');
