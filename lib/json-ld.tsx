@@ -1,5 +1,16 @@
 import type { PostMeta } from './posts';
 
+// Site constants for SEO schemas
+const SITE_NAME = "Brian's Tech Corner";
+const SITE_DESCRIPTION =
+  'Homelab, home automation, DevOps, platform engineering, and coding — built in public.';
+const SITE_LOGO_PATH = '/brand/X-Banner-Blue.jpg';
+const SOCIAL_PROFILES = [
+  'https://github.com/brians-tech-corner',
+  'https://x.com/brianstechcorn',
+  'https://www.youtube.com/@brianstechcorner',
+];
+
 /**
  * Get the site URL from environment or fallback
  */
@@ -15,16 +26,11 @@ export function getOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: "Brian's Tech Corner",
+    name: SITE_NAME,
     url: siteUrl,
-    logo: `${siteUrl}/brand/X-Banner-Blue.jpg`,
-    description:
-      'Homelab, home automation, DevOps, platform engineering, and coding — built in public.',
-    sameAs: [
-      'https://github.com/brians-tech-corner',
-      'https://x.com/brianstechcorn',
-      'https://www.youtube.com/@brianstechcorner',
-    ],
+    logo: `${siteUrl}${SITE_LOGO_PATH}`,
+    description: SITE_DESCRIPTION,
+    sameAs: SOCIAL_PROFILES,
   };
 }
 
@@ -36,10 +42,9 @@ export function getWebSiteSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: "Brian's Tech Corner",
+    name: SITE_NAME,
     url: siteUrl,
-    description:
-      'Homelab, home automation, DevOps, platform engineering, and coding — built in public.',
+    description: SITE_DESCRIPTION,
     potentialAction: {
       '@type': 'SearchAction',
       target: {
@@ -57,9 +62,7 @@ export function getWebSiteSchema() {
 export function getBlogPostingSchema(post: PostMeta & { slug: string }) {
   const siteUrl = getSiteUrl();
   const postUrl = `${siteUrl}/blog/${post.slug}`;
-  const imageUrl = post.image
-    ? `${siteUrl}${post.image}`
-    : `${siteUrl}/brand/X-Banner-Blue.jpg`;
+  const imageUrl = post.image ? `${siteUrl}${post.image}` : `${siteUrl}${SITE_LOGO_PATH}`;
 
   return {
     '@context': 'https://schema.org',
@@ -68,6 +71,7 @@ export function getBlogPostingSchema(post: PostMeta & { slug: string }) {
     description: post.description || post.title,
     image: imageUrl,
     datePublished: post.date,
+    dateModified: post.date,
     author: {
       '@type': 'Person',
       name: 'Brian',
@@ -75,10 +79,10 @@ export function getBlogPostingSchema(post: PostMeta & { slug: string }) {
     },
     publisher: {
       '@type': 'Organization',
-      name: "Brian's Tech Corner",
+      name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: `${siteUrl}/brand/X-Banner-Blue.jpg`,
+        url: `${siteUrl}${SITE_LOGO_PATH}`,
       },
     },
     mainEntityOfPage: {
