@@ -30,6 +30,9 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* Note: JSON-LD is intentionally rendered in the body. Search engines support */}
+      {/* JSON-LD scripts in both <head> and <body>, and this project manages most   */}
+      {/* head content via Next.js metadata/layout instead of inline <head> tags.    */}
       <JsonLd data={getOrganizationSchema()} />
       <JsonLd data={getWebSiteSchema()} />
 
