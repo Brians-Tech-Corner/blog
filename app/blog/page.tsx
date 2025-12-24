@@ -2,9 +2,15 @@ import { getAllPosts } from '@/lib/posts';
 import { PostCard } from '@/components/PostCard';
 import { BlogSidebar } from '@/components/BlogSidebar';
 import { BlogSearch } from '@/components/BlogSearch';
+import type { Metadata } from 'next';
 
-export const metadata = {
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
+
+export const metadata: Metadata = {
   title: 'Blog',
+  alternates: {
+    canonical: `${siteUrl}/blog`,
+  },
 };
 
 export default async function BlogIndexPage({
