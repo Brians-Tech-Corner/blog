@@ -1,11 +1,17 @@
 import type { PostMeta } from './posts';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
+/**
+ * Get the site URL from environment or fallback
+ */
+function getSiteUrl(): string {
+  return process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
+}
 
 /**
  * Organization schema for the site
  */
 export function getOrganizationSchema() {
+  const siteUrl = getSiteUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -26,6 +32,7 @@ export function getOrganizationSchema() {
  * WebSite schema with search capability
  */
 export function getWebSiteSchema() {
+  const siteUrl = getSiteUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -48,6 +55,7 @@ export function getWebSiteSchema() {
  * BlogPosting schema for individual blog posts
  */
 export function getBlogPostingSchema(post: PostMeta & { slug: string }) {
+  const siteUrl = getSiteUrl();
   const postUrl = `${siteUrl}/blog/${post.slug}`;
   const imageUrl = post.image
     ? `${siteUrl}${post.image}`
@@ -86,6 +94,7 @@ export function getBlogPostingSchema(post: PostMeta & { slug: string }) {
  * BreadcrumbList schema for navigation
  */
 export function getBreadcrumbSchema(items: Array<{ name: string; url: string }>) {
+  const siteUrl = getSiteUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
