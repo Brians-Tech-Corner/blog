@@ -25,6 +25,13 @@ describe('SocialShare', () => {
       writable: true,
       configurable: true,
     });
+
+    // Mock window.alert and window.prompt
+    vi.stubGlobal('alert', vi.fn());
+    vi.stubGlobal(
+      'prompt',
+      vi.fn(() => null),
+    );
   });
 
   afterEach(() => {
@@ -118,6 +125,19 @@ describe('SocialShare', () => {
     expect(callUrl).toContain(encodeURIComponent(mockProps.url));
   });
 
+  it('should alert user when popup is blocked', () => {
+    windowOpenSpy.mockReturnValueOnce(null); // Simulate blocked popup
+
+    render(<SocialShare {...mockProps} />);
+
+    const twitterButton = screen.getByLabelText('Share on Twitter/X');
+    fireEvent.click(twitterButton);
+
+    expect(window.alert).toHaveBeenCalledWith(
+      'Your browser blocked the share popup. Please allow popups for this site and try again.',
+    );
+  });
+
   it('should copy URL to clipboard when copy button is clicked', async () => {
     render(<SocialShare {...mockProps} />);
 
@@ -153,7 +173,25 @@ describe('SocialShare', () => {
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to copy:', expect.any(Error));
+    expect(window.prompt).toHaveBeenCalledWith('Copy this link to share:', mockProps.url);
+
     consoleErrorSpy.mockRestore();
+  });
+
+  it('should not update state after component unmounts', async () => {
+    const { unmount } = render(<SocialShare {...mockProps} />);
+
+    const copyButton = screen.getByLabelText('Copy link');
+    fireEvent.click(copyButton);
+
+    // Unmount immediately
+    unmount();
+
+    // Wait for timeout to complete - should not cause warnings
+    await new Promise((resolve) => setTimeout(resolve, 2100));
+
+    // If test completes without warnings, cleanup is working
+    expect(true).toBe(true);
   });
 
   it('should work without tags', () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 type Platform = 'twitter' | 'linkedin' | 'reddit' | 'facebook';
 
@@ -85,21 +85,52 @@ const platformConfigs: Record<
 
 export function SocialShare({ url, title, description, tags }: SocialShareProps) {
   const [copied, setCopied] = useState(false);
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+
+      // Clear any existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      // Set new timeout and store reference
+      timeoutRef.current = setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+      // Fallback for browsers that don't support clipboard API
+      if (typeof window !== 'undefined') {
+        window.prompt('Copy this link to share:', url);
+      }
     }
   };
 
   const handleShare = (platform: Platform) => {
     const config = platformConfigs[platform];
     const shareUrl = config.getShareUrl({ url, title, description, tags });
-    window.open(shareUrl, '_blank', 'noopener,noreferrer,width=600,height=400');
+    const shareWindow = window.open(
+      shareUrl,
+      '_blank',
+      'noopener,noreferrer,width=600,height=400',
+    );
+
+    if (!shareWindow) {
+      window.alert(
+        'Your browser blocked the share popup. Please allow popups for this site and try again.',
+      );
+    }
   };
 
   return (
@@ -111,11 +142,20 @@ export function SocialShare({ url, title, description, tags }: SocialShareProps)
       <div className="mt-4 flex flex-wrap gap-3">
         {(Object.keys(platformConfigs) as Platform[]).map((platform) => {
           const config = platformConfigs[platform];
+          const buttonClassName = [
+            'flex items-center gap-2 rounded-lg border border-zinc-200 bg-white',
+            'px-4 py-2 text-sm font-medium transition dark:border-zinc-700 dark:bg-zinc-800',
+            config.color,
+            config.hoverColor,
+            'hover:border-zinc-300 dark:hover:border-zinc-600',
+          ].join(' ');
+
           return (
             <button
               key={platform}
+              type="button"
               onClick={() => handleShare(platform)}
-              className={`flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium transition dark:border-zinc-700 dark:bg-zinc-800 ${config.color} ${config.hoverColor} hover:border-zinc-300 dark:hover:border-zinc-600`}
+              className={buttonClassName}
               aria-label={`Share on ${config.name}`}
             >
               {config.icon}
@@ -125,6 +165,7 @@ export function SocialShare({ url, title, description, tags }: SocialShareProps)
         })}
 
         <button
+          type="button"
           onClick={handleCopyLink}
           className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:text-white"
           aria-label="Copy link"
