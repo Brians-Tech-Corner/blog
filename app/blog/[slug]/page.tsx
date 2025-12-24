@@ -12,6 +12,7 @@ import { PostMeta } from '@/components/PostMeta';
 import { TableOfContents } from '@/components/TableOfContents';
 import { SeriesNavigation } from '@/components/SeriesNavigation';
 import { RelatedPosts } from '@/components/RelatedPosts';
+import { SocialShare } from '@/components/SocialShare';
 import { Comments } from '@/components/Comments';
 import { JsonLd, getBlogPostingSchema, getBreadcrumbSchema } from '@/lib/json-ld';
 
@@ -80,6 +81,9 @@ export default async function BlogPostPage({
 
   const post = await compilePostBySlug(slug);
   if (!post) return notFound();
+
+  // Build the post URL for social sharing and metadata
+  const postUrl = `${siteUrl}/blog/${slug}`;
 
   // Get series navigation if this post is part of a series
   const seriesNav = await getSeriesNavigation(slug);
@@ -155,6 +159,14 @@ export default async function BlogPostPage({
 
             {/* Related Posts */}
             <RelatedPosts posts={relatedPosts} />
+
+            {/* Social Share */}
+            <SocialShare
+              url={postUrl}
+              title={post.meta.title}
+              description={post.meta.description}
+              tags={post.meta.tags}
+            />
 
             {/* Comments */}
             {commentsEnabled && (
