@@ -113,8 +113,9 @@ export function getBreadcrumbSchema(items: Array<{ name: string; url: string }>)
 /**
  * Safely stringify data for embedding in a JSON-LD <script> tag.
  * Escapes characters that could break out of the script context.
+ * Exported for testing purposes to ensure XSS protection.
  */
-function safeJsonLdStringify(data: unknown): string {
+export function safeJsonLdStringify(data: unknown): string {
   const json = JSON.stringify(data);
 
   // Escape characters that can lead to XSS when embedding JSON in HTML,

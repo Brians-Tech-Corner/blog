@@ -6,6 +6,7 @@ import {
   getBlogPostingSchema,
   getBreadcrumbSchema,
   JsonLd,
+  safeJsonLdStringify,
 } from './json-ld';
 import type { PostMeta } from './posts';
 
@@ -222,6 +223,133 @@ describe('json-ld', () => {
 
       expect(schema.itemListElement).toHaveLength(1);
       expect(schema.itemListElement[0].position).toBe(1);
+    });
+  });
+
+  describe('safeJsonLdStringify (XSS Prevention)', () => {
+    it('should escape less-than signs to prevent script injection', () => {
+      const data = { title: '<script>alert("xss")</script>' };
+      const result = safeJsonLdStringify(data);
+
+      expect(result).toContain('\\u003Cscript\\u003E');
+      expect(result).not.toContain('<script>');
+    });
+
+    it('should escape greater-than signs to prevent tag closure', () => {
+      const data = { content: 'Hello > World' };
+      const result = safeJsonLdStringify(data);
+
+      expect(result).toContain('\\u003E');
+      expect(result).not.toContain('>');
+    });
+
+    it('should escape ampersands to prevent HTML entity issues', () => {
+      const data = { text: 'A & B' };
+      const result = safeJsonLdStringify(data);
+
+      expect(result).toContain('\\u0026');
+      expect(result).not.toContain('&');
+    });
+
+    it('should escape forward slashes to prevent </script> breakout', () => {
+      const data = { url: 'https://example.com/path' };
+      const result = safeJsonLdStringify(data);
+
+      expect(result).toContain('\\/');
+      // Should still be parseable as valid JSON
+      const parsed = JSON.parse(result);
+      expect(parsed.url).toBe('https://example.com/path');
+    });
+
+    it('should prevent </script> tag injection attack', () => {
+      const data = { evil: '</script><script>alert("hacked")</script>' };
+      const result = safeJsonLdStringify(data);
+
+      // Verify the dangerous sequence is escaped
+      expect(result).toContain('\\u003C\\/script\\u003E');
+      expect(result).not.toContain('</script>');
+      expect(result).not.toContain('<script>');
+    });
+
+    it('should handle all dangerous characters in one string', () => {
+      const data = { mixed: '</script><img src=x onerror=alert(1)>&' };
+      const result = safeJsonLdStringify(data);
+
+      expect(result).not.toContain('</script>');
+      expect(result).not.toContain('<img');
+      expect(result).not.toContain('>');
+      expect(result).not.toContain('&');
+      expect(result).toContain('\\u003C');
+      expect(result).toContain('\\u003E');
+      expect(result).toContain('\\u0026');
+    });
+
+    it('should preserve valid JSON structure after escaping', () => {
+      const data = {
+        name: 'Test <Company>',
+        url: 'https://example.com/path',
+        description: 'A & B > C',
+      };
+      const result = safeJsonLdStringify(data);
+
+      // Should still be valid JSON that can be parsed back
+      const parsed = JSON.parse(result);
+      expect(parsed.name).toBe('Test <Company>');
+      expect(parsed.url).toBe('https://example.com/path');
+      expect(parsed.description).toBe('A & B > C');
+    });
+
+    it('should handle nested objects with dangerous characters', () => {
+      const data = {
+        outer: {
+          inner: {
+            evil: '</script>',
+            safe: 'normal text',
+          },
+        },
+      };
+      const result = safeJsonLdStringify(data);
+
+      expect(result).not.toContain('</script>');
+      const parsed = JSON.parse(result);
+      expect(parsed.outer.inner.evil).toBe('</script>');
+    });
+
+    it('should handle arrays with dangerous characters', () => {
+      const data = {
+        items: ['<script>', 'normal', '</script>', 'A & B'],
+      };
+      const result = safeJsonLdStringify(data);
+
+      expect(result).not.toContain('<script>');
+      expect(result).not.toContain('</script>');
+      expect(result).not.toContain('&');
+      const parsed = JSON.parse(result);
+      expect(parsed.items).toEqual(['<script>', 'normal', '</script>', 'A & B']);
+    });
+
+    it('should handle edge case: empty strings and null values', () => {
+      const data = { empty: '', nullVal: null, undef: undefined };
+      const result = safeJsonLdStringify(data);
+
+      expect(() => JSON.parse(result)).not.toThrow();
+      const parsed = JSON.parse(result);
+      expect(parsed.empty).toBe('');
+      expect(parsed.nullVal).toBeNull();
+      // undefined is dropped by JSON.stringify
+      expect(parsed.undef).toBeUndefined();
+    });
+
+    it('should be used by JsonLd component for XSS protection', () => {
+      const data = { evil: '</script><script>alert(1)</script>' };
+      const { container } = render(<JsonLd data={data} />);
+
+      const script = container.querySelector('script[type="application/ld+json"]');
+      const content = script?.textContent || '';
+
+      // Verify dangerous content is escaped in the rendered output
+      expect(content).not.toContain('</script><script>');
+      expect(content).toContain('\\u003C\\/script\\u003E');
     });
   });
 
