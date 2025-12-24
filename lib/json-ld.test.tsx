@@ -63,7 +63,7 @@ describe('json-ld', () => {
     });
 
     it('should not include SearchAction', () => {
-      const schema = getWebSiteSchema();
+      const schema = getWebSiteSchema() as any;
 
       // SearchAction was intentionally removed as the blog uses client-side filtering
       // without dedicated search result pages
