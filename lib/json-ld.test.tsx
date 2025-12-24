@@ -62,12 +62,18 @@ describe('json-ld', () => {
       expect(schema.description).toContain('Homelab');
     });
 
-    it('should not include SearchAction', () => {
+    it('should include SearchAction with correct target', () => {
       const schema = getWebSiteSchema();
 
-      // SearchAction was removed because the blog's search is primarily
-      // a filtering mechanism without dedicated search result pages
-      expect('potentialAction' in schema).toBe(false);
+      expect(schema.potentialAction).toBeDefined();
+      expect(schema.potentialAction['@type']).toBe('SearchAction');
+      expect(schema.potentialAction.target['@type']).toBe('EntryPoint');
+      expect(schema.potentialAction.target.urlTemplate).toBe(
+        'https://test.example.com/blog?q={search_term_string}',
+      );
+      expect(schema.potentialAction['query-input']).toBe(
+        'required name=search_term_string',
+      );
     });
 
     it('should use fallback URL when NEXT_PUBLIC_SITE_URL is not set', () => {
