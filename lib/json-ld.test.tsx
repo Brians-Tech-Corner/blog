@@ -37,7 +37,8 @@ describe('json-ld', () => {
 
       expect(schema.sameAs).toBeDefined();
       expect(Array.isArray(schema.sameAs)).toBe(true);
-      expect(schema.sameAs).toContain('https://github.com/Brians-Tech-Corner');
+      expect(schema.sameAs).toContain('https://github.com/brians-tech-corner');
+      expect(schema.sameAs).toContain('https://x.com/brianstechcorn');
       expect(schema.sameAs).toContain('https://www.youtube.com/@brianstechcorner');
     });
 
