@@ -13,6 +13,7 @@ const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
 export type PostMeta = {
   title: string;
   date: string; // ISO-ish: YYYY-MM-DD
+  updated?: string; // Last modified date (ISO-ish: YYYY-MM-DD)
   description?: string;
   tags?: string[];
   draft?: boolean;

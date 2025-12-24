@@ -71,7 +71,7 @@ export function getBlogPostingSchema(post: PostMeta & { slug: string }) {
     description: post.description || post.title,
     image: imageUrl,
     datePublished: post.date,
-    dateModified: post.date,
+    dateModified: post.updated || post.date,
     author: {
       '@type': 'Person',
       name: 'Brian',

@@ -167,6 +167,21 @@ describe('json-ld', () => {
 
       expect(schema.description).toBe('Test Post');
     });
+
+    it('should use updated date for dateModified when provided', () => {
+      const postWithUpdate = { ...mockPost, updated: '2025-12-25' };
+      const schema = getBlogPostingSchema(postWithUpdate);
+
+      expect(schema.datePublished).toBe('2025-12-24');
+      expect(schema.dateModified).toBe('2025-12-25');
+    });
+
+    it('should use date for dateModified when updated is not provided', () => {
+      const schema = getBlogPostingSchema(mockPost);
+
+      expect(schema.datePublished).toBe('2025-12-24');
+      expect(schema.dateModified).toBe('2025-12-24');
+    });
   });
 
   describe('getBreadcrumbSchema', () => {
