@@ -108,13 +108,28 @@ export function getBreadcrumbSchema(items: Array<{ name: string; url: string }>)
 }
 
 /**
+ * Safely stringify data for embedding in a JSON-LD <script> tag.
+ * Escapes characters that could break out of the script context.
+ */
+function safeJsonLdStringify(data: unknown): string {
+  const json = JSON.stringify(data);
+
+  // Escape characters that can lead to XSS when embedding JSON in HTML
+  // See: https://react.dev/reference/react-dom/components/script#preventing-xss-attacks
+  return json
+    .replace(/</g, '\\u003C')
+    .replace(/>/g, '\\u003E')
+    .replace(/&/g, '\\u0026');
+}
+
+/**
  * Helper to render JSON-LD script tag
  */
-export function JsonLd({ data }: { data: Record<string, unknown> }) {
+export function JsonLd({ data }: { data: unknown }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(data) }}
     />
   );
 }
