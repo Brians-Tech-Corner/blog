@@ -17,7 +17,7 @@ function toISODateTime(dateString: string): string {
 }
 
 export async function GET() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
   const posts = await getAllPosts();
 
   const defaultStaticLastModified = '2024-01-01T00:00:00.000Z';
