@@ -4,7 +4,7 @@ import type { PostMeta } from './posts';
  * Get the site URL from environment or fallback
  */
 function getSiteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
+  return process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://brianstechcorner.com';
 }
 
 /**
