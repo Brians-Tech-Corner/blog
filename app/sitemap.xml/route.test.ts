@@ -17,7 +17,7 @@ const mockPosts = [
 
 beforeEach(() => {
   // Reset and setup default mock for most tests
-  vi.mocked(getAllPosts).mockResolvedValue(mockPosts as any);
+  vi.mocked(getAllPosts).mockResolvedValue(mockPosts);
 });
 
 // We need to extract and test the toISODateTime function
@@ -223,9 +223,8 @@ describe('sitemap.xml route', () => {
           title: 'Test Post',
           date: '2025-12-15',
           description: 'Test',
-          tags: undefined,
         },
-      ] as any);
+      ]);
 
       const response = await GET();
       const xml = await response.text();
