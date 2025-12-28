@@ -15,6 +15,7 @@ import { RelatedPosts } from '@/components/RelatedPosts';
 import { SocialShare } from '@/components/SocialShare';
 import { Comments } from '@/components/Comments';
 import { JsonLd, getBlogPostingSchema, getBreadcrumbSchema } from '@/lib/json-ld';
+import { AdSenseBanner } from '@/components/AdSense';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
@@ -146,6 +147,9 @@ export default async function BlogPostPage({
             )}
 
             <Prose>{post.content}</Prose>
+
+            {/* AdSense Banner (after post content) */}
+            <AdSenseBanner slot="YOUR_SLOT_ID" style={{ margin: '2rem 0' }} />
 
             {/* Series Navigation */}
             {seriesNav.allInSeries.length > 0 && (
