@@ -17,6 +17,10 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacyPage() {
+  // Consistent link styling across the page
+  const linkClassName =
+    'text-zinc-700 underline decoration-zinc-400 underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-zinc-100';
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-bold tracking-tight">Privacy Policy</h1>
@@ -47,7 +51,7 @@ export default function PrivacyPage() {
               href="https://vercel.com/docs/analytics"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-700 underline decoration-zinc-400 underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-zinc-100"
+              className={linkClassName}
             >
               Vercel Analytics
             </a>{' '}
@@ -76,7 +80,7 @@ export default function PrivacyPage() {
               href="https://giscus.app"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-700 underline decoration-zinc-400 underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-zinc-100"
+              className={linkClassName}
             >
               Giscus
             </a>
@@ -98,16 +102,19 @@ export default function PrivacyPage() {
 
         <section>
           <h2 className="mb-3 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-            Cookies
+            Cookies and Local Storage
           </h2>
+          <p className="mb-3">
+            <strong>This site does not use cookies.</strong> No tracking cookies,
+            analytics cookies, or third-party cookies are set.
+          </p>
           <p>
-            This site does not use cookies for tracking or analytics. The only cookies
-            used are:
+            The only data stored locally on your device is:
           </p>
           <ul className="list-inside list-disc space-y-2 pl-4">
             <li>
-              <strong>Theme preference</strong> - Stores your light/dark mode choice in
-              browser local storage (not a cookie, stays on your device)
+              <strong>Theme preference</strong> - Saved in browser local storage to
+              remember your light/dark mode choice across visits
             </li>
           </ul>
         </section>
@@ -166,7 +173,7 @@ export default function PrivacyPage() {
               href="https://github.com/brians-tech-corner"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-700 underline decoration-zinc-400 underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-zinc-100"
+              className={linkClassName}
             >
               GitHub
             </a>{' '}
@@ -175,7 +182,7 @@ export default function PrivacyPage() {
               href="https://x.com/brianstechcorn"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-700 underline decoration-zinc-400 underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-zinc-100"
+              className={linkClassName}
             >
               X/Twitter
             </a>
@@ -184,10 +191,7 @@ export default function PrivacyPage() {
         </section>
 
         <div className="mt-10 border-t border-zinc-200 pt-8 dark:border-zinc-800">
-          <Link
-            href="/"
-            className="text-zinc-700 underline decoration-zinc-400 underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-zinc-100"
-          >
+          <Link href="/" className={linkClassName}>
             ← Back to Home
           </Link>
         </div>
