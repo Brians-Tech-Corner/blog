@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { getAllPosts } from '@/lib/posts';
 import { formatDate } from '@/lib/formatDate';
 import { JsonLd, getOrganizationSchema, getWebSiteSchema } from '@/lib/json-ld';
+import { SubscribeCTA } from '@/components/SubscribeCTA';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
@@ -136,6 +137,11 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
+      {/* Newsletter Subscribe CTA */}
+      {/* Inserted after Latest section for visibility */}
+      <div className="mt-16">
+        <SubscribeCTA />
+      </div>
       </main>
     </>
   );

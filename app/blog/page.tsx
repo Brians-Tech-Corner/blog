@@ -2,6 +2,7 @@ import { getAllPosts } from '@/lib/posts';
 import { PostCard } from '@/components/PostCard';
 import { BlogSidebar } from '@/components/BlogSidebar';
 import { BlogSearch } from '@/components/BlogSearch';
+import { SubscribeCTA } from '@/components/SubscribeCTA';
 import type { Metadata } from 'next';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
@@ -129,13 +130,19 @@ export default async function BlogIndexPage({
           </div>
 
           {/* Posts grid */}
-          {posts.length > 0 ? (
-            <div className="grid gap-6">
-              {posts.map((p) => (
-                <PostCard key={p.slug} post={p} />
-              ))}
-            </div>
-          ) : (
+           {posts.length > 0 ? (
+             <>
+               <div className="grid gap-6">
+                 {posts.map((p) => (
+                   <PostCard key={p.slug} post={p} />
+                 ))}
+               </div>
+               {/* Newsletter Subscribe CTA (after posts grid) */}
+               <div className="mt-10">
+                 <SubscribeCTA />
+               </div>
+             </>
+           ) : (
             <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-8 text-center text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
               {searchQuery && selectedTag
                 ? `No posts found matching "${searchQuery}" with tag "${selectedTag}"`
