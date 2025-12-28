@@ -122,10 +122,25 @@ describe('sitemap.xml route', () => {
       const response = await GET();
       const xml = await response.text();
 
-      // Should have tag URLs (allowing URL-encoded characters and common slug chars)
-      expect(xml).toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/[\w%.-]+<\/loc>/);
+      // Should have tag URLs with valid characters (matching non-encoded tag paths)
+      expect(xml).toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/[\w .-]+<\/loc>/);
     });
 
+    it('should handle tags with spaces and hyphens correctly', async () => {
+      (getAllPosts as unknown as vi.Mock).mockResolvedValueOnce([
+        {
+          ...mockPosts[0],
+          tags: ['hello world', 'dev-tools', ' spaced-tag '],
+        },
+      ]);
+
+      const response = await GET();
+      const xml = await response.text();
+
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags/hello world</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags/dev-tools</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags/ spaced-tag </loc>');
+    });
     it('should include archive year pages', async () => {
       const response = await GET();
       const xml = await response.text();
