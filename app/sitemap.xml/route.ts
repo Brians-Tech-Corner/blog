@@ -93,7 +93,10 @@ export async function GET() {
   // Generate tag pages
   const allTags = new Set<string>();
   posts.forEach((post) => {
-    post.tags?.forEach((tag) => allTags.add(tag));
+    post.tags?.forEach((tag) => {
+      const normalized = tag.trim();
+      if (normalized) allTags.add(normalized);
+    });
   });
   const tagPages = Array.from(allTags).map((tag) => ({
     url: `/tags/${encodeURIComponent(tag)}`,
