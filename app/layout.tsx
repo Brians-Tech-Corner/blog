@@ -6,6 +6,7 @@ import './globals.css';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { AdSenseScript } from './AdSenseScript';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -74,6 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={inter.className} suppressHydrationWarning>
       <body className="bg-white text-zinc-900 transition-colors dark:bg-zinc-900 dark:text-zinc-100">
         <ThemeProvider>
+          <AdSenseScript />
           <SiteHeader />
           <main className="mx-auto w-full max-w-5xl px-4 py-10">{children}</main>
           <SiteFooter />
