@@ -199,5 +199,28 @@ describe('sitemap.xml route', () => {
       expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/[^<]+<\/loc>/);
       expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/archive\/\d{4}<\/loc>/);
     });
+
+    it('should handle posts without tags', async () => {
+      // Mock posts with no tags to test tag page generation with posts
+      vi.mocked(getAllPosts).mockResolvedValueOnce([
+        {
+          slug: 'test-post',
+          title: 'Test Post',
+          date: '2025-12-15',
+          description: 'Test',
+          tags: undefined,
+        },
+      ] as any);
+
+      const response = await GET();
+      const xml = await response.text();
+
+      // Should include the blog post
+      expect(xml).toContain('<loc>https://brianstechcorner.com/blog/test-post</loc>');
+      // Should not have any tag pages since there are no tags
+      expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/[^<]+<\/loc>/);
+      // Should have archive page for 2025
+      expect(xml).toContain('<loc>https://brianstechcorner.com/archive/2025</loc>');
+    });
   });
 });
