@@ -65,6 +65,22 @@ export async function GET() {
       changeFreq: 'daily',
       priority: 0.9,
     },
+    {
+      url: '/tags',
+      lastModified: latestPostLastModified
+        ? toISODateTime(latestPostLastModified)
+        : defaultStaticLastModified,
+      changeFreq: 'weekly',
+      priority: 0.6,
+    },
+    {
+      url: '/archive',
+      lastModified: latestPostLastModified
+        ? toISODateTime(latestPostLastModified)
+        : defaultStaticLastModified,
+      changeFreq: 'weekly',
+      priority: 0.6,
+    },
   ];
 
   const postPages = posts.map((p) => ({
@@ -74,7 +90,41 @@ export async function GET() {
     priority: 0.7,
   }));
 
-  const allPages = [...staticPages, ...postPages];
+  // Generate tag pages
+  const allTags = new Set<string>();
+  posts.forEach((post) => {
+    post.tags?.forEach((tag) => {
+      const normalized = tag.trim();
+      if (normalized) allTags.add(normalized);
+    });
+  });
+  const tagPages = Array.from(allTags).map((tag) => ({
+    url: `/tags/${encodeURIComponent(tag)}`,
+    lastModified: latestPostLastModified
+      ? toISODateTime(latestPostLastModified)
+      : defaultStaticLastModified,
+    changeFreq: 'weekly',
+    priority: 0.5,
+  }));
+
+  // Generate archive year pages
+  const allYears = new Set<string>();
+  posts.forEach((post) => {
+    const [year] = post.date.split('-');
+    if (/^\d{4}$/.test(year)) {
+      allYears.add(year);
+    }
+  });
+  const archivePages = Array.from(allYears).map((year) => ({
+    url: `/archive/${year}`,
+    lastModified: latestPostLastModified
+      ? toISODateTime(latestPostLastModified)
+      : defaultStaticLastModified,
+    changeFreq: 'monthly',
+    priority: 0.5,
+  }));
+
+  const allPages = [...staticPages, ...postPages, ...tagPages, ...archivePages];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

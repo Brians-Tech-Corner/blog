@@ -12,7 +12,14 @@ export async function generateStaticParams() {
   // Always exclude drafts from static generation
   // Draft posts are accessible in dev mode via dynamic rendering
   const allPosts = await getAllPosts(false);
-  const tags = Array.from(new Set(allPosts.flatMap((p) => p.tags ?? []))).sort();
+  const tags = Array.from(
+    new Set(
+      allPosts
+        .flatMap((p) => p.tags ?? [])
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0),
+    ),
+  ).sort();
 
   return tags.map((tag) => ({
     tag,

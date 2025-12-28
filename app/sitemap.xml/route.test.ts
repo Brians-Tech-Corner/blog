@@ -1,4 +1,24 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { getAllPosts } from '@/lib/posts';
+import { GET } from './route';
+
+vi.mock('@/lib/posts');
+
+// Setup default mock data for tests
+const mockPosts = [
+  {
+    slug: '2025-12-14-welcome-to-brians-tech-corner',
+    title: 'Welcome to Brian\'s Tech Corner',
+    date: '2025-12-14',
+    description: 'What this blog is about and what you can expect going forward',
+    tags: ['announcement', 'blog', 'welcome'],
+  },
+];
+
+beforeEach(() => {
+  // Reset and setup default mock for most tests
+  vi.mocked(getAllPosts).mockResolvedValue(mockPosts);
+});
 
 // We need to extract and test the toISODateTime function
 // Since it's not exported, we'll create a standalone version for testing
@@ -71,6 +91,152 @@ describe('sitemap.xml route', () => {
     it('should handle edge case dates', () => {
       expect(toISODateTime('1970-01-01')).toBe('1970-01-01T00:00:00.000Z');
       expect(toISODateTime('2099-12-31')).toBe('2099-12-31T00:00:00.000Z');
+    });
+  });
+
+  describe('sitemap generation', () => {
+    it('should include all required URLs', async () => {
+      const response = await GET();
+      const xml = await response.text();
+
+      // Static pages
+      expect(xml).toContain('<loc>https://brianstechcorner.com</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/about</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/blog</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/archive</loc>');
+
+      // Should have proper XML structure
+      expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+      expect(xml).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+    });
+
+    it('should include blog posts', async () => {
+      const response = await GET();
+      const xml = await response.text();
+
+      expect(xml).toContain('<loc>https://brianstechcorner.com/blog/');
+    });
+
+    it('should include tag pages for all tags', async () => {
+      const response = await GET();
+      const xml = await response.text();
+
+      // Should have tag URLs with valid characters (matching non-encoded tag paths)
+      expect(xml).toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/[\w .-]+<\/loc>/);
+    });
+
+    it('should handle tags with spaces and hyphens correctly', async () => {
+      vi.mocked(getAllPosts).mockResolvedValueOnce([
+        {
+          ...mockPosts[0],
+          tags: ['hello world', 'dev-tools', ' spaced-tag '],
+        },
+      ]);
+
+      const response = await GET();
+      const xml = await response.text();
+
+      // Tags should be trimmed and normalized
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags/hello%20world</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags/dev-tools</loc>');
+      // Leading/trailing spaces should be trimmed
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags/spaced-tag</loc>');
+    });
+    it('should include archive year pages', async () => {
+      const response = await GET();
+      const xml = await response.text();
+
+      // Should have archive URLs with years
+      expect(xml).toMatch(/<loc>https:\/\/brianstechcorner\.com\/archive\/\d{4}<\/loc>/);
+    });
+
+    it('should have proper lastmod dates', async () => {
+      const response = await GET();
+      const xml = await response.text();
+
+      // All URLs should have lastmod tags in ISO format
+      expect(xml).toMatch(/<lastmod>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z<\/lastmod>/);
+    });
+
+    it('should have proper priority values', async () => {
+      const response = await GET();
+      const xml = await response.text();
+
+      // Homepage should have highest priority
+      expect(xml).toContain('<priority>1</priority>');
+      // Blog posts should have medium priority
+      expect(xml).toContain('<priority>0.7</priority>');
+      // Tags and archives should have lower priority
+      expect(xml).toContain('<priority>0.5</priority>');
+    });
+
+    it('should return proper content-type header', async () => {
+      const response = await GET();
+
+      expect(response.headers.get('Content-Type')).toBe(
+        'application/xml; charset=utf-8',
+      );
+    });
+
+    it('should handle empty posts array with default lastmod dates', async () => {
+      // Mock getAllPosts to return empty array for this test
+      vi.mocked(getAllPosts).mockResolvedValueOnce([]);
+
+      const response = await GET();
+      const xml = await response.text();
+
+      // Should still include static pages
+      expect(xml).toContain('<loc>https://brianstechcorner.com</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/blog</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/archive</loc>');
+
+      // Blog, tags, and archive pages should use default lastmod (2024-01-01)
+      const blogMatch = xml.match(
+        /<url>[\s\S]*?<loc>https:\/\/brianstechcorner\.com\/blog<\/loc>[\s\S]*?<lastmod>(.*?)<\/lastmod>/,
+      );
+      expect(blogMatch).toBeTruthy();
+      expect(blogMatch?.[1]).toBe('2024-01-01T00:00:00.000Z');
+
+      const tagsMatch = xml.match(
+        /<url>[\s\S]*?<loc>https:\/\/brianstechcorner\.com\/tags<\/loc>[\s\S]*?<lastmod>(.*?)<\/lastmod>/,
+      );
+      expect(tagsMatch).toBeTruthy();
+      expect(tagsMatch?.[1]).toBe('2024-01-01T00:00:00.000Z');
+
+      const archiveMatch = xml.match(
+        /<url>[\s\S]*?<loc>https:\/\/brianstechcorner\.com\/archive<\/loc>[\s\S]*?<lastmod>(.*?)<\/lastmod>/,
+      );
+      expect(archiveMatch).toBeTruthy();
+      expect(archiveMatch?.[1]).toBe('2024-01-01T00:00:00.000Z');
+
+      // Should not have any blog post, tag, or archive year URLs
+      expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/blog\/[^<]+<\/loc>/);
+      expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/[^<]+<\/loc>/);
+      expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/archive\/\d{4}<\/loc>/);
+    });
+
+    it('should handle posts without tags', async () => {
+      // Mock posts with no tags to test tag page generation with posts
+      vi.mocked(getAllPosts).mockResolvedValueOnce([
+        {
+          slug: 'test-post',
+          title: 'Test Post',
+          date: '2025-12-15',
+          description: 'Test',
+        },
+      ]);
+
+      const response = await GET();
+      const xml = await response.text();
+
+      // Should include the blog post
+      expect(xml).toContain('<loc>https://brianstechcorner.com/blog/test-post</loc>');
+      // Should not have any tag pages since there are no tags
+      expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/[^<]+<\/loc>/);
+      // Should have archive page for 2025
+      expect(xml).toContain('<loc>https://brianstechcorner.com/archive/2025</loc>');
     });
   });
 });
