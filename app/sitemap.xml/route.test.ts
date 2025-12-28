@@ -137,9 +137,9 @@ describe('sitemap.xml route', () => {
       const response = await GET();
       const xml = await response.text();
 
-      expect(xml).toContain('<loc>https://brianstechcorner.com/tags/hello world</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags/hello%20world</loc>');
       expect(xml).toContain('<loc>https://brianstechcorner.com/tags/dev-tools</loc>');
-      expect(xml).toContain('<loc>https://brianstechcorner.com/tags/ spaced-tag </loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags/%20spaced-tag%20</loc>');
     });
     it('should include archive year pages', async () => {
       const response = await GET();
