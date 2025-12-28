@@ -127,7 +127,7 @@ describe('sitemap.xml route', () => {
     });
 
     it('should handle tags with spaces and hyphens correctly', async () => {
-      (getAllPosts as unknown as vi.Mock).mockResolvedValueOnce([
+      vi.mocked(getAllPosts).mockResolvedValueOnce([
         {
           ...mockPosts[0],
           tags: ['hello world', 'dev-tools', ' spaced-tag '],
