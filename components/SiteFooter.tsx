@@ -84,6 +84,15 @@ export function SiteFooter() {
               >
                 RSS
               </a>
+
+              <span>·</span>
+
+              <Link
+                href="/privacy"
+                className="text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+              >
+                Privacy
+              </Link>
             </div>
 
             <p className="mt-3 max-w-3xl text-xs text-zinc-500 dark:text-zinc-500">
