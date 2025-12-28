@@ -1,7 +1,7 @@
 {
   "name": "Brian's Tech Corner",
   "short_name": "BTC",
-  "description": "Homelab, home automation, DevOps, platform engineering, and coding — built in public.",
+  "description": "Homelab, Home Automation, and coding — built in public.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

@@ -3,7 +3,7 @@ import type { PostMeta } from './posts';
 // Site constants for SEO schemas
 const SITE_NAME = "Brian's Tech Corner";
 const SITE_DESCRIPTION =
-  'Homelab, home automation, DevOps, platform engineering, and coding — built in public.';
+  'Homelab, Home Automation, and coding — built in public.';
 const SITE_LOGO_PATH = '/brand/X-Banner-Blue.jpg';
 const SOCIAL_PROFILES = [
   'https://github.com/brians-tech-corner',

@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ['latin'] });
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
 // Default OG image for homepage
-const defaultOgImage = `${siteUrl}/api/og?title=Brian's Tech Corner&description=Homelab, home automation, DevOps, platform engineering, and coding — built in public.`;
+const defaultOgImage = `${siteUrl}/api/og?title=Brian's Tech Corner&description=Homelab, Home Automation, and coding — built in public.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -20,12 +20,10 @@ export const metadata: Metadata = {
     template: "%s | Brian's Tech Corner",
   },
   description:
-    'Homelab, home automation, DevOps, platform engineering, and coding — built in public.',
+    'Homelab, Home Automation, and coding — built in public.',
   keywords: [
     'homelab',
     'home automation',
-    'DevOps',
-    'platform engineering',
     'kubernetes',
     'home assistant',
     'python',
@@ -58,7 +56,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Brian's Tech Corner",
     description:
-      'Homelab, home automation, DevOps, platform engineering, and coding — built in public.',
+      'Homelab, Home Automation, and coding — built in public.',
     url: siteUrl,
     siteName: "Brian's Tech Corner",
     type: 'website',

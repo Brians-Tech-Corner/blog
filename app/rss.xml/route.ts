@@ -34,7 +34,7 @@ export async function GET() {
     <channel>
       <title>Brian's Tech Corner</title>
       <link>${siteUrl}</link>
-      <description>Homelab, home automation, DevOps, platform engineering, and coding.</description>
+      <description>Homelab, Home Automation, and coding.</description>
       ${items}
     </channel>
   </rss>`;
