@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { Analytics } from '@vercel/analytics/next';
+import { Analytics as VercelAnalytics } from '@vercel/analytics/next';
+import { Analytics } from '@/components/Analytics';
 import './globals.css';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -77,6 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="mx-auto w-full max-w-5xl px-4 py-10">{children}</main>
           <SiteFooter />
           <Analytics />
+          <VercelAnalytics />
         </ThemeProvider>
       </body>
     </html>
