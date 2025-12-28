@@ -1,4 +1,24 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { getAllPosts } from '@/lib/posts';
+import { GET } from './route';
+
+vi.mock('@/lib/posts');
+
+// Setup default mock data for tests
+const mockPosts = [
+  {
+    slug: '2025-12-14-welcome-to-brians-tech-corner',
+    title: 'Welcome to Brian\'s Tech Corner',
+    date: '2025-12-14',
+    description: 'What this blog is about and what you can expect going forward',
+    tags: ['announcement', 'blog', 'welcome'],
+  },
+];
+
+beforeEach(() => {
+  // Reset and setup default mock for most tests
+  vi.mocked(getAllPosts).mockResolvedValue(mockPosts as any);
+});
 
 // We need to extract and test the toISODateTime function
 // Since it's not exported, we'll create a standalone version for testing
@@ -74,10 +94,7 @@ describe('sitemap.xml route', () => {
     });
   });
 
-  describe('sitemap generation', async () => {
-    // Import module once for all non-mocked tests
-    const { GET } = await import('./route');
-
+  describe('sitemap generation', () => {
     it('should include all required URLs', async () => {
       const response = await GET();
       const xml = await response.text();
@@ -105,8 +122,8 @@ describe('sitemap.xml route', () => {
       const response = await GET();
       const xml = await response.text();
 
-      // Should have tag URLs
-      expect(xml).toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/\w+<\/loc>/);
+      // Should have tag URLs (allowing URL-encoded characters and common slug chars)
+      expect(xml).toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/[\w%.-]+<\/loc>/);
     });
 
     it('should include archive year pages', async () => {
@@ -146,15 +163,10 @@ describe('sitemap.xml route', () => {
     });
 
     it('should handle empty posts array with default lastmod dates', async () => {
-      // Mock getAllPosts to return empty array
-      vi.doMock('@/lib/posts', () => ({
-        getAllPosts: vi.fn().mockResolvedValue([]),
-      }));
+      // Mock getAllPosts to return empty array for this test
+      vi.mocked(getAllPosts).mockResolvedValueOnce([]);
 
-      // Clear module cache and re-import for this specific test
-      vi.resetModules();
-      const { GET: MockedGET } = await import('./route');
-      const response = await MockedGET();
+      const response = await GET();
       const xml = await response.text();
 
       // Should still include static pages
@@ -186,10 +198,6 @@ describe('sitemap.xml route', () => {
       expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/blog\/[^<]+<\/loc>/);
       expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/[^<]+<\/loc>/);
       expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/archive\/\d{4}<\/loc>/);
-
-      // Restore mocks
-      vi.doUnmock('@/lib/posts');
-      vi.resetModules();
     });
   });
 });

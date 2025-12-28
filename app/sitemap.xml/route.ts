@@ -107,8 +107,10 @@ export async function GET() {
   // Generate archive year pages
   const allYears = new Set<string>();
   posts.forEach((post) => {
-    const year = new Date(post.date).getFullYear().toString();
-    allYears.add(year);
+    const [year] = post.date.split('-');
+    if (/^\d{4}$/.test(year)) {
+      allYears.add(year);
+    }
   });
   const archivePages = Array.from(allYears).map((year) => ({
     url: `/archive/${year}`,
