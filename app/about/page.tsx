@@ -35,6 +35,9 @@ export const metadata: Metadata = {
   },
 };
 
+const linkClassName =
+  'text-zinc-700 underline decoration-zinc-400 underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-zinc-100';
+
 export default function AboutPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
@@ -54,7 +57,7 @@ export default function AboutPage() {
 
       <ul className="mt-4 list-inside list-disc space-y-2 text-zinc-600 dark:text-zinc-400">
         <li>
-          <strong>Homelab projects</strong> — running Kubernetes on Mini PC&apos;s and other devices,
+          <strong>Homelab projects</strong> — running Kubernetes on Mini PCs and other devices,
           self-hosted services, and infrastructure experimentation
         </li>
         <li>
@@ -110,7 +113,8 @@ export default function AboutPage() {
           href="https://github.com/brians-tech-corner"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-zinc-700 underline decoration-zinc-400 underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-zinc-100"
+          aria-label="Visit Brian's Tech Corner on GitHub"
+          className={linkClassName}
         >
           GitHub
         </a>
@@ -118,7 +122,8 @@ export default function AboutPage() {
           href="https://x.com/brianstechcorn"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-zinc-700 underline decoration-zinc-400 underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-zinc-100"
+          aria-label="Follow Brian's Tech Corner on X (formerly Twitter)"
+          className={linkClassName}
         >
           X (Twitter)
         </a>
@@ -126,7 +131,8 @@ export default function AboutPage() {
           href="https://youtube.com/@brianstechcorner"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-zinc-700 underline decoration-zinc-400 underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-zinc-100"
+          aria-label="Subscribe to Brian's Tech Corner on YouTube"
+          className={linkClassName}
         >
           YouTube
         </a>
