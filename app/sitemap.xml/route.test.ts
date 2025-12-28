@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // We need to extract and test the toISODateTime function
 // Since it's not exported, we'll create a standalone version for testing
@@ -147,6 +147,53 @@ describe('sitemap.xml route', () => {
       expect(response.headers.get('Content-Type')).toBe(
         'application/xml; charset=utf-8',
       );
+    });
+
+    it('should handle empty posts array with default lastmod dates', async () => {
+      // Mock getAllPosts to return empty array
+      vi.doMock('@/lib/posts', () => ({
+        getAllPosts: vi.fn().mockResolvedValue([]),
+      }));
+
+      // Clear module cache and re-import
+      vi.resetModules();
+      const { GET } = await import('./route');
+      const response = await GET();
+      const xml = await response.text();
+
+      // Should still include static pages
+      expect(xml).toContain('<loc>https://brianstechcorner.com</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/blog</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/archive</loc>');
+
+      // Blog, tags, and archive pages should use default lastmod (2024-01-01)
+      const blogMatch = xml.match(
+        /<url>[\s\S]*?<loc>https:\/\/brianstechcorner\.com\/blog<\/loc>[\s\S]*?<lastmod>(.*?)<\/lastmod>/,
+      );
+      expect(blogMatch).toBeTruthy();
+      expect(blogMatch?.[1]).toBe('2024-01-01T00:00:00.000Z');
+
+      const tagsMatch = xml.match(
+        /<url>[\s\S]*?<loc>https:\/\/brianstechcorner\.com\/tags<\/loc>[\s\S]*?<lastmod>(.*?)<\/lastmod>/,
+      );
+      expect(tagsMatch).toBeTruthy();
+      expect(tagsMatch?.[1]).toBe('2024-01-01T00:00:00.000Z');
+
+      const archiveMatch = xml.match(
+        /<url>[\s\S]*?<loc>https:\/\/brianstechcorner\.com\/archive<\/loc>[\s\S]*?<lastmod>(.*?)<\/lastmod>/,
+      );
+      expect(archiveMatch).toBeTruthy();
+      expect(archiveMatch?.[1]).toBe('2024-01-01T00:00:00.000Z');
+
+      // Should not have any blog post, tag, or archive year URLs
+      expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/blog\/[^<]+<\/loc>/);
+      expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/[^<]+<\/loc>/);
+      expect(xml).not.toMatch(/<loc>https:\/\/brianstechcorner\.com\/archive\/\d{4}<\/loc>/);
+
+      // Restore mocks
+      vi.doUnmock('@/lib/posts');
+      vi.resetModules();
     });
   });
 });
