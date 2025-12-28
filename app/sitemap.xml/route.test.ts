@@ -73,4 +73,80 @@ describe('sitemap.xml route', () => {
       expect(toISODateTime('2099-12-31')).toBe('2099-12-31T00:00:00.000Z');
     });
   });
+
+  describe('sitemap generation', () => {
+    it('should include all required URLs', async () => {
+      const { GET } = await import('./route');
+      const response = await GET();
+      const xml = await response.text();
+
+      // Static pages
+      expect(xml).toContain('<loc>https://brianstechcorner.com</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/about</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/blog</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/tags</loc>');
+      expect(xml).toContain('<loc>https://brianstechcorner.com/archive</loc>');
+
+      // Should have proper XML structure
+      expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+      expect(xml).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+    });
+
+    it('should include blog posts', async () => {
+      const { GET } = await import('./route');
+      const response = await GET();
+      const xml = await response.text();
+
+      expect(xml).toContain('<loc>https://brianstechcorner.com/blog/');
+    });
+
+    it('should include tag pages for all tags', async () => {
+      const { GET } = await import('./route');
+      const response = await GET();
+      const xml = await response.text();
+
+      // Should have tag URLs
+      expect(xml).toMatch(/<loc>https:\/\/brianstechcorner\.com\/tags\/\w+<\/loc>/);
+    });
+
+    it('should include archive year pages', async () => {
+      const { GET } = await import('./route');
+      const response = await GET();
+      const xml = await response.text();
+
+      // Should have archive URLs with years
+      expect(xml).toMatch(/<loc>https:\/\/brianstechcorner\.com\/archive\/\d{4}<\/loc>/);
+    });
+
+    it('should have proper lastmod dates', async () => {
+      const { GET } = await import('./route');
+      const response = await GET();
+      const xml = await response.text();
+
+      // All URLs should have lastmod tags in ISO format
+      expect(xml).toMatch(/<lastmod>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z<\/lastmod>/);
+    });
+
+    it('should have proper priority values', async () => {
+      const { GET } = await import('./route');
+      const response = await GET();
+      const xml = await response.text();
+
+      // Homepage should have highest priority
+      expect(xml).toContain('<priority>1</priority>');
+      // Blog posts should have medium priority
+      expect(xml).toContain('<priority>0.7</priority>');
+      // Tags and archives should have lower priority
+      expect(xml).toContain('<priority>0.5</priority>');
+    });
+
+    it('should return proper content-type header', async () => {
+      const { GET } = await import('./route');
+      const response = await GET();
+
+      expect(response.headers.get('Content-Type')).toBe(
+        'application/xml; charset=utf-8',
+      );
+    });
+  });
 });
