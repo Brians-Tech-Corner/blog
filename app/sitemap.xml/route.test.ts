@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 // We need to extract and test the toISODateTime function
 // Since it's not exported, we'll create a standalone version for testing
@@ -74,9 +74,11 @@ describe('sitemap.xml route', () => {
     });
   });
 
-  describe('sitemap generation', () => {
+  describe('sitemap generation', async () => {
+    // Import module once for all non-mocked tests
+    const { GET } = await import('./route');
+
     it('should include all required URLs', async () => {
-      const { GET } = await import('./route');
       const response = await GET();
       const xml = await response.text();
 
@@ -93,7 +95,6 @@ describe('sitemap.xml route', () => {
     });
 
     it('should include blog posts', async () => {
-      const { GET } = await import('./route');
       const response = await GET();
       const xml = await response.text();
 
@@ -101,7 +102,6 @@ describe('sitemap.xml route', () => {
     });
 
     it('should include tag pages for all tags', async () => {
-      const { GET } = await import('./route');
       const response = await GET();
       const xml = await response.text();
 
@@ -110,7 +110,6 @@ describe('sitemap.xml route', () => {
     });
 
     it('should include archive year pages', async () => {
-      const { GET } = await import('./route');
       const response = await GET();
       const xml = await response.text();
 
@@ -119,7 +118,6 @@ describe('sitemap.xml route', () => {
     });
 
     it('should have proper lastmod dates', async () => {
-      const { GET } = await import('./route');
       const response = await GET();
       const xml = await response.text();
 
@@ -128,7 +126,6 @@ describe('sitemap.xml route', () => {
     });
 
     it('should have proper priority values', async () => {
-      const { GET } = await import('./route');
       const response = await GET();
       const xml = await response.text();
 
@@ -141,7 +138,6 @@ describe('sitemap.xml route', () => {
     });
 
     it('should return proper content-type header', async () => {
-      const { GET } = await import('./route');
       const response = await GET();
 
       expect(response.headers.get('Content-Type')).toBe(
@@ -155,10 +151,10 @@ describe('sitemap.xml route', () => {
         getAllPosts: vi.fn().mockResolvedValue([]),
       }));
 
-      // Clear module cache and re-import
+      // Clear module cache and re-import for this specific test
       vi.resetModules();
-      const { GET } = await import('./route');
-      const response = await GET();
+      const { GET: MockedGET } = await import('./route');
+      const response = await MockedGET();
       const xml = await response.text();
 
       // Should still include static pages

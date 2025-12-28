@@ -96,7 +96,7 @@ export async function GET() {
     post.tags?.forEach((tag) => allTags.add(tag));
   });
   const tagPages = Array.from(allTags).map((tag) => ({
-    url: `/tags/${tag}`,
+    url: `/tags/${encodeURIComponent(tag)}`,
     lastModified: latestPostLastModified
       ? toISODateTime(latestPostLastModified)
       : defaultStaticLastModified,
