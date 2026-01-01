@@ -135,6 +135,65 @@ Standard markdown images work:
 ![Alt text](/images/example.png)
 ```
 
+## Mermaid Diagrams
+
+Create flowcharts, sequence diagrams, and more using Mermaid syntax.
+
+### Flowchart
+
+<Mermaid>
+{`graph TD
+    A[Start] --> B{Is it working?}
+    B -->|Yes| C[Great!]
+    B -->|No| D[Debug]
+    D --> E[Fix Issue]
+    E --> B
+    C --> F[Deploy]`}
+</Mermaid>
+
+### Network Architecture Diagram
+
+<Mermaid>
+{`graph LR
+    Internet[Internet] --> Router[UniFi Router]
+    Router --> Switch[Managed Switch]
+    Switch --> VLAN30[VLAN 30<br/>192.168.30.0/24]
+    VLAN30 --> Proxmox[Proxmox Host]
+    Proxmox --> K8S1[K8s Node 1]
+    Proxmox --> K8S2[K8s Node 2]
+    Proxmox --> K8S3[K8s Node 3]`}
+</Mermaid>
+
+### Sequence Diagram
+
+<Mermaid>
+{`sequenceDiagram
+    participant Client
+    participant Ingress
+    participant Service
+    participant Pod
+    
+    Client->>Ingress: HTTPS Request
+    Ingress->>Service: Route to Service
+    Service->>Pod: Load Balance
+    Pod-->>Service: Response
+    Service-->>Ingress: Response
+    Ingress-->>Client: HTTPS Response`}
+</Mermaid>
+
+### State Diagram
+
+<Mermaid>
+{`stateDiagram-v2
+    [*] --> Pending
+    Pending --> Running: Schedule
+    Running --> Succeeded: Complete
+    Running --> Failed: Error
+    Failed --> Running: Retry
+    Succeeded --> [*]
+    Failed --> [*]: Max Retries`}
+</Mermaid>
+
 ## Horizontal Rule
 
 ---
@@ -177,8 +236,28 @@ image: "/images/custom-og-image.png"
 1. **Use descriptive titles** - They show up in search results and social shares
 2. **Add descriptions** - Helps with SEO and provides context
 3. **Use code blocks liberally** - They're syntax-highlighted and copyable
-4. **Break up text** - Use headings, lists, and callouts to improve readability
-5. **Test in development** - Use `draft: true` while writing and testing
+4. **Add diagrams for complex concepts** - Mermaid diagrams help visualize architecture, flows, and processes
+5. **Break up text** - Use headings, lists, and callouts to improve readability
+6. **Test in development** - Use `draft: true` while writing and testing
+
+### Using Mermaid Diagrams
+
+Wrap Mermaid syntax in a `<Mermaid>` component with template literals:
+
+```jsx
+<Mermaid>
+{`graph TD
+    A[Start] --> B[End]`}
+</Mermaid>
+```
+
+Supported diagram types:
+- Flowcharts (`graph TD`, `graph LR`)
+- Sequence diagrams (`sequenceDiagram`)
+- State diagrams (`stateDiagram-v2`)
+- Class diagrams (`classDiagram`)
+- Entity-relationship diagrams (`erDiagram`)
+- And more! See [Mermaid docs](https://mermaid.js.org/) for full syntax
 
 <Callout type="success">
 This showcase covers all the main features. Keep this file for reference when writing new posts!

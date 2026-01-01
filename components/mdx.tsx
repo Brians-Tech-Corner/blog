@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Callout } from '@/components/Callout';
 import { CodeBlock } from '@/components/CodeBlock';
+import { Mermaid } from '@/components/Mermaid';
 
 export const mdxComponents: Record<string, React.ComponentType<any>> = {
   a: (props) => {
@@ -36,4 +37,5 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
     );
   },
   Callout,
+  Mermaid,
 };

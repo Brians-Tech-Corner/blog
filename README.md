@@ -186,6 +186,34 @@ All code blocks include a copy-to-clipboard button:
 - Works in both light and dark themes
 - Optional filename badges (use `CodeBlock` component directly with `filename` prop)
 
+### Mermaid Diagrams
+Create diagrams using Mermaid syntax for architecture, flows, sequences, and more:
+
+```jsx
+<Mermaid>
+{`graph TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Action]
+    B -->|No| D[Alternative]`}
+</Mermaid>
+```
+
+**Supported diagram types:**
+- **Flowcharts** (`graph TD`, `graph LR`) - Process flows and decision trees
+- **Sequence diagrams** (`sequenceDiagram`) - API calls and interactions
+- **State diagrams** (`stateDiagram-v2`) - State machines and lifecycles
+- **Network diagrams** - Visualize network architecture and VLAN setups
+- **Class diagrams**, **ER diagrams**, and more - See [Mermaid docs](https://mermaid.js.org/)
+
+**Example use cases:**
+- Kubernetes architecture diagrams
+- Network topology and VLAN configurations
+- CI/CD pipelines
+- Application flow and request sequences
+- Database schemas
+
+See the [showcase post](http://localhost:3000/blog/9999-12-31-showcase-features) (dev mode) for live examples.
+
 ### Series Posts
 Group related posts into a series with automatic navigation:
 - Set `series: "your-series-name"` and `seriesOrder: 1` in frontmatter
