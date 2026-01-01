@@ -28,6 +28,7 @@
     "eslint-config-next": "^16.0.10",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
+    "mermaid": "^11.12.2",
     "next": "^16.0.10",
     "next-mdx-remote": "^5.0.0",
     "react": "^19.2.3",
