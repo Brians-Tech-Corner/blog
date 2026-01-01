@@ -7,28 +7,25 @@ interface MermaidProps {
   children: string;
 }
 
-// Initialize mermaid once
-let mermaidInitialized = false;
-
 export function Mermaid({ children }: MermaidProps) {
-  const ref = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const mermaidInitializedRef = useRef(false);
 
   useEffect(() => {
-    if (!mermaidInitialized) {
+    if (!mermaidInitializedRef.current) {
       mermaid.initialize({
         startOnLoad: false,
         theme: 'default',
-        securityLevel: 'loose',
+        securityLevel: 'strict',
         fontFamily: 'ui-sans-serif, system-ui, sans-serif',
       });
-      mermaidInitialized = true;
+      mermaidInitializedRef.current = true;
     }
 
     const renderDiagram = async () => {
       try {
-        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+        const id = `mermaid-${Math.random().toString(36).slice(2, 11)}`;
         const { svg: renderedSvg } = await mermaid.render(id, children.trim());
         setSvg(renderedSvg);
         setError('');
@@ -56,7 +53,6 @@ export function Mermaid({ children }: MermaidProps) {
 
   return (
     <div
-      ref={ref}
       className="my-6 flex justify-center overflow-x-auto"
       dangerouslySetInnerHTML={{ __html: svg }}
     />
