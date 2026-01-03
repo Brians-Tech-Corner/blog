@@ -134,12 +134,13 @@ export default async function BlogPostPage({
 
             {/* Hero Image */}
             {post.meta.image && (
-              <div className="relative aspect-[2/1] w-full overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
+              <div className="relative w-full overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
                 <Image
                   src={post.meta.image}
                   alt={post.meta.title}
-                  fill
-                  className="object-cover"
+                  width={1200}
+                  height={630}
+                  className="w-full h-auto"
                   priority
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
                 />
