@@ -143,6 +143,7 @@ describe('Mermaid', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Close \(Esc\)/)).toBeInTheDocument();
+      expect(screen.getByText('300%')).toBeInTheDocument();
     });
 
     // Press Escape
@@ -150,6 +151,13 @@ describe('Mermaid', () => {
 
     await waitFor(() => {
       expect(screen.queryByText(/Close \(Esc\)/)).not.toBeInTheDocument();
+    });
+
+    // Reopen to verify scale was reset
+    fireEvent.click(screen.getByTitle('Click to view fullscreen'));
+
+    await waitFor(() => {
+      expect(screen.getByText('300%')).toBeInTheDocument();
     });
   });
 
