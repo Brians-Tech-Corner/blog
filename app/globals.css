@@ -152,6 +152,12 @@ code[class*="language-"] {
   @apply rounded bg-zinc-100 px-1.5 py-0.5 text-[0.875em] font-medium text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100;
 }
 
+/* Prevent typography plugin from adding quotes/backticks to inline code */
+:not(pre) > code::before,
+:not(pre) > code::after {
+  content: "" !important;
+}
+
 :root {
   color-scheme: light;
 }

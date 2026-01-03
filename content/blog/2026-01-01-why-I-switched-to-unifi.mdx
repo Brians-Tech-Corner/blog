@@ -282,6 +282,85 @@ Different networks, different rules and now I could *see* that.
 
 ---
 
+## IoT Security: The Unexpected Win
+
+One of the most practical benefits of moving to UniFi and VLANs was finally solving the **IoT security problem**.
+
+### The Problem Before VLANs
+
+On a flat network, every IoT device had full access to everything:
+- Smart plugs could reach my laptop
+- Security cameras had access to file servers
+- Random gadgets could talk to infrastructure
+
+This isn't theoretical paranoia it's terrible security posture.
+
+### The Solution: IoT VLAN + Firewall Rules
+
+With UniFi, I created a dedicated IoT network:
+
+- **VLAN ID**: `40`
+- **Subnet**: `192.168.40.0/24`
+- **Default behavior**: No access to anything else
+
+Then I added **explicit firewall rules** for what IoT devices actually need:
+
+```plaintext
+Allow: IoT VLAN → Internet (outbound only)
+Allow: Default LAN → IoT VLAN (so you can manage devices)
+Block: IoT VLAN → Default LAN
+Block: IoT VLAN → Kubernetes VLAN
+```
+
+Suddenly, IoT devices were:
+- Reachable from my phone/laptop (when I need to configure them)
+- Able to reach their cloud services
+- Completely isolated from everything else
+
+### Home Assistant Changes Everything
+
+Here's where it gets interesting: **Home Assistant bridges the gap securely**.
+
+I run Home Assistant on a **Raspberry Pi on the Default LAN**, but with a critical exception:
+- A **firewall rule allows the Pi's MAC address** to communicate with the IoT VLAN
+- This is the only device on the Default LAN with that privilege
+- IoT devices **cannot** reach the Default LAN or Kubernetes VLAN directly
+- My phone/laptop talks to Home Assistant (on the LAN), which then controls IoT devices
+
+The flow looks like this:
+
+```plaintext
+Phone (Default LAN) → Home Assistant (Default LAN) → IoT Devices (IoT VLAN)
+                      [Firewall exception by MAC address]
+```
+
+Home Assistant becomes the **controlled access point**, not just a dashboard.
+
+### What This Actually Looks Like
+
+With firewall rules in place, I can:
+
+- Control lights, plugs, and sensors through Home Assistant
+- Block IoT devices from scanning the network
+- Let IoT devices reach their cloud APIs (if needed)
+- Monitor everything from the UniFi controller
+
+If a device gets compromised, it's trapped on VLAN 40 with no way to reach anything else.
+
+### Why This Matters for Homelabs
+
+If you're running infrastructure at home, IoT isolation isn't optional:
+
+- Cheap IoT devices have terrible security
+- Your Kubernetes cluster is a high-value target
+- Mixing trusted and untrusted devices on the same network is asking for trouble
+
+VLANs let you **keep the convenience without the risk**.
+
+Home Assistant works just as well (better, even), and your network is no longer a free-for-all.
+
+---
+
 ## Validating the Network (My Go-To Checks)
 
 Once things were configured correctly, I stopped guessing and started validating.
