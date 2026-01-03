@@ -5,14 +5,14 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.co
 export const metadata: Metadata = {
   title: 'Discord Community',
   description:
-    "Join Brian's Tech Corner Discord community to discuss homelabs, home automation, DevOps, Kubernetes, and more. Get help, share projects, and connect with fellow enthusiasts.",
+    "Join Brian's Tech Corner Discord community to discuss homelabs, home automation, Kubernetes, and more. Get help, share projects, and connect with fellow enthusiasts.",
   alternates: {
     canonical: `${siteUrl}/discord`,
   },
   openGraph: {
     title: "Discord Community | Brian's Tech Corner",
     description:
-      "Join the community to discuss homelabs, home automation, DevOps, and self-hosted solutions. Get support and connect with fellow enthusiasts.",
+      "Join the community to discuss homelabs, home automation, and self-hosted solutions. Get support and connect with fellow enthusiasts.",
     url: `${siteUrl}/discord`,
     siteName: "Brian's Tech Corner",
     type: 'website',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Discord Community | Brian's Tech Corner",
     description:
-      "Join the community to discuss homelabs, home automation, DevOps, and self-hosted solutions. Get support and connect with fellow enthusiasts.",
+      "Join the community to discuss homelabs, home automation, and self-hosted solutions. Get support and connect with fellow enthusiasts.",
     images: [
       `${siteUrl}/api/og?title=Discord Community&description=Join the conversation about homelabs and home automation`,
     ],
@@ -66,8 +66,7 @@ export default function DiscordPage() {
           <div className="flex-1">
             <h2 className="text-xl font-semibold">Brian&apos;s Tech Corner Discord</h2>
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              A friendly community for homelab enthusiasts, DevOps engineers, and home automation
-              nerds.
+              A friendly community for homelab enthusiasts and home automation nerds.
             </p>
             <a
               href="https://discord.gg/q2N7R2KDRs"
@@ -123,11 +122,11 @@ export default function DiscordPage() {
 
           <div>
             <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              ⚙️ DevOps & Kubernetes
+              ☸️ Kubernetes
             </h3>
             <p className="mt-2 text-zinc-700 dark:text-zinc-300">
-              Talk about Kubernetes, Docker, CI/CD pipelines, GitOps, and infrastructure as code.
-              Perfect for learning K8s at home or discussing production best practices.
+              Talk about Kubernetes, Docker, containers, and infrastructure at home. Share your
+              homelab K8s setups, troubleshoot deployments, and learn together.
             </p>
           </div>
 
