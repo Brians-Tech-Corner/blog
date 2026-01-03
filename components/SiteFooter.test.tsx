@@ -47,6 +47,10 @@ describe('SiteFooter', () => {
   it('renders all social media links', () => {
     render(<SiteFooter />);
 
+    const discordLink = screen.getByRole('link', { name: 'Discord' });
+    expect(discordLink).toBeInTheDocument();
+    expect(discordLink).toHaveAttribute('href', 'https://discord.gg/q2N7R2KDRs');
+
     const youtubeLink = screen.getByRole('link', { name: 'YouTube' });
     expect(youtubeLink).toBeInTheDocument();
     expect(youtubeLink).toHaveAttribute('href', 'https://youtube.com/@brianstechcorner');
@@ -68,6 +72,7 @@ describe('SiteFooter', () => {
     render(<SiteFooter />);
 
     const socialLinks = [
+      screen.getByRole('link', { name: 'Discord' }),
       screen.getByRole('link', { name: 'YouTube' }),
       screen.getByRole('link', { name: 'X (Twitter)' }),
       screen.getByRole('link', { name: 'Instagram' }),
