@@ -161,6 +161,33 @@ describe('Mermaid', () => {
     });
   });
 
+  it('should not close fullscreen when clicking on the diagram', async () => {
+    const diagram = 'graph TD\n  A[Start] --> B[End]';
+    render(<Mermaid>{diagram}</Mermaid>);
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Click to view fullscreen')).toBeInTheDocument();
+    });
+
+    // Open fullscreen
+    fireEvent.click(screen.getByTitle('Click to view fullscreen'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Close \(Esc\)/)).toBeInTheDocument();
+    });
+
+    // Click on the diagram content (should not close due to stopPropagation)
+    const diagramContainer = document.querySelector('.transition-transform');
+    if (diagramContainer) {
+      fireEvent.click(diagramContainer);
+    }
+
+    // Modal should still be open
+    await waitFor(() => {
+      expect(screen.getByText(/Close \(Esc\)/)).toBeInTheDocument();
+    });
+  });
+
   it('should have zoom controls in fullscreen view', async () => {
     const diagram = 'graph TD\n  A[Start] --> B[End]';
     render(<Mermaid>{diagram}</Mermaid>);
