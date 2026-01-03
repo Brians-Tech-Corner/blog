@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ThemeToggle } from './ThemeToggle';
+import { headerSocialLinks } from '@/lib/social-links';
 
 const links = [
   { href: '/blog', label: 'Blog' },
+  { href: '/discord', label: 'Discord' },
   { href: '/about', label: 'About' },
 ];
 
@@ -53,6 +55,24 @@ export function SiteHeader() {
             >
               RSS
             </Link>
+            
+            {/* Social Links - Hidden on mobile */}
+            <div className="hidden sm:flex items-center gap-2 ml-2 border-l border-zinc-200 dark:border-zinc-700 pl-3">
+              {headerSocialLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                  aria-label={link.name}
+                  title={link.name}
+                >
+                  {link.icon({ className: 'h-4 w-4' })}
+                </a>
+              ))}
+            </div>
+
             <ThemeToggle />
           </nav>
         </div>
