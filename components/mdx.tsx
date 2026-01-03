@@ -10,6 +10,11 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
     if (isInternal) return <Link {...(props as any)} href={href} />;
     return <a {...props} target="_blank" rel="noreferrer" />;
   },
+  code: ({ children, ...props }) => {
+    // For inline code (not inside pre), just render the code element
+    // The CSS will handle the styling
+    return <code {...props}>{children}</code>;
+  },
   pre: ({ children, ...props }) => {
     // Extract code element and its properties with type guards
     const codeElement = Array.isArray(children) ? children[0] : children;

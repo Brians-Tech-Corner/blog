@@ -5,7 +5,7 @@ export function PostMeta({ post }: { post: Meta }) {
     <header className="space-y-3">
       <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{post.title}</h1>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-600">
-        <span>{new Date(post.date).toLocaleDateString()}</span>
+        <span>{new Date(post.date).toLocaleDateString('en-US', { timeZone: 'UTC' })}</span>
         {post.tags?.length ? (
           <div className="flex flex-wrap gap-2">
             {post.tags.map((t) => (
@@ -19,7 +19,7 @@ export function PostMeta({ post }: { post: Meta }) {
           </div>
         ) : null}
       </div>
-      {post.description ? <p className="max-w-prose text-zinc-700">{post.description}</p> : null}
+      {post.description ? <p className="max-w-prose text-zinc-600 dark:text-zinc-400">{post.description}</p> : null}
     </header>
   );
 }

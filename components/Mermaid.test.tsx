@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, fireEvent } from '@testing-library/react';
 import { Mermaid } from './Mermaid';
 import mermaid from 'mermaid';
 
@@ -88,6 +88,195 @@ describe('Mermaid', () => {
       const preElement = container.querySelector('pre');
       expect(preElement).toBeInTheDocument();
       expect(preElement?.textContent).toBe(diagram);
+    });
+  });
+
+  it('should open fullscreen view when diagram is clicked', async () => {
+    const diagram = 'graph TD\n  A[Start] --> B[End]';
+    render(<Mermaid>{diagram}</Mermaid>);
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Click to view fullscreen')).toBeInTheDocument();
+    });
+
+    const diagramElement = screen.getByTitle('Click to view fullscreen');
+    fireEvent.click(diagramElement);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Close \(Esc\)/)).toBeInTheDocument();
+    });
+  });
+
+  it('should close fullscreen view when close button is clicked', async () => {
+    const diagram = 'graph TD\n  A[Start] --> B[End]';
+    render(<Mermaid>{diagram}</Mermaid>);
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Click to view fullscreen')).toBeInTheDocument();
+    });
+
+    // Open fullscreen
+    fireEvent.click(screen.getByTitle('Click to view fullscreen'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Close \(Esc\)/)).toBeInTheDocument();
+    });
+
+    // Close fullscreen
+    fireEvent.click(screen.getByText(/Close \(Esc\)/));
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Close \(Esc\)/)).not.toBeInTheDocument();
+    });
+  });
+
+  it('should close fullscreen view when Escape key is pressed', async () => {
+    const diagram = 'graph TD\n  A[Start] --> B[End]';
+    render(<Mermaid>{diagram}</Mermaid>);
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Click to view fullscreen')).toBeInTheDocument();
+    });
+
+    // Open fullscreen
+    fireEvent.click(screen.getByTitle('Click to view fullscreen'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Close \(Esc\)/)).toBeInTheDocument();
+      expect(screen.getByText('300%')).toBeInTheDocument();
+    });
+
+    // Press Escape
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Close \(Esc\)/)).not.toBeInTheDocument();
+    });
+
+    // Reopen to verify scale was reset
+    fireEvent.click(screen.getByTitle('Click to view fullscreen'));
+
+    await waitFor(() => {
+      expect(screen.getByText('300%')).toBeInTheDocument();
+    });
+  });
+
+  it('should not close fullscreen when clicking on the diagram', async () => {
+    const diagram = 'graph TD\n  A[Start] --> B[End]';
+    render(<Mermaid>{diagram}</Mermaid>);
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Click to view fullscreen')).toBeInTheDocument();
+    });
+
+    // Open fullscreen
+    fireEvent.click(screen.getByTitle('Click to view fullscreen'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Close \(Esc\)/)).toBeInTheDocument();
+    });
+
+    // Click on the diagram content (should not close due to stopPropagation)
+    const diagramContainer = document.querySelector('.transition-transform');
+    if (diagramContainer) {
+      fireEvent.click(diagramContainer);
+    }
+
+    // Modal should still be open
+    await waitFor(() => {
+      expect(screen.getByText(/Close \(Esc\)/)).toBeInTheDocument();
+    });
+  });
+
+  it('should have zoom controls in fullscreen view', async () => {
+    const diagram = 'graph TD\n  A[Start] --> B[End]';
+    render(<Mermaid>{diagram}</Mermaid>);
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Click to view fullscreen')).toBeInTheDocument();
+    });
+
+    // Open fullscreen
+    fireEvent.click(screen.getByTitle('Click to view fullscreen'));
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Zoom in (+)')).toBeInTheDocument();
+      expect(screen.getByTitle('Zoom out (-))')).toBeInTheDocument();
+      expect(screen.getByTitle('Reset zoom')).toBeInTheDocument();
+      expect(screen.getByText('300%')).toBeInTheDocument();
+    });
+  });
+
+  it('should zoom in when zoom in button is clicked', async () => {
+    const diagram = 'graph TD\n  A[Start] --> B[End]';
+    render(<Mermaid>{diagram}</Mermaid>);
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Click to view fullscreen')).toBeInTheDocument();
+    });
+
+    // Open fullscreen
+    fireEvent.click(screen.getByTitle('Click to view fullscreen'));
+
+    await waitFor(() => {
+      expect(screen.getByText('300%')).toBeInTheDocument();
+    });
+
+    // Click zoom in
+    fireEvent.click(screen.getByTitle('Zoom in (+)'));
+
+    await waitFor(() => {
+      expect(screen.getByText('325%')).toBeInTheDocument();
+    });
+  });
+
+  it('should zoom out when zoom out button is clicked', async () => {
+    const diagram = 'graph TD\n  A[Start] --> B[End]';
+    render(<Mermaid>{diagram}</Mermaid>);
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Click to view fullscreen')).toBeInTheDocument();
+    });
+
+    // Open fullscreen
+    fireEvent.click(screen.getByTitle('Click to view fullscreen'));
+
+    await waitFor(() => {
+      expect(screen.getByText('300%')).toBeInTheDocument();
+    });
+
+    // Click zoom out
+    fireEvent.click(screen.getByTitle('Zoom out (-))'));
+
+    await waitFor(() => {
+      expect(screen.getByText('275%')).toBeInTheDocument();
+    });
+  });
+
+  it('should reset zoom when reset button is clicked', async () => {
+    const diagram = 'graph TD\n  A[Start] --> B[End]';
+    render(<Mermaid>{diagram}</Mermaid>);
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Click to view fullscreen')).toBeInTheDocument();
+    });
+
+    // Open fullscreen
+    fireEvent.click(screen.getByTitle('Click to view fullscreen'));
+
+    // Zoom in twice
+    fireEvent.click(screen.getByTitle('Zoom in (+)'));
+    fireEvent.click(screen.getByTitle('Zoom in (+)'));
+
+    await waitFor(() => {
+      expect(screen.getByText('350%')).toBeInTheDocument();
+    });
+
+    // Reset zoom
+    fireEvent.click(screen.getByTitle('Reset zoom'));
+
+    await waitFor(() => {
+      expect(screen.getByText('100%')).toBeInTheDocument();
     });
   });
 });
