@@ -5,7 +5,7 @@ date: "2026-01-04"
 series: "kubernetes-homelab"
 seriesOrder: 2
 tags: ["proxmox", "kubernetes", "homelab", "unifi", "networking", "vlan"]
-draft: true
+image: "/post-images/unifi-k8s-hero.jpg"
 ---
 
 If you want to run Kubernetes at home **in a way that actually resembles production**, Proxmox is an excellent foundation.
@@ -48,6 +48,22 @@ All Kubernetes nodes run as **VMs**, not LXC containers.
 This is intentional. LXC skips too many layers that matter for Kubernetes internals and certification-style learning (CKA/CKAD).
 
 For more information on the Hardware decisions see [Part 1: Planning & Hardware](/blog/2026-01-03-kubernetes-homelab-part-1-planning-hardware)
+
+---
+
+<Callout type="warning">
+**Important: Backup Your Original OS Before Proceeding**
+
+Installing Proxmox will **completely wipe your mini PC's existing operating system** (typically Windows). Most mini PCs do not come with recovery media or restoration USB drives.
+
+**Before you begin:**
+- Create a full disk backup using software like Macrium Reflect or Clonezilla if you want to preserve the original OS
+- Or create recovery media using Windows' built-in recovery drive tool (Settings → Update & Security → Recovery → Create a recovery drive)
+- Ensure you have any necessary Windows license keys documented
+- Back up any important data from the existing system
+
+Once Proxmox is installed, your original OS will be gone and cannot be easily recovered without a backup.
+</Callout>
 
 ---
 
