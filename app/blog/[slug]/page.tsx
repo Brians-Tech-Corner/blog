@@ -132,6 +132,16 @@ export default async function BlogPostPage({
           <article className="min-w-0 space-y-8">
             <PostMeta post={post.meta} />
 
+            {/* Series Navigation (Top) */}
+            {seriesNav.allInSeries.length > 0 && (
+              <SeriesNavigation
+                prev={seriesNav.prev}
+                next={seriesNav.next}
+                allInSeries={seriesNav.allInSeries}
+                currentSlug={slug}
+              />
+            )}
+
             {/* Hero Image */}
             {post.meta.image && (
               <div className="relative w-full overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
