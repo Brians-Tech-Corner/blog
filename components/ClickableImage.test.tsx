@@ -86,6 +86,13 @@ describe('ClickableImage', () => {
     expect(button).toHaveStyle({ maxWidth: '600px' });
   });
 
+  it('should render without thumbnail width constraint when not provided', () => {
+    render(<ClickableImage src="/test.jpg" alt="Test image" width={1200} height={800} />);
+    
+    const button = screen.getByRole('button', { name: 'Open full size Test image' });
+    expect(button).not.toHaveStyle({ maxWidth: '600px' });
+  });
+
   it('should have proper accessibility attributes', () => {
     render(<ClickableImage src="/test.jpg" alt="Test image" />);
     

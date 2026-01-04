@@ -53,7 +53,7 @@ For more information on the Hardware decisions see [Part 1: Planning & Hardware]
 
 ## Adding Additional Storage (Optional but Recommended)
 
-Before installing Proxmox, I added a second SSD to the mini PC for additional storage capacity and to use ZFS1 for redundancy. While not strictly required, this will make hardware failures easier to recover from and such.
+Before installing Proxmox, I added a second SSD to the mini PC for additional storage capacity and to use a ZFS mirror (RAID1) for redundancy. While not strictly required, this will make hardware failures easier to recover from.
 
 ### Why Add a Second Drive?
 
@@ -293,7 +293,7 @@ The official installation guide is excellent and covers all scenarios: [Proxmox 
 - Set a strong root password
 - Note the hostname you choose (you'll need it later)
 
-In case it isn't clear on the first screen you come to, it will default to installing on just 1 drive, this is where you change the target to ZFS1 ane ensure both drives are showing up and selected.
+In case it isn't clear on the first screen you come to, it will default to installing on just 1 drive; this is where you change the target to **ZFS (RAID1)** and ensure both drives are showing up and selected as part of the mirror.
 
 ### Initial Network Configuration
 
