@@ -1,0 +1,243 @@
+---
+title: "Kubernetes on Proxmox: Bootstrapping the Cluster with kubeadm"
+description: "Installing Kubernetes components, initializing the control plane, and joining worker nodes on Proxmox."
+date: "2026-01-06"
+tags: ["homelab", "proxmox", "kubernetes", "k8s", "kubeadm"]
+series: "kubernetes-homelab"
+seriesOrder: 5
+image: "/post-images/k8s-cp-bootstrap-hero.jpg"
+---
+
+## Overview
+
+With all control plane and worker VMs provisioned and reachable, it’s time to actually stand up Kubernetes.
+
+In this post, we’ll install the Kubernetes components, bootstrap the control plane using `kubeadm`, join the remaining nodes, and install a CNI so the cluster becomes functional.
+
+By the end of this post, you’ll have:
+
+- A running Kubernetes control plane
+- Worker nodes successfully joined
+- Pod-to-pod networking enabled
+- A cluster ready for workloads and storage
+
+---
+
+## Cluster Topology
+
+This cluster uses:
+
+- **1 control plane node**
+- **2 worker nodes**
+- **containerd** as the container runtime
+- **Calico** as the CNI plugin
+
+All nodes were created from the same base VM template.
+
+<Callout type="info">
+**Why Single Control Plane?**
+
+For a homelab learning environment, a single control plane keeps resource requirements reasonable (4GB RAM is sufficient) while letting you focus on Kubernetes features like storage, networking, and workload management. Production clusters typically use 3+ control plane nodes for high availability, but that's not necessary for learning and experimentation.
+</Callout>
+
+---
+
+## Install Container Runtime (containerd)
+
+Run the following on **all nodes**.  This should already be done from the template but just to make sure.
+
+```bash
+sudo apt update
+sudo apt install -y containerd
+```
+
+Generate and enable the default configuration:
+
+```bash
+sudo mkdir -p /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml
+sudo systemctl restart containerd
+sudo systemctl enable containerd
+```
+
+Verify:
+
+```bash
+systemctl status containerd --no-pager
+```
+
+---
+
+## Install Kubernetes Packages
+
+Run on **all nodes**.
+
+**Install prerequisites:**
+
+```bash
+sudo apt update
+sudo apt install -y apt-transport-https ca-certificates curl conntrack
+```
+
+Add the Kubernetes apt repository:
+
+**Step 1: Add the GPG key**
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+```
+
+**Step 2: Add the repository**
+
+```bash
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+```
+
+**Step 3: Install Kubernetes components**
+
+```bash
+sudo apt update
+sudo apt install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
+```
+
+---
+
+## Disable Swap
+
+Kubernetes requires swap to be disabled.
+
+```bash
+sudo swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab
+```
+
+---
+
+## Initialize the First Control Plane
+
+Run **only on the first control plane node**.
+
+**Initialize the cluster:**
+
+```bash
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+```
+
+**Flag explained:**
+- `--pod-network-cidr`: Pod network range (must not overlap with node network). We're using `10.244.0.0/16` to avoid conflicts with our home network (`192.168.x.x`).
+
+<Callout type="warning">
+**Timeout During Initialization?**
+
+If `kubeadm init` times out with an error like `unable to create a new DNS service: the server was unable to return a response in the time allotted`, don't panic! This is common and usually means the CoreDNS service creation took longer than expected.
+
+The cluster is likely still functional. Continue with the kubectl configuration steps below to verify.
+</Callout>
+
+**Configure kubectl:**
+
+```bash
+mkdir -p $HOME/.kube
+sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+
+**Verify the cluster is working:**
+
+```bash
+kubectl get nodes
+```
+
+You should see your control plane node listed (it will be `NotReady` until we install the CNI).
+
+**Retrieve the worker join command:**
+
+The `kubeadm init` output will include a join command for worker nodes. If you lost it, generate a new one:
+
+```bash
+kubeadm token create --print-join-command
+```
+
+Save this command — you'll need it to add your worker nodes.
+
+---
+
+## Join Worker Nodes
+
+Run the **worker join command** on **both worker nodes** (k8s-w-1 and k8s-w-2):
+
+```bash
+sudo kubeadm join <CONTROL_PLANE_IP>:6443 --token <token> \
+  --discovery-token-ca-cert-hash sha256:<hash>
+```
+
+Replace `<CONTROL_PLANE_IP>` with your control plane node's IP address.
+
+**Verify from cp-1:**
+
+```bash
+kubectl get nodes
+```
+
+You should now see all 3 nodes (1 control plane + 2 workers), all in `NotReady` state until we install the CNI.
+
+```bash
+NAME       STATUS     ROLES           AGE     VERSION
+k8s-cp-1   NotReady   control-plane   7m34s   v1.31.14
+k8s-w-1    NotReady   <none>          5m52s   v1.31.14
+k8s-w-2    NotReady   <none>          5m44s   v1.31.14
+```
+
+---
+
+## Install Calico CNI
+
+The CNI (Container Network Interface) provides pod-to-pod networking. Without it, nodes stay in `NotReady` state.
+
+**Install Calico from cp-1:**
+
+```bash
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+```
+
+**Wait for CNI pods to start:**
+
+```bash
+kubectl get pods -n kube-system -w
+```
+
+Press Ctrl+C once you see all Calico pods running.
+
+**Verify pods:**
+
+```bash
+kubectl get pods -n kube-system
+```
+
+Wait until all pods are **Running**.
+
+---
+
+## Verify Cluster State
+
+```bash
+kubectl get nodes -o wide
+```
+
+You should see all nodes in a `Ready` state.
+
+---
+
+## What’s Next
+
+With Kubernetes up and running, the next step is persistent storage.
+
+In the next post, we’ll:
+
+- Install Longhorn
+- Configure storage classes
+- Validate PVCs and pod storage
+
+➡️ **Next:** *Kubernetes on Proxmox – Persistent Storage with Longhorn*

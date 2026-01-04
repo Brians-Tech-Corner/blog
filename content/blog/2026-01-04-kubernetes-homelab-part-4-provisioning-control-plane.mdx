@@ -16,10 +16,10 @@ In this post, we’ll focus on the **infrastructure side** of Kubernetes rather 
 
 For this setup, we’ll provision:
 
-- **3 control plane nodes**
+- **1 control plane node**
 - **2 worker nodes**
 
-This mirrors a realistic production-style topology while still fitting comfortably within a homelab environment.
+This is a practical homelab topology that focuses on learning Kubernetes features while keeping resource requirements reasonable. For production environments, you'd typically run 3+ control plane nodes for high availability.
 
 ---
 
@@ -38,9 +38,9 @@ At the end of this post, Kubernetes is **not installed yet** — and that’s in
 
 ## Node Layout and Sizing
 
-### Control Plane Nodes
+### Control Plane Node
 
-Control plane nodes are responsible for:
+The control plane node is responsible for:
 
 - API server
 - Scheduler
@@ -49,10 +49,10 @@ Control plane nodes are responsible for:
 
 Recommended specs:
 
-- **Count:** 3
+- **Count:** 1
 - **CPU:** 2 vCPUs
-- **Memory:** 4–6 GB RAM
-- **Disk:** 40–60 GB
+- **Memory:** 4 GB RAM
+- **Disk:** 40-60 GB
 
 ### Worker Nodes
 
@@ -61,8 +61,8 @@ Worker nodes run application workloads.
 Recommended specs:
 
 - **Count:** 2
-- **CPU:** 4 vCPUs
-- **Memory:** 6–8 GB RAM
+- **CPU:** 2-4 vCPUs
+- **Memory:** 4-6 GB RAM
 - **Disk:** 40-60 GB
 
 ---
@@ -75,10 +75,8 @@ All nodes will be created by cloning the base template built in the previous pos
 
 Using predictable names makes debugging and automation much easier.
 
-**Control plane nodes:**
+**Control plane node:**
 - `k8s-cp-1`
-- `k8s-cp-2`
-- `k8s-cp-3`
 
 **Worker nodes:**
 - `k8s-w-1`
@@ -97,7 +95,7 @@ For each node:
 5. Select the appropriate target node and storage
 6. Complete the clone
 
-Repeat until all five VMs are created.
+Repeat until all three VMs are created (1 control plane + 2 workers).
 
 ---
 
@@ -105,16 +103,16 @@ Repeat until all five VMs are created.
 
 After cloning, update each VM’s resources based on its role.
 
-### Control Plane VMs
+### Control Plane VM
 
-- Leave CPU set to **2 cores**
-- Set memory to **4–6 GB**
+- Set CPU to **2 cores**
+- Set memory to **4 GB**
 - Leave disk size unchanged
 
 ### Worker VMs
 
-- Set CPU to **4 cores**
-- Set memory to **6–8 GB**
+- Set CPU to **2-4 cores** (depending on your available resources)
+- Set memory to **4-6 GB**
 - Leave disk size unchanged
 
 ---
@@ -213,7 +211,7 @@ We’ll rely on this later when configuring Longhorn.
 
 At this point, you should have:
 
-- 3 reachable control plane VMs
+- 1 reachable control plane VM
 - 2 reachable worker VMs
 - SSH access to all nodes
 - Correct hostnames set
