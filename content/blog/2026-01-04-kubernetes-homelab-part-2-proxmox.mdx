@@ -95,22 +95,22 @@ ZFS mirror strikes the right balance between cost, performance, and protection f
    - Use a small flathead screwdriver or your fingernail to carefully pop off the top cover
    - Start at one corner and work your way around
 
-   ![Mini PC](/post-images/homelab-k8s-series/post-2/mini-pc.jpg)
-   ![Mini PC Top Cover Removed](/post-images/homelab-k8s-series/post-2/top-cover-off.jpg)
+   <ClickableImage src="/post-images/homelab-k8s-series/post-2/mini-pc.jpg" alt="Mini PC" width={800} height={600} thumbnailWidth={400} />
+   <ClickableImage src="/post-images/homelab-k8s-series/post-2/top-cover-off.jpg" alt="Mini PC Top Cover Removed" width={800} height={600} thumbnailWidth={400} />
 
 2. **Unscrew the fan assembly**
    - Locate the screws on each side of the mini PC (4 total)
    - Remove all screws to free the fan assembly
 
    Be careful when working on this, you need to gently disconnect this wire to get the fan assembly off.
-   ![Mini PC Fan Assembly](/post-images/homelab-k8s-series/post-2/fan-connector.jpg)
+   <ClickableImage src="/post-images/homelab-k8s-series/post-2/fan-connector.jpg" alt="Mini PC Fan Assembly" width={800} height={600} thumbnailWidth={400} />
 
 3. **Remove the fan**
    - Use a small flathead screwdriver to gently pop out the fan bezel
    - Carefully disconnect the fan power cable from the motherboard
    - Set the fan assembly aside safely
 
-   ![Mini PC Opened](/post-images/homelab-k8s-series/post-2/mini-pc-opened.jpg)
+   <ClickableImage src="/post-images/homelab-k8s-series/post-2/mini-pc-opened.jpg" alt="Mini PC Opened" width={800} height={600} thumbnailWidth={500} />
 
 ### Installing the M.2 SSD
 
@@ -123,18 +123,17 @@ With the fan removed, you now have clear access to the motherboard.
    - One is already occupied by the primary drive
    - Find the second empty M.2 slot on the motherboard
 
-   ![Mini PC SSD Slot](/post-images/homelab-k8s-series/post-2/ssd-slot.jpg)
+<ClickableImage src="/post-images/homelab-k8s-series/post-2/ssd-slot.jpg" alt="Mini PC SSD Slot" width={800} height={600} thumbnailWidth={400} />
 
-2. **Insert the M.2 SSD**
-   - Hold the SSD at a 30-45 degree angle
-   - **Carefully align the notch** - the slot and drive have a specific orientation
-   - Ensure the gold contacts line up with the M.2 connector
+2. **Insert the SSD**
+   - Align the notch on the SSD with the key in the M.2 slot
+   - Insert the drive at a 30-degree angle
    - Gently but firmly press the drive into the slot until fully seated
    - If it doesn't slide in easily, **do not force it** - check the alignment again
 
-   ![SSD Drive](/post-images/homelab-k8s-series/post-2/ssd-image.jpg)
+   <ClickableImage src="/post-images/homelab-k8s-series/post-2/ssd-image.jpg" alt="SSD Drive" width={800} height={600} thumbnailWidth={400} />
 
-   ![SSD Installed](/post-images/homelab-k8s-series/post-2/ssd-installed.jpg)
+   <ClickableImage src="/post-images/homelab-k8s-series/post-2/ssd-installed.jpg" alt="SSD Installed" width={800} height={600} thumbnailWidth={400} />
 
 
 3. **Secure the drive**
@@ -176,6 +175,40 @@ Why a separate VLAN?
 - Makes ingress and service exposure meaningful
 
 All Kubernetes nodes live **only** on this VLAN.
+
+### Creating the VLAN in UniFi
+
+Before configuring switch ports, you need to create the VLAN in your UniFi Network application.
+
+**Steps:**
+
+1. **Open UniFi Network Application**
+   - Accessed via https://unifi.ui.com
+
+2. **Navigate to Networks**
+   - Once logged in and clicked on your site go to Settings -> Networks
+
+3. **Create New Network**
+   - From here click `New Virtual Network` you can use the information in the next step or modify it.
+
+4. **Configure VLAN Settings**
+   - Name: `Homelab` (or your preferred name)
+   - I unselected `Auto-Scale Network` then modified the IPv4 info.
+   - IPv4 Address: `192.168.30.1` Netmask: `24`
+   - VLAN ID: `30`
+   - Gateway/Subnet: `192.168.30.1/24`
+   - DHCP: Enable (optional but recommended)
+   - See screenshot for full configuration I used
+
+   <ClickableImage src="/post-images/homelab-k8s-series/post-2/vlan-config.jpg" alt="VLAN Configuration" width={1200} height={800} thumbnailWidth={600} />
+   <ClickableImage src="/post-images/homelab-k8s-series/post-2/vlan-config-2.jpg" alt="VLAN Configuration Extended" width={1200} height={800} thumbnailWidth={600} />
+
+   You will notice I start my DHCP range at 12, that leaves me 2-11 to use for host addresses or other static IP's I might need.
+
+5. **Apply Changes**
+   - Then click `Create`
+
+Once the VLAN is created, you can proceed to configure your switch ports.
 
 ---
 
@@ -407,6 +440,33 @@ I enabled the Datacenter-level firewall with no rules.
 
 Nothing was actually broken — I had just locked myself out.
 
+### If This Happens to You
+
+If you've already enabled the Datacenter firewall and locked yourself out, here's how to fix it:
+
+1. **Physical Access Required**
+   - You'll need direct console access to the Proxmox host
+   - Connect a monitor and keyboard, or use IPMI/iLO if available
+
+2. **Login via Console**
+   - Boot the Proxmox host
+   - Login as `root` with your password
+
+3. **Disable the Firewall**
+   - Run: `pve-firewall stop`
+   - This immediately stops the firewall and restores access
+
+4. **Make it Permanent (Optional)**
+   - Edit: `/etc/pve/firewall/cluster.fw`
+   - Set: `enable: 0`
+   - Or disable via the web UI once you regain access
+
+5. **Regain Web Access**
+   - You should now be able to access the Proxmox web UI again
+   - SSH should also work
+
+Once you have access back, configure the firewall properly before re-enabling it.
+
 ---
 
 ### Correct Firewall Approach
@@ -422,6 +482,8 @@ The correct way to use Proxmox firewall:
   - Required VLAN traffic
 
 This gives you realistic security without bricking your host.
+
+<ClickableImage src="/post-images/homelab-k8s-series/post-2/node-firewall.jpg" alt="Proxmox Node Firewall" width={1200} height={800} thumbnailWidth={600} />
 
 ---
 
