@@ -87,4 +87,18 @@ describe('mdxComponents', () => {
       expect(screen.getByText('example.ts')).toBeInTheDocument();
     });
   });
+
+  describe('Custom components', () => {
+    it('should include Callout component', () => {
+      expect(mdxComponents.Callout).toBeDefined();
+    });
+
+    it('should include Mermaid component', () => {
+      expect(mdxComponents.Mermaid).toBeDefined();
+    });
+
+    it('should include ClickableImage component', () => {
+      expect(mdxComponents.ClickableImage).toBeDefined();
+    });
+  });
 });

@@ -1,18 +1,18 @@
 ---
-title: "Kubernetes Homelab: Proxmox for a Realistic Kubernetes Homelab (VLANs, Networking, and Gotchas)"
+title: "Proxmox for a Realistic Kubernetes Homelab (VLANs, Networking, and Gotchas)"
 description: "How I set up Proxmox and UniFi networking to support a production-like Kubernetes homelab, including VLANs, firewall pitfalls, and lessons learned."
-date: "2026-01-03"
+date: "2026-01-04"
 series: "kubernetes-homelab"
 seriesOrder: 2
 tags: ["proxmox", "kubernetes", "homelab", "unifi", "networking", "vlan"]
 draft: true
 ---
 
-If you want to run Kubernetes at home **in a way that actually resembles production**, Proxmox is an excellent foundation — but only if you get the networking right.
+If you want to run Kubernetes at home **in a way that actually resembles production**, Proxmox is an excellent foundation.
 
 This post covers everything that happened **before Kubernetes even entered the picture**: Proxmox installation, VLAN design, UniFi switch configuration, firewall pitfalls, and the mistakes that caused hours of head-scratching.
 
-This is **Part 1** of a multi-part series where I build a production-like Kubernetes homelab on Proxmox.
+This is **Part 2** of a multi-part series where I build a production-like Kubernetes homelab on Proxmox.
 
 ---
 
@@ -32,7 +32,7 @@ Proxmox checks all of those boxes:
 - ZFS built in
 - Great UI and CLI
 
-Most importantly, Proxmox doesn’t hide complexity — which is exactly what you want when learning Kubernetes seriously.
+Most importantly, Proxmox doesn’t hide complexity, which is exactly what you want when learning Kubernetes seriously.
 
 ---
 
@@ -47,13 +47,122 @@ All Kubernetes nodes run as **VMs**, not LXC containers.
 
 This is intentional. LXC skips too many layers that matter for Kubernetes internals and certification-style learning (CKA/CKAD).
 
+For more information on the Hardware decisions see [Part 1: Planning & Hardware](/blog/2026-01-03-kubernetes-homelab-part-1-planning-hardware)
+
+---
+
+## Adding Additional Storage (Optional but Recommended)
+
+Before installing Proxmox, I added a second SSD to the mini PC for additional storage capacity and to use ZFS1 for redundancy. While not strictly required, this will make hardware failures easier to recover from and such.
+
+### Why Add a Second Drive?
+
+Having two drives allows you to configure ZFS in mirror mode (also called RAID1), which provides several critical benefits:
+
+**Data Redundancy**
+- If one drive fails, your VMs and data remain intact
+- No downtime from a single disk failure
+- Critical for a homelab where you're running persistent workloads
+
+**ZFS Mirror Performance**
+- Reads are faster (ZFS can read from both drives)
+- Writes are only as fast as the slower drive, but redundancy is worth it
+- Better than no redundancy at all
+
+**Homelab Reality Check**
+- Consumer SSDs fail more often than enterprise drives
+- Rebuilding a Kubernetes cluster from scratch is time-consuming
+- Persistent volumes (databases, monitoring data) need protection
+
+Without a second drive, you're running a single point of failure. For a learning environment where you're testing production-like scenarios, this defeats the purpose.
+
+ZFS mirror strikes the right balance between cost, performance, and protection for a homelab.
+
+### Opening the Mini PC
+
+**Tools Needed:**
+- Small flathead screwdriver (or your fingernail)
+- Phillips head screwdriver
+
+**Safety:**
+- Power off the mini PC completely
+- Unplug all cables
+- Work on a static-free surface
+
+**Steps:**
+
+1. **Remove the top cover**
+   - Use a small flathead screwdriver or your fingernail to carefully pop off the top cover
+   - Start at one corner and work your way around
+
+   ![Mini PC](/post-images/homelab-k8s-series/post-2/mini-pc.jpg)
+   ![Mini PC Top Cover Removed](/post-images/homelab-k8s-series/post-2/top-cover-off.jpg)
+
+2. **Unscrew the fan assembly**
+   - Locate the screws on each side of the mini PC (4 total)
+   - Remove all screws to free the fan assembly
+
+   Be careful when working on this, you need to gently disconnect this wire to get the fan assembly off.
+   ![Mini PC Fan Assembly](/post-images/homelab-k8s-series/post-2/fan-connector.jpg)
+
+3. **Remove the fan**
+   - Use a small flathead screwdriver to gently pop out the fan bezel
+   - Carefully disconnect the fan power cable from the motherboard
+   - Set the fan assembly aside safely
+
+   ![Mini PC Opened](/post-images/homelab-k8s-series/post-2/mini-pc-opened.jpg)
+
+### Installing the M.2 SSD
+
+With the fan removed, you now have clear access to the motherboard.
+
+**Steps:**
+
+1. **Locate the M.2 slot**
+   - Most mini PCs have 2 M.2 slots
+   - One is already occupied by the primary drive
+   - Find the second empty M.2 slot on the motherboard
+
+   ![Mini PC SSD Slot](/post-images/homelab-k8s-series/post-2/ssd-slot.jpg)
+
+2. **Insert the M.2 SSD**
+   - Hold the SSD at a 30-45 degree angle
+   - **Carefully align the notch** - the slot and drive have a specific orientation
+   - Ensure the gold contacts line up with the M.2 connector
+   - Gently but firmly press the drive into the slot until fully seated
+   - If it doesn't slide in easily, **do not force it** - check the alignment again
+
+   ![SSD Drive](/post-images/homelab-k8s-series/post-2/ssd-image.jpg)
+
+   ![SSD Installed](/post-images/homelab-k8s-series/post-2/ssd-installed.jpg)
+
+
+3. **Secure the drive**
+   - Gently press the drive down flat against the motherboard
+   - Locate the securing screw hole at the end of the drive
+   - Use the small screw provided on the board (or included with the SSD)
+   - Screw it down snugly, but don't overtighten
+
+4. **Reassemble**
+   - Reconnect the fan power cable to the motherboard
+   - Snap the fan bezel back into place
+   - Replace the 4 screws on each side of the mini PC
+   - Snap the top cover back on
+
+### Verifying the Drive
+
+Now we should be ready for the next part of installing Proxmox.  If you want to validate the drive is being seen
+before the install you can check the Bios of the Mini PC and validate it shows up or just validate it during the Proxmox install.
+
 ---
 
 ## Networking Design (This Is the Critical Part)
 
+Before installing Proxmox, you need to plan your network architecture. This is where most homelabs fail - trying to retrofit networking after the fact leads to confusion and technical debt.
+
 ### VLAN Strategy
 
-I created a **dedicated Kubernetes VLAN**:
+I created a **dedicated homelab/Kubernetes VLAN**:
 
 - VLAN ID: `30`
 - Subnet: `192.168.30.0/24`
@@ -63,7 +172,7 @@ Why a separate VLAN?
 
 - Mirrors real production environments
 - Forces proper routing and firewall thinking
-- Prevents “everything works because it’s flat” setups
+- Prevents "everything works because it's flat" setups
 - Makes ingress and service exposure meaningful
 
 All Kubernetes nodes live **only** on this VLAN.
@@ -71,6 +180,8 @@ All Kubernetes nodes live **only** on this VLAN.
 ---
 
 ## UniFi Switch Configuration (What Actually Broke Things)
+
+With your VLAN strategy planned, you need to configure your physical switches **before** installing Proxmox.
 
 ### Mistake #1: Using an Unmanaged Switch
 
@@ -85,6 +196,8 @@ This caused subtle but brutal issues:
 
 **Unmanaged switches and VLANs do not mix.**
 
+While you don't necessarily need this, it will make things cleaner and more realistic long term with the networking.
+
 **Fix:** replace it with a managed UniFi switch.
 
 ---
@@ -93,50 +206,192 @@ This caused subtle but brutal issues:
 
 Once the managed switch was in place, port configuration mattered a lot.
 
-#### Uplink Port (Main Switch → Proxmox Switch)
+#### Uplink Port (Main Switch → Office Switch)
+I have a switch in my office (where the mini pc connects) from my main Unifi switch so I had to setup this switch uplink as a trunk.
 
 Configured as a **trunk**:
 
 - Native (untagged): default LAN
-- Tagged: VLAN 30 (Kubernetes)
+- Tagged: VLAN 30 (Homelab/Kubernetes)
+
+<ClickableImage src="/post-images/homelab-k8s-series/post-2/unifi-uplink-port.jpg" alt="Unifi Trunk Port Config" width={1200} height={800} thumbnailWidth={600} />
 
 #### Proxmox Host Port
+This is the port configuration on the Office switch where the mini pc will connect.
 
 Configured as an **access port**:
 
-- Untagged VLAN: `30`
+- Tagged VLAN: `30`
 - No VLAN tagging inside Proxmox VM NICs
+
+<ClickableImage src="/post-images/homelab-k8s-series/post-2/unifi-mini-pc.jpg" alt="Unifi Mini PC Config" width={1200} height={800} thumbnailWidth={600} />
 
 This is a common mistake: tagging both at the switch *and* inside Proxmox will break connectivity in confusing ways.
 
 ---
 
-## Proxmox Network Configuration
+## Installing Proxmox VE
 
-### Bridge Setup
+### Downloading the Proxmox ISO
 
-Inside Proxmox, I created a VLAN-aware bridge:
+First step is to download the latest ISO from [Here](https://www.proxmox.com/en/downloads/proxmox-virtual-environment/iso).  As of writing this version `9.1` is latest.
 
-- Example: `vmbr30`
-- Attached to the physical NIC
-- VLAN-aware enabled
-- Proxmox itself assigned an IP in `192.168.30.0/24`
+### Creating a Bootable USB Drive
 
-One important lesson here:
+There is documentation on Proxmox's website [Here](https://pve.proxmox.com/wiki/Prepare_Installation_Media) with the overall process for doing this per OS.
 
-> A Proxmox bridge must have a physical interface attached.
+We are on Windows so we will be using [Etcher](https://etcher.balena.io/#download-etcher) like the docs recommend.  So once installed it is very easy to make a bootable USB.
 
-I hit this error early on:
+After installing and opening Etcher just select your ISO for the `Flash from file` option and for the `Select Target` select your USB drive then click `Flash!`.
 
-```text
-no physical interface on bridge 'vmbr30'
+<ClickableImage src="/post-images/homelab-k8s-series/post-2/etcher-ss.jpg" alt="Etcher Screenshot" width={1200} height={800} />
+
+### BIOS/UEFI Configuration
+
+Before installing Proxmox, you need to ensure virtualization is enabled in your BIOS/UEFI settings.
+
+**Required Settings:**
+
+1. **Access BIOS/UEFI**
+   - Insert the bootable USB drive
+   - Power on the mini PC
+   - Press the BIOS key during boot (usually F2, F10, F12, or Del - check your mini PC's manual)
+
+2. **Enable Virtualization Technology**
+   - Look for settings named:
+     - **Intel VT-x** (Intel processors)
+     - **AMD-V** or **SVM Mode** (AMD processors)
+   - These are typically found under:
+     - Advanced → CPU Configuration
+     - Advanced → Processor Options
+     - Security → Virtualization
+
+3. **Optional but Recommended: Enable IOMMU**
+   - For Intel: **VT-d**
+   - For AMD: **AMD-Vi** or **IOMMU**
+   - Required if you plan to do PCI passthrough later
+
+4. **Modify Power Limit Setting**
+   - Ensure in the bios if you have it the power limit setting is set to Performance. 
+
+4. **Set Boot Order**
+   - Move USB drive to the top of the boot priority list
+   - Save and exit
+
+**Note:** For the mini PC I used, virtualization options were already enabled by default. Many modern mini PCs come with these enabled, but it's worth verifying.
+
+If virtualization isn't enabled, Proxmox will install but VMs won't start properly - you'll see errors about hardware virtualization not being available.
+
+### Running the Proxmox Installer
+
+The official installation guide is excellent and covers all scenarios: [Proxmox VE Installation](https://pve.proxmox.com/wiki/Installation)
+
+**Key points for this setup:**
+- Accept defaults for most options
+- Choose **ZFS (RAID1)** when selecting the filesystem
+- Select both SSDs for the mirror
+- Set a strong root password
+- Note the hostname you choose (you'll need it later)
+
+In case it isn't clear on the first screen you come to, it will default to installing on just 1 drive, this is where you change the target to ZFS1 ane ensure both drives are showing up and selected.
+
+### Initial Network Configuration
+
+During the Proxmox installation, you'll be asked to configure network settings. For now, accept the defaults with these important exceptions:
+
+**Management IP:** Accept the DHCP-assigned address or set a static IP in your network range
+
+**Gateway:** Set this to your router's address on VLAN 30: `192.168.30.1`
+
+**DNS Server:** Use the same as the gateway: `192.168.30.1`
+
+**Note:** You can modify these settings later through the Proxmox web UI if needed. The critical part is ensuring the gateway points to your VLAN 30 router so Proxmox can reach the internet for updates.
+
+<Callout type="info">
+**Before rebooting:** Remove the USB installation media! If you leave it plugged in, the system will try to boot from the USB again instead of your installed Proxmox system.
+</Callout>
+
+#### Final Networking Config
+One final part before we can move on to the next step is if you are doing what I have with the custom VLAN we need to modify the networking first.
+
+This Proxmox host is configured to run entirely on a tagged management VLAN (VLAN 30). The host itself, along with any attached VMs, communicates over VLAN 30 using a Linux bridge backed by a VLAN sub-interface.
+
+From the console login using `root` and whatever password you set then do the following:
+
+`nano /etc/network/interfaces`
+
+Then you want to set it up to look something like below replacing `nic0` with whatever nic you are using.  You can validate this by doing `ip a` to see which link is up.
+
+```bash
+auto lo
+iface lo inet loopback
+
+auto nic0
+iface nic0 inet manual
+
+auto nic0.30
+iface nic0.30 inet manual
+    vlan-raw-device nic0
+
+auto vmbr30
+iface vmbr30 inet static
+        address 192.168.30.11/24
+        gateway 192.168.30.1
+        bridge-ports nic0.30
+        bridge-stp off
+        bridge-fd 0
+
+iface nic1 inet manual
+
+iface nic2 inet manual
+
+
+source /etc/network/interfaces.d/*
 ```
 
-This was caused by:
+#### How This Works
 
-- Incorrect bridge configuration
-- VLAN tagging applied at the VM NIC instead of the switch
-- **Proxmox Firewall (Major Gotcha)**
+- `nic0` is the physical network interface and does not have an IP address
+- `nic0.30` is a VLAN sub-interface that tags all traffic with VLAN ID 30
+- `vmbr30` is a Linux bridge connected to `nic0.30`
+- The Proxmox host management IP (192.168.30.11) lives on `vmbr30`
+- The default gateway (192.168.30.1) is also on VLAN 30
+- All management traffic for the Proxmox host is therefore isolated to VLAN 30 and requires the connected switch port to be configured as a trunk allowing VLAN 30
+
+#### Why Use This Setup
+
+- Keeps Proxmox management traffic isolated
+- Avoids untagged/native VLAN dependencies
+- Makes it easy to attach VMs directly to the management VLAN
+- Scales cleanly by adding additional VLAN bridges (e.g., vmbr20, vmbr40)
+
+#### Network Flow
+
+```bash
+Proxmox Host
+  └─ vmbr30 (192.168.30.11)
+       └─ nic0.30 (VLAN 30 tagged)
+            └─ nic0 (physical NIC)
+                 └─ UniFi switch (trunk port)
+```
+
+### Post-Install Setup
+
+Now that Proxmox is installed, ensure you can access the web UI and SSH to the host using the IP and credentials you configured during installation.
+
+<Callout type="info">
+The default username for Proxmox is **root** - use the password you set during installation.
+</Callout>
+
+Access the Proxmox web UI at: `https://<your-proxmox-ip>:8006`
+
+You should see something like below:
+
+<ClickableImage src="/post-images/homelab-k8s-series/post-2/proxmox-summary.jpg" alt="Proxmox Summary Screen" width={1200} height={800} />
+
+**Having Issues?** If you run into problems during setup, join our [Discord community](/discord) where you can get help from others building similar homelabs.
+
+---
 
 ## Proxmox Firewall (Major Gotcha)
 
@@ -197,7 +452,7 @@ At this point, Proxmox stopped being the problem — which is exactly where you 
 
 ## What’s Next
 
-In Part 2, I’ll cover:
+In Part 3, I’ll cover:
 
 - Building a multi-control-plane Kubernetes cluster on Proxmox
 - kubeadm installation details
