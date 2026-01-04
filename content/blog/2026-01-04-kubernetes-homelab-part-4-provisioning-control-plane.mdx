@@ -1,0 +1,237 @@
+---
+title: "Kubernetes on Proxmox: Provisioning Control Plane and Worker Nodes"
+description: "Cloning a Proxmox VM template into Kubernetes control plane and worker nodes and preparing them for cluster bootstrap."
+date: 2026-01-05
+tags: ["homelab", "proxmox", "kubernetes", "k8s", "virtualization"]
+series: "kubernetes-homelab"
+seriesOrder: 4
+image: "/post-images/kubernetes-cp-hero.jpg"
+---
+
+## Overview
+
+With our base VM template complete, the next step is provisioning the actual virtual machines that will form our Kubernetes cluster.
+
+In this post, we’ll focus on the **infrastructure side** of Kubernetes rather than Kubernetes itself. The goal is to end with a set of clean, reachable Linux nodes that are ready for `kubeadm` in the next post.
+
+For this setup, we’ll provision:
+
+- **3 control plane nodes**
+- **2 worker nodes**
+
+This mirrors a realistic production-style topology while still fitting comfortably within a homelab environment.
+
+---
+
+## Why Separate Provisioning from Bootstrap?
+
+It’s tempting to jump straight into Kubernetes installation, but separating these steps has real benefits:
+
+- Clear separation between infrastructure and cluster logic
+- Easier troubleshooting when something goes wrong
+- Faster rebuilds when experimenting or iterating
+- A more production-like mental model
+
+At the end of this post, Kubernetes is **not installed yet** — and that’s intentional.
+
+---
+
+## Node Layout and Sizing
+
+### Control Plane Nodes
+
+Control plane nodes are responsible for:
+
+- API server
+- Scheduler
+- Controller manager
+- etcd
+
+Recommended specs:
+
+- **Count:** 3
+- **CPU:** 2 vCPUs
+- **Memory:** 4–6 GB RAM
+- **Disk:** 40–60 GB
+
+### Worker Nodes
+
+Worker nodes run application workloads.
+
+Recommended specs:
+
+- **Count:** 2
+- **CPU:** 4 vCPUs
+- **Memory:** 6–8 GB RAM
+- **Disk:** 40-60 GB
+
+---
+
+## Cloning the VM Template
+
+All nodes will be created by cloning the base template built in the previous post.
+
+### Naming Conventions
+
+Using predictable names makes debugging and automation much easier.
+
+**Control plane nodes:**
+- `k8s-cp-1`
+- `k8s-cp-2`
+- `k8s-cp-3`
+
+**Worker nodes:**
+- `k8s-w-1`
+- `k8s-w-2`
+
+---
+
+### Clone Steps (Proxmox UI)
+
+For each node:
+
+1. Right-click the base VM template
+2. Select **Clone**
+3. Choose **Full Clone**
+4. Set the VM name (from the list above)
+5. Select the appropriate target node and storage
+6. Complete the clone
+
+Repeat until all five VMs are created.
+
+---
+
+## Adjusting VM Resources
+
+After cloning, update each VM’s resources based on its role.
+
+### Control Plane VMs
+
+- Leave CPU set to **2 cores**
+- Set memory to **4–6 GB**
+- Leave disk size unchanged
+
+### Worker VMs
+
+- Set CPU to **4 cores**
+- Set memory to **6–8 GB**
+- Leave disk size unchanged
+
+---
+
+## SSH Access
+
+<Callout type="info">
+As part of template cleanup, SSH host keys are removed to avoid duplication across nodes. On first boot of a cloned VM, SSH host keys must be regenerated:
+</Callout>
+
+```bash
+sudo ssh-keygen -A
+sudo systemctl restart ssh
+```
+
+---
+
+## Networking Configuration
+
+All nodes are attached to the Kubernetes VLAN (`vmbr30`).
+
+### IP Addressing Strategy
+
+For now, we’ll rely on **DHCP** to assign IP addresses:
+
+- Simplifies initial setup
+- Easy to change later to static or reservations
+- Works well in homelab environments
+
+Once the VMs boot, verify that each node receives an IP address in the expected subnet.
+
+```bash
+ip a
+```
+
+Take note of each node’s IP — you’ll need them for SSH access.
+
+---
+
+## Initial Node Verification
+
+Before moving on, verify that every node is reachable and healthy.
+
+### SSH Access
+
+From your workstation:
+
+```bash
+ssh k8sadmin@<node-ip>
+```
+
+Confirm:
+- Login works
+- Hostnames are correct
+- Network connectivity is stable
+
+### Hostname Validation
+
+On each node:
+
+```bash
+hostnamectl
+```
+
+If needed, set the hostname manually:
+
+Replacing the `k8s-cp-1` with each name respectively per virtual machine being configured.
+
+```bash
+sudo hostnamectl set-hostname k8s-cp-1
+```
+
+(Reboot after changing the hostname.)
+
+---
+
+## Disk Visibility (Important for Longhorn Later)
+
+Before installing Kubernetes, ensure worker nodes see their disks correctly.
+
+On worker nodes:
+
+```bash
+lsblk
+```
+
+You should see:
+- Root disk
+- Sufficient free space for future storage workloads
+
+We’ll rely on this later when configuring Longhorn.
+
+---
+
+## Baseline Readiness Checklist
+
+At this point, you should have:
+
+- 3 reachable control plane VMs
+- 2 reachable worker VMs
+- SSH access to all nodes
+- Correct hostnames set
+- Networking verified
+
+No Kubernetes components should be installed yet.
+
+---
+
+## What’s Next
+
+With the infrastructure in place, the next step is bootstrapping Kubernetes itself.
+
+In the next post, we’ll:
+
+- Install Kubernetes components
+- Initialize the control plane with `kubeadm`
+- Join worker nodes
+- Install Calico for cluster networking
+
+➡️ **Next:** *Kubernetes on Proxmox – Bootstrapping the Cluster with kubeadm*

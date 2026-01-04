@@ -338,10 +338,43 @@ Since you installed OpenSSH server during the Ubuntu installation, SSH should al
 sudo systemctl status ssh
 ```
 
+### SSH Access Configuration
+
+To simplify initial access to newly cloned Kubernetes nodes, SSH password authentication is enabled in the base VM template.(If you configured it)
+
+By default, Ubuntu disables password-based SSH logins. While this is a sensible security default, enabling password authentication during the bootstrap phase makes it easier to validate connectivity and perform early cluster setup before transitioning to key-based access.
+
+### Enabling Password Authentication
+
+Inside the base VM:
+
+```bash
+sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?UsePAM.*/UsePAM yes/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+```
+
 You should now be able to SSH into the VM from your workstation using the user account you created during installation.
 
 The command `ip a` should give you the vm's IP address.
 
+---
+
+### Proxmox Guest Agent
+
+To improve VM visibility and lifecycle management, the **Proxmox QEMU Guest Agent** is installed directly in the base VM template.
+
+Installing the guest agent at the template level ensures that **all cloned Kubernetes control plane and worker nodes inherit it automatically**, without any per-node configuration.
+
+#### Installing the Guest Agent
+
+Inside the base VM:
+
+```bash
+sudo apt update
+sudo apt install -y qemu-guest-agent
+sudo systemctl start qemu-guest-agent
+```
 ---
 
 ## Preparing the OS for Kubernetes
@@ -379,9 +412,7 @@ EOF
 sudo sysctl --system
 ```
 
----
-
-## Installing the Container Runtime
+### Installing the Container Runtime
 
 For this cluster, I’m using **containerd**, which is the current recommended default.
 
@@ -400,11 +431,23 @@ sudo systemctl enable containerd
 
 ## Final Cleanup Before Templating
 
-Before converting this VM into a reusable template:
+Before converting this VM into a reusable template we have a few things to do.
+
+### Clearing the Machine ID Before Templating
+When cloning Ubuntu VMs from a Proxmox template, all clones may receive the **same IP address**, even if their MAC addresses are unique.
+
+This happens because Ubuntu uses the system **machine ID** as part of its identity when requesting a DHCP lease. If the machine ID exists in the template, every cloned VM will inherit it and appear identical to the DHCP server.
+
+To avoid this issue, the machine ID must be cleared **before converting the VM into a template**.
+
+Inside the base VM:
 
 ```bash
 sudo rm -f /etc/ssh/ssh_host_*
+sudo rm -f /etc/machine-id
 sudo truncate -s 0 /etc/machine-id
+sudo rm -f /var/lib/dbus/machine-id
+sudo ln -sf /etc/machine-id /var/lib/dbus/machine-id
 sudo shutdown now
 ```
 
