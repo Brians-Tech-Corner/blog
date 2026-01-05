@@ -1,7 +1,7 @@
 ---
 title: "Kubernetes on Proxmox: Bootstrapping the Cluster with kubeadm"
 description: "Installing Kubernetes components, initializing the control plane, and joining worker nodes on Proxmox."
-date: "2026-01-06"
+date: "2026-01-04"
 tags: ["homelab", "proxmox", "kubernetes", "k8s", "kubeadm"]
 series: "kubernetes-homelab"
 seriesOrder: 5
@@ -102,15 +102,44 @@ sudo apt install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
+**Step 4: Enable kubelet service**
+
+Ensure kubelet starts automatically on boot:
+
+```bash
+sudo systemctl enable kubelet
+```
+
+<Callout type="info">
+While kubelet is typically enabled automatically during installation, explicitly enabling it ensures the service starts after VM reboots. This is especially important if you stop/start VMs in Proxmox for maintenance (like adding storage disks).
+</Callout>
+
 ---
 
 ## Disable Swap
 
-Kubernetes requires swap to be disabled.
+Kubernetes requires swap to be completely disabled. If you didn't remove swap in the VM template, do it now:
 
 ```bash
+# Disable swap immediately
 sudo swapoff -a
+
+# Comment out swap in fstab
 sudo sed -i '/ swap / s/^/#/' /etc/fstab
+
+# Remove the swap logical volume (if it exists)
+sudo lvremove -y /dev/ubuntu-vg/swap_1 2>/dev/null || echo "No swap LV found (already removed in template)"
+
+# Verify swap is gone
+free -h
+```
+
+The output of `free -h` should show `0B` for swap.
+
+<Callout type="warning">
+If swap isn't fully removed, kubelet will fail to start with "running with swap on is not supported" errors. The swap LV can persist through VM cloning, so it's important to verify it's gone on each node.
+</Callout>
+
 ```
 
 ---
