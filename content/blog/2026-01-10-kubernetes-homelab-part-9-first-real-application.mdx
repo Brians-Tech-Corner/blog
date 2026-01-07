@@ -729,7 +729,8 @@ Test MySQL connectivity from Ghost pod:
 kubectl exec -n ghost -it deployment/ghost -- sh
 # Inside the pod:
 apk add mysql-client
-mysql -h mysql -u ghost -pghostpass123 ghost
+MYSQL_PASSWORD='<your-mysql-password>'
+mysql -h mysql -u ghost -p"$MYSQL_PASSWORD" ghost
 ```
 
 ### PVC Not Binding
