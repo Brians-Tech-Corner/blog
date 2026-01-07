@@ -633,7 +633,7 @@ This confirms:
 ## Understanding What We Built
 
 ### Storage Layer (Longhorn)
-- **mysql-pvc**: 10GB for MySQL database files
+- **mysql-data-mysql-0** (from StatefulSet `volumeClaimTemplates`): 10GB for MySQL database files
 - **ghost-pvc**: 5GB for Ghost content (posts, themes, images)
 - Both use Longhorn's `ReadWriteOnce` access mode
 - Data is replicated across worker nodes (Longhorn default: 3 replicas)
