@@ -12,7 +12,7 @@ image: "/post-images/kubernetes-gateway-api-hero.jpg"
 
 Now that the cluster is online (kubeadm + Calico) and persistent storage is handled by Longhorn, the next step is **getting traffic into the cluster**.
 
-Historically, most Kubernetes setups used `Ingress` resources + an Ingress Controller. That still works, but the more modern (and future-facing) approach is the **Gateway API**, which provides a cleaner model (`GatewayClass`, `Gateway`, `HTTPRoute`) and a better long‑term path for Kubernetes networking.
+Historically, most Kubernetes setups used `Ingress` resources + an Ingress Controller. That still works, but the more modern (and future-facing) approach is the **Gateway API**, which provides a cleaner model (`GatewayClass`, `Gateway`, `HTTPRoute`) and a better long-term path for Kubernetes networking.
 
 In this post we’ll:
 
