@@ -429,6 +429,90 @@ You should get a response without specifying a port.
 
 ---
 
+## Bonus: Expose the Traefik Dashboard
+
+Traefik includes a built-in dashboard that shows routes, services, middlewares, and health status. Let's expose it via DNS.
+
+### Option A: Using Gateway API HTTPRoute
+
+Create an HTTPRoute for the dashboard:
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: traefik-dashboard
+  namespace: traefik
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: traefik
+  hostnames:
+  - traefik.k8s.home
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: api@internal
+      kind: TraefikService
+      group: traefik.io
+EOF
+```
+
+### Option B: Using Traefik IngressRoute (Simpler)
+
+If you prefer Traefik's native CRD:
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: traefik
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(\`traefik.k8s.home\`)
+    kind: Rule
+    services:
+    - name: api@internal
+      kind: TraefikService
+EOF
+```
+
+### Add DNS Record
+
+Add a DNS record pointing to your Traefik LoadBalancer IP:
+
+- **Domain**: `traefik.k8s.home`
+- **IP**: `192.168.30.200` (your Traefik EXTERNAL-IP)
+
+### Access the Dashboard
+
+Open your browser and navigate to:
+
+```text
+http://traefik.k8s.home
+```
+
+You should see the Traefik dashboard showing:
+- HTTP routers and services
+- TCP/UDP services (if any)
+- Middleware configurations
+- Gateway API resources
+- Health status
+
+<Callout type="warning">
+**Security Note:** The dashboard is now publicly accessible on your network. For production use, consider adding authentication middleware or restricting access by IP. We'll cover securing ingress routes with authentication in a future post.
+</Callout>
+
+---
+
 ## Troubleshooting
 
 ### No EXTERNAL-IP on the LoadBalancer Service
