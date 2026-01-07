@@ -226,10 +226,9 @@ kubectl create secret generic mysql-secret \
 
 ### Deploy MySQL
 
-Create the MySQL Service:
+Create the MySQL Service. Save this to a file named `mysql-service.yaml`:
 
-```bash
-kubectl apply -f - <<EOF
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -243,7 +242,12 @@ spec:
     - name: mysql
       port: 3306
       targetPort: 3306
-EOF
+```
+
+Apply it:
+
+```bash
+kubectl apply -f mysql-service.yaml
 ```
 
 Create the MySQL StatefulSet file via nano, etc and call it `mysql-statefulset.yaml`:
@@ -350,6 +354,7 @@ kubectl logs -n ghost mysql-0
 
 <Callout type="info">
 **Volume Provisioning:** If the pod is stuck in `Pending` state with events showing "volume is not ready for workloads", this is normal during initial Longhorn volume provisioning. Longhorn needs time to create and replicate the volume across your nodes (typically 30-60 seconds). Check the status with:
+</Callout>
 
 ```bash
 # Check PVC status
@@ -358,7 +363,7 @@ kubectl get pvc -n ghost
 # Check Longhorn volume status
 kubectl get volumes -n longhorn-system
 ```
-
+<Callout type="info">
 The PVC should eventually show `STATUS: Bound`. If it stays in `Pending` for more than 2 minutes, check that:
 - Longhorn pods are running: `kubectl get pods -n longhorn-system`
 - You have enough disk space on worker nodes
@@ -539,10 +544,9 @@ Wait for Ghost to initialize (it may take a minute or two on first startup).
 
 ## Create Gateway API HTTPRoute
 
-Route traffic from `blog.k8s.home` to the Ghost service:
+Route traffic from `blog.k8s.home` to the Ghost service. Save this to a file named `ghost-route.yaml`:
 
-```bash
-kubectl apply -f - <<EOF
+```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -562,7 +566,12 @@ spec:
     backendRefs:
     - name: ghost
       port: 80
-EOF
+```
+
+Apply it:
+
+```bash
+kubectl apply -f ghost-route.yaml
 ```
 
 Verify the route is accepted:
@@ -631,6 +640,10 @@ You should see the Ghost welcome page!
 ## Verify Persistent Storage
 
 Let's confirm that data persists across pod restarts.
+
+<Callout type="info">
+**PVC Names:** The MySQL StatefulSet automatically created a PVC named `mysql-data-mysql-0` (following the pattern: volumeClaimTemplate-name + "-" + statefulset-name + "-" + ordinal). The Ghost application uses `ghost-pvc` which we created manually. You can view both with: `kubectl get pvc -n ghost`
+</Callout>
 
 ### Create a Test Post
 
