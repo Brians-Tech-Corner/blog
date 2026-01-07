@@ -738,7 +738,7 @@ mysql -h mysql -u ghost -p"$MYSQL_PASSWORD" ghost
 Check Longhorn status:
 ```bash
 kubectl get pvc -n ghost
-kubectl describe pvc mysql-pvc -n ghost
+kubectl describe pvc mysql-data-mysql-0 -n ghost
 ```
 
 If PVC is stuck in `Pending`, check Longhorn:
