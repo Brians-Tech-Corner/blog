@@ -412,12 +412,13 @@ kubectl -n traefik logs deploy/traefik --tail=200
 
 ## What’s Next
 
-Now that inbound traffic is solved, you can start deploying “real” apps cleanly.
+Now that inbound traffic is solved with Gateway API and Traefik, we can improve the networking setup further.
 
-Next post ideas (pick one):
+In the next post, we'll tackle two improvements:
 
-- **Local DNS for `*.k8s.local`** (Pi-hole/Unifi DNS/CoreDNS overrides)
-- **MetalLB** to enable `LoadBalancer` services
-- **First real workload deployment** (an app + gateway route + PVC)
+- **Local DNS for `*.k8s.local`** - Set up proper DNS resolution so you don't need hosts file entries
+- **MetalLB** - Enable true `LoadBalancer` services instead of NodePort, giving each service its own IP address
 
-➡️ **Next:** *Kubernetes on Proxmox – DNS + MetalLB (Optional) or First App Deployment*
+This will make accessing services much cleaner: instead of `http://whoami.k8s.local:30080`, you'll just use `http://whoami.k8s.local`.
+
+➡️ **Next:** *Kubernetes on Proxmox – Part 8: Local DNS and LoadBalancer with MetalLB*
