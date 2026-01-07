@@ -322,7 +322,7 @@ If you can't reach the service, work through these checks:
 kubectl get svc -n traefik
 ```
 
-You should see `30080:30080/TCP` in the PORTS column for the traefik service.
+You should see `80:30080/TCP,443:30443/TCP` in the PORTS column for the traefik service.
 
 **2. Check which node Traefik is running on:**
 
