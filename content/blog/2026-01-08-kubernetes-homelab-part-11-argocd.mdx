@@ -446,7 +446,7 @@ Commit and push these files to your repository:
 Now tell ArgoCD to watch this directory:
 
 **argocd/applications/homepage.yaml:**
-
+    repoURL: https://github.com/YOUR-USERNAME/k8s-homelab.git
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
