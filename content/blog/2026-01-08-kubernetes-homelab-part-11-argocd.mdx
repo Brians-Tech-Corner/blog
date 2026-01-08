@@ -441,6 +441,12 @@ This simple `kustomization.yaml` tells Kustomize to combine both files into one 
 
 Commit and push these files to your repository:
 
+```bash
+git add apps/production/homepage/
+git commit -m "Add homepage application"
+git push origin main
+```
+
 ## Creating an ArgoCD Application
 
 Now tell ArgoCD to watch this directory:
