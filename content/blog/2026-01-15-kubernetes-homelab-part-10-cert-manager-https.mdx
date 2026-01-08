@@ -1,0 +1,942 @@
+---
+title: "Kubernetes on Proxmox: Secure Your Apps with HTTPS and cert-manager"
+description: "Add automatic HTTPS with Let's Encrypt certificates using cert-manager, securing your Kubernetes applications with trusted SSL/TLS."
+date: "2026-01-15"
+tags: ["homelab", "proxmox", "kubernetes", "k8s", "cert-manager", "https", "ssl", "tls", "letsencrypt"]
+series: "kubernetes-homelab"
+seriesOrder: 10
+image: "/post-images/kubernetes-cert-manager-hero.jpg"
+---
+
+## Overview
+
+In Part 9, we deployed Ghost blog accessible at `http://blog.k8s.home`. While this works for internal homelab use, modern browsers warn about insecure connections, and if you want to expose services externally, HTTPS is essential.
+
+In this post, we'll add automatic HTTPS using:
+- **cert-manager**: Kubernetes controller that manages TLS certificates
+- **Let's Encrypt**: Free, automated certificate authority
+- **Gateway API TLS**: Native Kubernetes TLS termination
+
+By the end, your Ghost blog will be accessible at `https://blog.yourdomain.com` (or whatever domain you choose) with a valid, trusted certificate that auto-renews.
+
+<Callout type="warning">
+**Important: Domain Requirement**: To use Let's Encrypt (the primary method in this guide), you need a **real public domain** like `blog.yourdomain.com`. Let's Encrypt cannot issue certificates for internal TLDs like `.k8s.home`, `.local`, or `.home`. If you don't want to purchase a domain, see the "Self-Signed Certificates" section at the end for an alternative using internal domains.
+</Callout>
+
+---
+
+## Why HTTPS Matters
+
+Even in a homelab:
+- ✅ **Browser warnings gone**: No more "Not Secure" warnings
+- ✅ **Encrypted traffic**: Protects credentials and sensitive data
+- ✅ **Service worker requirements**: Many web features require HTTPS
+- ✅ **Production parity**: Match production environments
+- ✅ **External access ready**: Safe to expose services outside your network
+
+---
+
+## What is cert-manager?
+
+[cert-manager](https://cert-manager.io/) is a Kubernetes add-on that:
+- Automatically requests certificates from Let's Encrypt
+- Handles certificate renewal (Let's Encrypt certs expire every 90 days)
+- Integrates with Gateway API, Ingress, and custom resources
+- Manages multiple certificate issuers (staging, production, internal CAs)
+
+---
+
+## Prerequisites
+
+Before starting, ensure you have:
+- Completed Part 9 (Ghost blog deployed)
+- A domain name (e.g., `yourdomain.com`) added to Cloudflare
+- Cloudflare API token with DNS edit permissions
+
+<Callout type="info">
+**Need a Domain?** You'll need a registered domain name (from any registrar like Namecheap, Google Domains, Porkbun, etc.) and add it to Cloudflare (free tier works perfectly). Cloudflare will manage the DNS for your domain, allowing cert-manager to create TXT records for validation.
+
+**Why DNS-01 Challenge?** For homelabs, DNS-01 is ideal because:
+- ✅ Works with any subdomain like `blog.yourdomain.com` under your domain
+- ✅ No need to expose ports 80/443 to the internet
+- ✅ No public IP or port forwarding required
+- ✅ Let's Encrypt validates via DNS TXT records in Cloudflare
+
+If you prefer using HTTP-01 challenge (requires port forwarding), see the alternative method at the end.
+</Callout>
+
+---
+
+## Set Up Domain in Cloudflare
+
+If you haven't already added your domain to Cloudflare:
+
+1. **Sign up** at [cloudflare.com](https://cloudflare.com) (free tier is fine)
+2. **Add your domain**:
+   - Click **Add a site**
+   - Enter your domain name (e.g., `yourdomain.com`)
+   - Choose the **Free** plan
+3. **Update nameservers**:
+   - Cloudflare will give you 2 nameservers (e.g., `dana.ns.cloudflare.com`)
+   - Go to your domain registrar's control panel
+   - Replace existing nameservers with Cloudflare's nameservers
+   - Wait for DNS propagation (usually 5-30 minutes)
+4. **Verify** the domain shows as "Active" in Cloudflare dashboard
+
+### Add DNS Records for Your Services
+
+Once your domain is active in Cloudflare, create DNS records pointing to your Traefik LoadBalancer:
+
+1. In Cloudflare dashboard, click on your domain
+2. Go to **DNS → Records**
+3. Click **Add record**
+4. Create an A record:
+   - **Type**: A
+   - **Name**: `blog` (or whatever subdomain you want, like `ghost`, `homelab`, etc.)
+   - **IPv4 address**: `192.168.30.200` (your Traefik LoadBalancer IP from MetalLB)
+   - **Proxy status**: **DNS only** (gray cloud icon - turn OFF the proxy)
+   - **TTL**: Auto
+5. Click **Save**
+
+<Callout type="info">
+**DNS Only Mode**: Make sure to turn OFF Cloudflare's proxy (gray cloud, not orange). The orange cloud proxies traffic through Cloudflare, which won't work for internal IPs. You want DNS-only mode so `blog.yourdomain.com` resolves directly to your internal Traefik IP (192.168.30.200).
+</Callout>
+
+Now `blog.yourdomain.com` will resolve to your Traefik LoadBalancer. You can create additional A records for other services (e.g., `nextcloud.yourdomain.com`, `grafana.yourdomain.com`).
+
+### Configure Local DNS Resolution
+
+The Cloudflare A record points to your internal IP (192.168.30.200), which only works within your local network. **Your local devices need to know to resolve this domain to that internal IP.**
+
+Choose one of these options:
+
+**Option 1: UniFi Users (Recommended)**
+
+1. Go to **Settings → Networks → Local DNS Records**
+2. Add a new record:
+   - **Hostname**: `blog.yourdomain.com` (e.g., `blog.devopswithbrian.com`)
+   - **IP Address**: `192.168.30.200`
+3. Click **Save**
+
+This makes all devices on your network resolve the domain correctly.
+
+**Option 2: Pi-hole Users**
+
+1. Go to **Local DNS → DNS Records**
+2. Add:
+   - **Domain**: `blog.yourdomain.com`
+   - **IP Address**: `192.168.30.200`
+3. Click **Add**
+
+**Option 3: Hosts File (Per-Device)**
+
+If you don't have UniFi or Pi-hole, add to `/etc/hosts` (Linux/macOS) or `C:\Windows\System32\drivers\etc\hosts` (Windows):
+
+```bash
+# Linux/macOS
+echo "192.168.30.200 blog.yourdomain.com" | sudo tee -a /etc/hosts
+
+# Windows (run as Administrator in PowerShell)
+Add-Content -Path C:\Windows\System32\drivers\etc\hosts -Value "192.168.30.200 blog.yourdomain.com"
+```
+
+**Verify DNS Resolution:**
+
+```bash
+nslookup blog.yourdomain.com
+# Should return 192.168.30.200
+```
+
+<Callout type="info">
+**Why Both Cloudflare AND Local DNS?** Cloudflare DNS is needed for Let's Encrypt to validate your domain via DNS-01 challenge. Local DNS (UniFi/Pi-hole/hosts file) is needed so your devices can actually access the service on your internal network. They serve different purposes!
+</Callout>
+
+<Callout type="warning">
+**No Domain? Self-Signed Alternative**: If you don't want to purchase a domain, you can use cert-manager with a self-signed ClusterIssuer to create your own internal Certificate Authority. However, browsers will show "Not Secure" warnings unless you manually add the CA certificate to each device's trust store. For most homelabs, spending $10-15/year on a domain is worth it for automatic browser trust. See the "Self-Signed Certificates" section at the end for instructions.
+</Callout>
+
+---
+
+## Install cert-manager
+
+```bash
+helm install \
+  cert-manager oci://quay.io/jetstack/charts/cert-manager \
+  --version v1.19.2 \
+  --namespace cert-manager \
+  --create-namespace \
+  --set crds.enabled=true
+```
+
+<Callout type="info">
+**What `installCRDs=true` does**: Installs the Custom Resource Definitions (CRDs) for Certificate, ClusterIssuer, and Issuer resources. These extend Kubernetes to understand certificate management.
+</Callout>
+
+### Verify Installation
+
+```bash
+# Check cert-manager pods
+kubectl get pods -n cert-manager
+
+# Should see 3 pods running:
+# cert-manager-xxxxxx
+# cert-manager-cainjector-xxxxxx
+# cert-manager-webhook-xxxxxx
+
+# Check CRDs are installed
+kubectl get crd | grep cert-manager
+```
+
+All pods should be in `Running` state.
+
+---
+
+## Set Up Cloudflare API Token
+
+### Create Cloudflare API Token
+
+1. Log in to [Cloudflare Dashboard](https://dash.cloudflare.com/)
+2. Go to **My Profile → API Tokens**
+3. Click **Create Token**
+4. Use the **Edit zone DNS** template
+5. Set **Zone Resources** to:
+   - Include → Specific zone → Select your domain
+6. Click **Continue to summary → Create Token**
+7. **Copy the token** (you won't see it again!)
+
+### Store Token as Kubernetes Secret
+
+```bash
+kubectl create secret generic cloudflare-api-token \
+  --from-literal=api-token=YOUR_CLOUDFLARE_API_TOKEN \
+  -n cert-manager
+```
+
+Replace `YOUR_CLOUDFLARE_API_TOKEN` with the token you just created.
+
+---
+
+## Create Let's Encrypt ClusterIssuers
+
+We'll create two issuers:
+1. **Staging**: For testing (rate limits are relaxed)
+2. **Production**: For real certificates (strict rate limits)
+
+<Callout type="warning">
+**Let's Encrypt Rate Limits**: Production has strict rate limits (50 certificates per domain per week). Always test with staging first!
+</Callout>
+
+### Staging ClusterIssuer (DNS-01)
+
+Save this to a file named `letsencrypt-staging-dns01.yaml`:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    # Let's Encrypt staging server
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    # Email for certificate expiration notifications
+    email: your-email@example.com
+    # Secret to store ACME account private key
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    # DNS-01 challenge configuration using Cloudflare
+    solvers:
+    - dns01:
+        cloudflare:
+          apiTokenSecretRef:
+            name: cloudflare-api-token
+            key: api-token
+```
+
+Apply it:
+
+```bash
+kubectl apply -f letsencrypt-staging-dns01.yaml
+```
+
+### Production ClusterIssuer (DNS-01)
+
+Save this to a file named `letsencrypt-production-dns01.yaml`:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-production
+spec:
+  acme:
+    # Let's Encrypt production server
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # Email for certificate expiration notifications
+    email: your-email@example.com
+    # Secret to store ACME account private key
+    privateKeySecretRef:
+      name: letsencrypt-production
+    # DNS-01 challenge configuration using Cloudflare
+    solvers:
+    - dns01:
+        cloudflare:
+          apiTokenSecretRef:
+            name: cloudflare-api-token
+            key: api-token
+```
+
+Apply it:
+
+```bash
+kubectl apply -f letsencrypt-production-dns01.yaml
+```
+
+<Callout type="info">
+**Replace `your-email@example.com`** with your actual email address. Let's Encrypt uses this to notify you about certificate expiration (though cert-manager auto-renews).
+</Callout>
+
+### Verify ClusterIssuers
+
+```bash
+kubectl get clusterissuers
+
+# Should show:
+# NAME                     READY   AGE
+# letsencrypt-production   True    10s
+# letsencrypt-staging      True    20s
+```
+
+---
+
+## How This Works with Traefik
+
+Since Traefik is your Gateway API implementation, it automatically handles TLS termination when you configure HTTPS listeners on the Gateway resource. 
+
+The beauty of Gateway API is that it provides a standard way to configure TLS, and Traefik (as the Gateway controller) does all the heavy lifting:
+
+- Gateway listens on port 443 → Traefik opens port 443
+- Gateway references TLS secret → Traefik loads the certificate
+- HTTPRoute uses HTTPS hostname → Traefik terminates SSL and routes traffic
+
+Everything happens through standard Kubernetes resources. No Traefik IngressRoute, no annotations, no custom CRDs.
+
+### Configure Traefik for Gateway API
+
+If you installed Traefik in an earlier part, you may need to ensure it's properly configured for Gateway API with the correct entrypoints. Update Traefik with these settings:
+
+Create a file named `traefik-gateway-values.yaml`:
+
+```yaml
+gateway:
+  enabled: false  # We'll create our own Gateway resource manually
+
+ports:
+  web:
+    port: 80
+    expose:
+      default: true
+    exposedPort: 80
+    protocol: TCP
+  websecure:
+    port: 443
+    expose:
+      default: true
+    exposedPort: 443
+    protocol: TCP
+    tls:
+      enabled: true
+
+providers:
+  kubernetesGateway:
+    enabled: true
+
+service:
+  type: LoadBalancer
+
+additionalArguments:
+  - "--entrypoints.web.address=:80"
+  - "--entrypoints.websecure.address=:443"
+```
+
+Add the Traefik Helm repo and upgrade:
+
+```bash
+# Add Traefik Helm repository (if not already added)
+helm repo add traefik https://traefik.github.io/charts
+helm repo update
+
+# Upgrade Traefik with Gateway API configuration
+helm upgrade traefik traefik/traefik \
+  --namespace traefik \
+  --values traefik-gateway-values.yaml \
+  --reset-values
+```
+
+Wait for Traefik to restart:
+
+```bash
+kubectl rollout status deployment traefik -n traefik
+```
+
+---
+
+## Update Ghost HTTPRoute for HTTPS
+
+We need to update the Ghost HTTPRoute to request a TLS certificate.
+
+### Create Certificate Resource
+
+Save this to a file named `ghost-certificate.yaml`:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: blog-tls
+  namespace: ghost
+spec:
+  secretName: blog-tls
+  issuerRef:
+    name: letsencrypt-staging  # Start with staging
+    kind: ClusterIssuer
+  privateKey:
+    rotationPolicy: Always  # Rotate private key on renewal (recommended)
+  dnsNames:
+  - blog.yourdomain.com  # Replace with your actual domain
+```
+
+Apply it:
+
+```bash
+kubectl apply -f ghost-certificate.yaml
+```
+
+<Callout type="warning">
+**Use Your Actual Domain**: Replace `blog.yourdomain.com` with the actual subdomain you created in Cloudflare (e.g., `blog.devopswithbrian.com`). Let's Encrypt cannot issue certificates for internal domains like `.k8s.home` or `.local` - you must use a valid public domain name that you own and have configured in Cloudflare.
+</Callout>
+
+<Callout type="info">
+**DNS-01 Magic**: Even though you're using a public domain name, your DNS A record points to your internal Traefik IP (192.168.30.200). The beauty of DNS-01 is that Let's Encrypt validates domain ownership via DNS TXT records in Cloudflare, not by reaching your server. This means you don't need to expose ports 80/443 to the internet!
+</Callout>
+
+### Update HTTPRoute for TLS
+
+Save this to a file named `ghost-route-https.yaml`:
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ghost
+  namespace: ghost
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: traefik
+  hostnames:
+  - blog.yourdomain.com  # Replace with your actual domain
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: ghost
+      port: 80
+```
+
+Apply it:
+
+```bash
+kubectl apply -f ghost-route-https.yaml
+```
+
+<Callout type="info">
+**Domain Consistency**: Make sure this hostname matches the domain you used in the Certificate resource and the DNS A record in Cloudflare.
+</Callout>
+
+### Update Gateway to Support TLS
+
+We need to add a HTTPS listener to the Gateway. Save this to a file named `gateway-with-tls.yaml`:
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: main-gateway
+  namespace: traefik
+spec:
+  gatewayClassName: traefik
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 8000  # Traefik internal port
+    allowedRoutes:
+      namespaces:
+        from: All
+  - name: https
+    protocol: HTTPS
+    port: 8443  # Traefik internal port
+    allowedRoutes:
+      namespaces:
+        from: All
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: blog-tls  # Match the secretName from your Certificate
+        namespace: ghost
+        kind: Secret
+```
+
+Apply it:
+
+```bash
+kubectl apply -f gateway-with-tls.yaml
+```
+
+### Create ReferenceGrant for Cross-Namespace Secret Access
+
+Since the Gateway is in the `traefik` namespace but needs to access the TLS Secret in the `ghost` namespace, we need a ReferenceGrant:
+
+Save this to a file named `reference-grant.yaml`:
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-traefik-gateway-to-ref-secrets
+  namespace: ghost
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    namespace: traefik
+  to:
+  - group: ""
+    kind: Secret
+```
+
+Apply it:
+
+```bash
+kubectl apply -f reference-grant.yaml
+```
+
+<Callout type="info">
+**Why ReferenceGrant?** Gateway API security requires explicit permission for cross-namespace references. This ReferenceGrant allows the Gateway in `traefik` namespace to access Secrets in the `ghost` namespace.
+</Callout>
+
+---
+
+## Monitor Certificate Issuance
+
+### Check Certificate Status
+
+```bash
+# Check Certificate resource
+kubectl get certificate -n ghost
+
+# Should show:
+# NAME                 READY   SECRET               AGE
+# blog-k8s-home-tls    True    blog-k8s-home-tls    2m
+
+# Describe for more details
+kubectl describe certificate blog-k8s-home-tls -n ghost
+```
+
+### Check CertificateRequest
+
+```bash
+kubectl get certificaterequest -n ghost
+```
+
+### Check cert-manager Logs
+
+If the certificate isn't issuing:
+
+```bash
+kubectl logs -n cert-manager -l app=cert-manager --tail=50
+```
+
+### Common Issues
+
+**Certificate stuck in "Issuing" state:**
+```bash
+# Check the challenge status
+kubectl get challenges -n ghost
+
+# Describe the challenge for details
+kubectl describe challenge -n ghost
+```
+
+The challenge will create a temporary pod and service to respond to Let's Encrypt's validation request.
+
+---
+
+## Test HTTPS Access
+
+Once the certificate shows `READY: True`:
+
+1. **Access via HTTPS**:
+   ```text
+   https://blog.yourdomain.com
+   ```
+   Replace with your actual domain (e.g., `https://blog.devopswithbrian.com`)
+
+2. **Check the certificate**:
+   - Click the padlock icon in your browser
+   - Verify it's issued by "Let's Encrypt"
+   - If using staging, it will show "Fake LE Intermediate X1" (expected)
+
+3. **Test certificate details**:
+   ```bash
+   openssl s_client -connect blog.yourdomain.com:443 -servername blog.yourdomain.com
+   ```
+
+<Callout type="success">
+**Staging Certificate Works?** Great! Now switch to production by updating the Certificate resource to use `letsencrypt-production` instead of `letsencrypt-staging`.
+</Callout>
+
+---
+
+## Switch to Production Certificates
+
+Once you've confirmed staging works:
+
+Save this to a file named `ghost-certificate-production.yaml`:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: blog-tls
+  namespace: ghost
+spec:
+  secretName: blog-tls
+  issuerRef:
+    name: letsencrypt-production  # Changed from staging
+    kind: ClusterIssuer
+  privateKey:
+    rotationPolicy: Always  # Rotate private key on renewal (recommended)
+  dnsNames:
+  - blog.yourdomain.com  # Replace with your actual domain
+```
+
+Apply it:
+
+```bash
+kubectl apply -f ghost-certificate-production.yaml
+
+# Delete the old staging secret to force renewal
+kubectl delete secret blog-tls -n ghost
+
+# Watch the certificate get re-issued
+kubectl get certificate -n ghost -w
+```
+
+Within a minute or two, you should have a trusted Let's Encrypt production certificate!
+
+---
+
+## Add HTTP to HTTPS Redirect
+
+Force all HTTP traffic to redirect to HTTPS. Update the Gateway with a redirect:
+
+Save this to a file named `http-redirect.yaml`:
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: http-to-https-redirect
+  namespace: traefik
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: traefik
+    sectionName: http
+  rules:
+  - filters:
+    - type: RequestRedirect
+      requestRedirect:
+        scheme: https
+        statusCode: 301
+```
+
+Apply it:
+
+```bash
+kubectl apply -f http-redirect.yaml
+```
+
+Now accessing `http://blog.yourdomain.com` will automatically redirect to `https://blog.yourdomain.com`.
+
+---
+
+## Certificate Auto-Renewal
+
+cert-manager automatically renews certificates when they're within 30 days of expiration. Let's Encrypt certificates are valid for 90 days, so they'll renew every ~60 days.
+
+**Monitor renewal**:
+```bash
+# Check certificate status
+kubectl get certificate -n ghost
+
+# Check cert-manager logs for renewal activity
+kubectl logs -n cert-manager -l app=cert-manager | grep renewal
+```
+
+No manual intervention needed! 🎉
+
+---
+
+## Troubleshooting
+
+### Certificate Stuck in "Issuing"
+
+Check the challenge:
+```bash
+kubectl get challenges -n ghost
+kubectl describe challenge -n ghost <challenge-name>
+```
+
+Common issues:
+- DNS not resolving to your public IP
+- Firewall blocking port 80
+- Let's Encrypt can't reach your cluster
+
+### "too many certificates already issued"
+
+You hit Let's Encrypt rate limits. Wait a week or use staging issuer.
+
+### "Invalid domain" Error
+
+Let's Encrypt can't issue certificates for:
+- `.local` domains
+- `.home` domains (unless you own them)
+- Internal IP addresses
+
+**Solution**: Use a real public domain or DNS-01 challenge with Cloudflare.
+
+### Certificate Shows "Fake LE Intermediate"
+
+You're still using the staging issuer. Switch to production.
+
+---
+
+## Alternative: HTTP-01 Challenge with Public Domain
+
+If you prefer to expose your homelab to the internet and use a public domain:
+
+### Requirements:
+- Public domain pointing to your public IP
+- Port 80 and 443 forwarded to Traefik LoadBalancer (192.168.30.200)
+- Router with port forwarding capability
+
+### HTTP-01 ClusterIssuers
+
+Save this to a file named `letsencrypt-staging-http01.yaml`:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging-http01
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: your-email@example.com
+    privateKeySecretRef:
+      name: letsencrypt-staging-http01
+    solvers:
+    - http01:
+        gatewayHTTPRoute:
+          parentRefs:
+          - name: main-gateway
+            namespace: traefik
+            kind: Gateway
+```
+
+HTTP-01 is simpler (no API tokens needed) but requires your cluster to be publicly accessible on port 80.
+
+---
+
+## Self-Signed Certificates (No Domain Required)
+
+If you don't want to purchase a domain, you can create a self-signed Certificate Authority using cert-manager. This works entirely offline but requires manual trust configuration on each device.
+
+### Create Self-Signed ClusterIssuer
+
+Save this to a file named `selfsigned-issuer.yaml`:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: homelab-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: Homelab Root CA
+  secretName: homelab-ca-secret
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: homelab-ca-issuer
+spec:
+  ca:
+    secretName: homelab-ca-secret
+```
+
+Apply it:
+
+```bash
+kubectl apply -f selfsigned-issuer.yaml
+```
+
+### Create Certificate for Ghost
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: blog-k8s-home-tls
+  namespace: ghost
+spec:
+  secretName: blog-k8s-home-tls
+  issuerRef:
+    name: homelab-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - blog.k8s.home
+```
+
+### Trust the CA Certificate
+
+<Callout type="warning">
+**Self-Signed Certificates Only**: This section is ONLY needed if you're using the self-signed certificate method above. If you used Let's Encrypt with Cloudflare DNS-01 (the recommended method from earlier in this guide), skip this section - Let's Encrypt certificates are already trusted by all browsers!
+</Callout>
+
+To avoid browser warnings with self-signed certificates, you need to add the CA certificate to your device's trust store. The `homelab-ca-secret` was created when you applied the `selfsigned-issuer.yaml` above:
+
+**Export the CA certificate:**
+```bash
+kubectl get secret homelab-ca-secret -n cert-manager -o jsonpath='{.data.ca\.crt}' | base64 -d > homelab-ca.crt
+```
+
+**On macOS:**
+```bash
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain homelab-ca.crt
+```
+
+**On Linux (Ubuntu/Debian):**
+```bash
+sudo cp homelab-ca.crt /usr/local/share/ca-certificates/homelab-ca.crt
+sudo update-ca-certificates
+```
+
+**On Windows:**
+1. Double-click `homelab-ca.crt`
+2. Click **Install Certificate**
+3. Choose **Local Machine**
+4. Select **Trusted Root Certification Authorities**
+
+You'll need to do this on every device (laptop, phone, tablet) that accesses your homelab services.
+
+<Callout type="info">
+**Self-Signed Trade-offs**: This approach gives you HTTPS without a domain, but you lose automatic trust. For homelabs with many devices or shared access, a cheap domain ($10-15/year) is usually more practical.
+</Callout>
+
+---
+
+## Secure Multiple Applications
+
+Apply the same pattern to other apps:
+
+1. **Create Certificate** for each domain/subdomain
+2. **Update HTTPRoute** to reference the TLS secret
+3. **Add listener to Gateway** if needed
+
+Example for a second app:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nextcloud-tls
+  namespace: nextcloud
+spec:
+  secretName: nextcloud-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  privateKey:
+    rotationPolicy: Always
+  dnsNames:
+  - nextcloud.yourdomain.com
+```
+
+---
+
+## Cleanup (Optional)
+
+To remove cert-manager:
+
+```bash
+# Delete ClusterIssuers
+kubectl delete clusterissuer letsencrypt-staging letsencrypt-production
+
+# Uninstall cert-manager
+helm uninstall cert-manager -n cert-manager
+
+# Delete namespace
+kubectl delete namespace cert-manager
+```
+
+---
+
+## What's Next
+
+Now that you have secure HTTPS, the next logical step is implementing GitOps with ArgoCD. This will let you manage all your Kubernetes applications (including the Ghost blog we just deployed) declaratively through Git, with automatic synchronization and rollbacks.
+
+After ArgoCD, consider:
+
+1. **Monitor certificates**: Set up alerts for renewal failures
+2. **Backup strategies**: Use Velero to backup Longhorn volumes
+3. **Monitoring stack**: Deploy Prometheus + Grafana
+4. **Log aggregation**: Set up Loki for centralized logs
+5. **External access**: Expose services safely with Cloudflare Tunnel or Tailscale
+
+---
+
+## Key Takeaways
+
+✅ **cert-manager automates everything**: No manual certificate management
+
+✅ **Let's Encrypt is free and trusted**: Real certificates for your homelab
+
+✅ **Gateway API native TLS**: Clean integration without Ingress annotations
+
+✅ **Auto-renewal works**: Certificates renew automatically every 60 days
+
+✅ **Staging before production**: Always test with staging to avoid rate limits
+
+✅ **Multiple apps supported**: One Gateway can serve many HTTPS applications
+
+➡️ **Next:** *Kubernetes on Proxmox – GitOps with ArgoCD*
