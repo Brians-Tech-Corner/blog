@@ -4,5 +4,13 @@
   "devCommand": "pnpm dev",
   "installCommand": "pnpm install",
   "framework": "nextjs",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "redirects": [
+    {
+      "source": "/ads.txt",
+      "destination": "/ads.txt",
+      "permanent": false,
+      "statusCode": 200
+    }
+  ]
 }
