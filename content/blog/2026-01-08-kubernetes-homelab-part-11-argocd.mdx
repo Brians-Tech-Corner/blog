@@ -1,0 +1,696 @@
+---
+title: "Kubernetes on Proxmox: GitOps Automation with ArgoCD"
+date: "2026-01-08"
+description: "Implement GitOps workflows for automated, declarative deployments using ArgoCD - manage your entire homelab from Git"
+tags: ["homelab", "proxmox", "kubernetes", "k8s", "argocd", "gitops", "automation", "cicd"]
+series: "kubernetes-homelab"
+seriesOrder: 11
+image: "/post-images/kubernetes-argocd-hero.jpg"
+---
+
+## Overview
+
+So far in this series, we've been manually applying Kubernetes manifests with `kubectl apply`. This works for learning, but it doesn't scale well and lacks audit trails, versioning, or easy rollbacks.
+
+Enter **GitOps**: a methodology where your Git repository becomes the single source of truth for your entire cluster. In this part, we'll deploy ArgoCD to automate deployments - commit changes to Git, and they automatically appear in your cluster.
+
+By the end, you'll have:
+- ✅ ArgoCD managing cluster deployments
+- ✅ A GitHub repo structure for your homelab
+- ✅ ArgoCD UI accessible via your domain
+- ✅ Automated sync from Git to cluster
+- ✅ Easy rollbacks to any previous state
+
+<Callout type="info">
+**Prerequisites**: This part assumes you've completed Parts 1-9 (K8s cluster with Traefik and Gateway API). Part 10 (HTTPS with cert-manager) is optional - we'll cover both HTTP and HTTPS configurations for the ArgoCD UI.
+</Callout>
+
+## What is GitOps?
+
+GitOps is a methodology where your Git repository becomes the single source of truth for your infrastructure and applications. Instead of manually applying changes with `kubectl`, you:
+
+1. **Commit changes** to a Git repository
+2. **ArgoCD detects** the changes automatically
+3. **Cluster state syncs** to match Git
+
+**Why GitOps for Homelabs?**
+
+- ✅ **Audit trail** - every change is tracked in Git with commit history
+- ✅ **Easy rollbacks** - revert to any previous state with `git revert`
+- ✅ **Version control** - see who changed what and when
+- ✅ **Collaboration** - use pull requests to review changes
+- ✅ **Declarative** - describe desired state, not imperative steps
+- ✅ **Automation** - no manual kubectl apply commands
+- ✅ **Disaster recovery** - entire cluster config in Git, easy to rebuild
+
+---
+
+## Set Up Your GitHub Repository
+
+Before installing ArgoCD, let's create the GitHub repository that will store your cluster configuration.
+
+### Create a New Repository
+
+1. Go to [github.com](https://github.com) and sign in
+2. Click the **+** icon → **New repository**
+3. Repository name: `k8s-homelab` (or whatever you prefer)
+4. Description: "Kubernetes homelab cluster configuration"
+5. Choose **Public** or **Private** (either works)
+6. Check **Add a README file**
+7. Click **Create repository**
+
+### Clone and Set Up Structure
+
+```bash
+# Clone your new repository
+git clone https://github.com/YOUR-USERNAME/k8s-homelab.git
+cd k8s-homelab
+
+# Create directory structure
+mkdir -p apps/{production,staging}
+mkdir -p infrastructure
+mkdir -p argocd/applications
+
+# Create initial README
+cat > README.md << 'EOF'
+# K8s Homelab
+
+GitOps repository for my Kubernetes homelab cluster.
+
+## Structure
+
+- `apps/` - Application deployments
+  - `production/` - Production applications
+  - `staging/` - Staging/test applications
+- `infrastructure/` - Infrastructure components (cert-manager, monitoring, etc.)
+- `argocd/applications/` - ArgoCD Application definitions
+
+## Workflow
+
+1. Make changes in this repo
+2. Commit and push to GitHub
+3. ArgoCD automatically syncs changes to the cluster
+EOF
+
+# Commit and push
+git add .
+git commit -m "Initial repository structure"
+git push origin main
+```
+
+<Callout type="tip">
+**Private vs Public Repository**: If your repo is private, you'll need to configure ArgoCD with a GitHub personal access token (covered later in this guide). Public repos work immediately without authentication.
+</Callout>
+
+---
+
+## Installing ArgoCD
+
+First, create a namespace and install ArgoCD:
+
+```bash
+# Create namespace
+kubectl create namespace argocd
+
+# Install ArgoCD
+kubectl apply -n argocd -f \
+  https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# Wait for pods to be ready
+kubectl wait --for=condition=ready pod \
+  --all -n argocd --timeout=300s
+```
+
+**Configure ArgoCD for Reverse Proxy (Required for Gateway API)**
+
+When using Gateway API/Traefik for TLS termination, ArgoCD needs to run in "insecure" mode (Gateway handles TLS, not ArgoCD):
+
+```bash
+# Configure ArgoCD server to run without TLS (Gateway handles it)
+kubectl patch configmap argocd-cmd-params-cm -n argocd \
+  --type merge -p '{"data":{"server.insecure":"true"}}'
+
+# Restart ArgoCD server to apply the change
+kubectl rollout restart deployment/argocd-server -n argocd
+
+# Wait for rollout to complete
+kubectl rollout status deployment/argocd-server -n argocd
+```
+
+<Callout type="info">
+**Why `server.insecure: true`?** This tells ArgoCD server to serve HTTP internally on port 80 while Traefik handles HTTPS externally. Without this, you'll get internal server errors when accessing through the gateway.
+</Callout>
+
+---
+
+## Accessing the ArgoCD UI
+
+By default, ArgoCD's web UI runs as a ClusterIP service, only accessible from within the cluster. Let's expose it properly using Gateway API.
+
+### Option 1: HTTPS with cert-manager (Recommended if you completed Part 10)
+
+If you set up HTTPS in Part 10, you can expose ArgoCD with a trusted certificate.
+
+**1. Add DNS Record**
+
+Follow the same process from Part 10:
+
+- **Cloudflare**: Create A record `argocd.yourdomain.com` → `192.168.30.200`
+- **Local DNS**: Add to UniFi/Pi-hole or `/etc/hosts`
+
+```bash
+echo "192.168.30.200 argocd.yourdomain.com" | sudo tee -a /etc/hosts
+```
+
+**2. Create Certificate**
+
+In your `k8s-homelab` repo, create the ArgoCD infrastructure directory and certificate:
+
+```bash
+cd k8s-homelab
+mkdir -p infrastructure/argocd
+```
+
+```yaml
+# Save as infrastructure/argocd/certificate.yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-tls
+  namespace: argocd
+spec:
+  secretName: argocd-tls
+  issuerRef:
+    name: letsencrypt-production  # or letsencrypt-staging for testing
+    kind: ClusterIssuer
+  privateKey:
+    rotationPolicy: Always
+  dnsNames:
+  - argocd.yourdomain.com  # Replace with your actual domain
+```
+
+Apply it:
+```bash
+kubectl apply -f infrastructure/argocd/certificate.yaml
+
+# Wait for certificate to be ready
+kubectl get certificate -n argocd -w
+```
+
+**3. Create HTTPRoute**
+
+```yaml
+# Save as infrastructure/argocd/httproute.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  hostnames:
+  - argocd.yourdomain.com  # Replace with your actual domain
+  parentRefs:
+  - name: main-gateway
+    namespace: traefik
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: argocd-server
+      port: 80  # ArgoCD server listens on port 80 when in insecure mode
+```
+
+Apply it:
+```bash
+kubectl apply -f infrastructure/argocd/httproute.yaml
+```
+
+**4. Create ReferenceGrant**
+
+Create a new ReferenceGrant in the argocd namespace to allow the Gateway to access the certificate secret:
+
+```yaml
+# Save as infrastructure/argocd/referencegrant.yaml
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-traefik-gateway-to-ref-secrets
+  namespace: argocd
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    namespace: traefik
+  to:
+  - group: ""
+    kind: Secret
+```
+
+Apply the ReferenceGrant:
+```bash
+kubectl apply -f infrastructure/argocd/referencegrant.yaml
+```
+
+Now access ArgoCD at: **https://argocd.yourdomain.com**
+
+---
+
+### Option 2: HTTP Only (If you skipped Part 10)
+
+If you didn't set up cert-manager, you can expose ArgoCD over HTTP.
+
+**1. Add DNS (Optional but recommended)**
+
+Add to your local DNS or `/etc/hosts`:
+```bash
+echo "192.168.30.200 argocd.k8s.home" | sudo tee -a /etc/hosts
+```
+
+**2. Create HTTPRoute**
+
+In your `k8s-homelab` repo:
+
+```bash
+mkdir -p infrastructure/argocd
+```
+
+```yaml
+# Save as infrastructure/argocd/httproute.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  hostnames:
+  - argocd.k8s.home  # Or use your domain if you have one
+  parentRefs:
+  - name: main-gateway
+    namespace: traefik
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: argocd-server
+      port: 80  # Note: port 80 for HTTP
+```
+
+Apply it:
+```bash
+kubectl apply -f infrastructure/argocd/httproute.yaml
+```
+
+Now access ArgoCD at: **http://argocd.k8s.home**
+
+<Callout type="warning">
+**HTTP vs HTTPS**: While HTTP works for a homelab, ArgoCD contains sensitive cluster credentials. If you plan to access it from outside your local network, strongly consider completing Part 10 to add HTTPS.
+</Callout>
+
+---
+
+### Option 3: Port Forward (Quick Testing)
+
+For quick testing without DNS setup:
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+Access at: **https://localhost:8080**
+
+<Callout type="info">
+**TLS Certificate Warning**: ArgoCD generates a self-signed certificate by default, so you'll see a browser warning. This is expected - click "Advanced" → "Proceed" to continue. For production use, set up proper certificates with Option 1.
+</Callout>
+
+---
+
+### Get the Admin Password
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d
+```
+
+Login with:
+- **Username:** `admin`
+- **Password:** (output from above command)
+
+<Callout type="warning">
+Change the admin password immediately after first login for security!
+</Callout>
+
+## Repository Structure
+
+Create a Git repository for your cluster configuration. Here's the structure I use:
+
+```text
+k8s-homelab/
+├── apps/
+│   ├── production/
+│   │   ├── homepage/
+│   │   │   ├── deployment.yaml
+│   │   │   ├── service.yaml
+│   │   │   └── kustomization.yaml
+│   │   └── monitoring/
+│   └── staging/
+├── infrastructure/
+│   ├── cert-manager/
+│   ├── longhorn/
+│   └── traefik/
+└── argocd/
+    └── applications/
+```
+
+## Creating Your First Application
+
+Let's deploy a simple homepage using GitOps. Create this file structure:
+
+**apps/production/homepage/deployment.yaml:**
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: homepage
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      containers:
+      - name: homepage
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+```
+
+**apps/production/homepage/service.yaml:**
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: homepage
+  namespace: default
+spec:
+  selector:
+    app: homepage
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+```
+
+**apps/production/homepage/kustomization.yaml:**
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- deployment.yaml
+- service.yaml
+```
+
+Commit and push these files to your repository.
+
+## Creating an ArgoCD Application
+
+Now tell ArgoCD to watch this directory:
+
+**argocd/applications/homepage.yaml:**
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homepage
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-username/k8s-homelab.git
+    targetRevision: main
+    path: apps/production/homepage
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true      # Delete resources that are removed from Git
+      selfHeal: true   # Automatically sync when cluster state drifts
+      allowEmpty: false
+    syncOptions:
+    - CreateNamespace=true
+```
+
+Apply this application:
+
+```bash
+kubectl apply -f argocd/applications/homepage.yaml
+```
+
+## Watching the Magic Happen
+
+ArgoCD will now:
+
+1. Clone your Git repository
+2. Find the Kubernetes manifests
+3. Apply them to your cluster
+4. Monitor for any changes
+
+Check the status:
+
+```bash
+# CLI method
+argocd app get homepage
+
+# Or watch in the UI
+# https://localhost:8080
+```
+
+## Testing GitOps Workflow
+
+Let's make a change to test the workflow:
+
+1. **Edit the deployment** - change `replicas: 2` to `replicas: 3`
+2. **Commit and push** the change
+3. **Watch ArgoCD** automatically detect and apply the change
+
+Within seconds, you'll have 3 replicas running!
+
+```bash
+kubectl get pods -l app=homepage
+```
+
+## App of Apps Pattern
+
+To manage multiple applications, use the "app of apps" pattern:
+
+**argocd/applications/root.yaml:**
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-username/k8s-homelab.git
+    targetRevision: main
+    path: argocd/applications
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+Now you only need to apply the root application, and it will manage all others!
+
+## Best Practices
+
+### 1. Use Separate Repos or Branches
+
+- **Option A:** Separate repos for different environments
+- **Option B:** Different branches (main, staging, production)
+- **Option C:** Different directories with Kustomize overlays
+
+### 2. Enable Auto-Sync Carefully
+
+Start with manual sync for critical applications, then enable auto-sync once you're confident.
+
+### 3. Use Kustomize for Environment Differences
+
+```text
+apps/
+└── homepage/
+    ├── base/
+    │   ├── deployment.yaml
+    │   └── service.yaml
+    └── overlays/
+        ├── production/
+        │   └── kustomization.yaml
+        └── staging/
+            └── kustomization.yaml
+```
+
+### 4. Implement RBAC
+
+Restrict who can deploy what:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: team-a
+spec:
+  destinations:
+  - namespace: team-a-*
+    server: https://kubernetes.default.svc
+  sourceRepos:
+  - https://github.com/your-org/team-a-apps.git
+```
+
+## Troubleshooting
+
+### Kustomize Error: "may not add resource with an already registered id"
+
+**Error message**: `accumulating resources: accumulation err='merging resources from 'service.yaml': may not add resource with an already registered id: Deployment.v1.apps/homepage.default'`
+
+**Cause**: This usually means you have duplicate resource definitions, often caused by accidentally copying the Deployment YAML into the service.yaml file.
+
+**Solution**: Verify each YAML file contains the correct resource type:
+
+```bash
+# Check what's in your files
+head -5 apps/production/homepage/deployment.yaml  # Should show "kind: Deployment"
+head -5 apps/production/homepage/service.yaml     # Should show "kind: Service"
+```
+
+Fix the incorrect file, commit, and push to trigger ArgoCD to sync again.
+
+### Internal Server Error When Accessing ArgoCD UI
+
+If you get a 500 Internal Server Error when accessing the ArgoCD UI through your gateway:
+
+**Cause**: ArgoCD server is running in TLS mode (port 443) but needs to run in insecure mode (port 80) when behind a reverse proxy.
+
+**Solution**:
+
+```bash
+# Set ArgoCD to insecure mode
+kubectl patch configmap argocd-cmd-params-cm -n argocd \
+  --type merge -p '{"data":{"server.insecure":"true"}}'
+
+# Restart ArgoCD server
+kubectl rollout restart deployment/argocd-server -n argocd
+
+# Verify the HTTPRoute is pointing to port 80
+kubectl get httproute argocd -n argocd -o yaml | grep "port:"
+# Should show: port: 80
+```
+
+### Application Not Syncing
+
+```bash
+# Check application status
+argocd app get homepage
+
+# View sync history
+argocd app history homepage
+
+# Manual sync
+argocd app sync homepage
+```
+
+### Git Authentication Issues
+
+For private repositories, add credentials:
+
+```bash
+argocd repo add https://github.com/your-username/k8s-homelab.git \
+  --username your-username \
+  --password your-token
+```
+
+## What's Next?
+
+Congratulations! You've completed the **Kubernetes Homelab series**! 🎉
+
+Over these 11 parts, you've built a production-like Kubernetes cluster from scratch:
+- ✅ Hardware planning and Proxmox setup
+- ✅ VM templates and cluster bootstrapping
+- ✅ Persistent storage with Longhorn
+- ✅ Modern ingress with Traefik + Gateway API
+- ✅ DNS and LoadBalancing with MetalLB
+- ✅ Real applications with Ghost blog
+- ✅ HTTPS certificates with cert-manager
+- ✅ GitOps automation with ArgoCD
+
+Your homelab now has:
+- Automated deployments from Git
+- Version-controlled infrastructure
+- Easy rollbacks and audit trails
+- A solid foundation for running production-like workloads
+
+### Coming Soon: Advanced Kubernetes Content
+
+This series has laid the foundation, but there's so much more to explore! **Stay tuned for upcoming content** covering:
+
+- 📊 **Monitoring & Observability** - Prometheus, Grafana, and Loki stack
+- 🔔 **Alerting** - Set up smart alerts for your homelab
+- 🗄️ **Database Management** - PostgreSQL operators and stateful workloads
+- 🔄 **Backup & Disaster Recovery** - Velero and automated backup strategies
+- 🔐 **Advanced Security** - Network policies, pod security, and OPA
+- 🚀 **CI/CD Pipelines** - Tekton and GitHub Actions integration
+- 📦 **Helm Charts** - Package and manage complex applications
+- 🌐 **Service Mesh** - Istio or Linkerd for advanced networking
+- 🎮 **Fun Projects** - Game servers, home automation, and more
+
+For now, experiment with deploying different applications through Git. Try adding more apps to your repository and watching ArgoCD automatically deploy them!
+
+<Callout type="tip">
+**Want to suggest topics?** Join the [Discord community](https://discord.gg/q2N7R2KDRs) and let me know what you'd like to see next!
+</Callout>
+
+---
+
+## Key Takeaways
+
+✅ **GitOps eliminates manual kubectl commands** - everything is automated from Git
+
+✅ **Complete audit trail** - every change is tracked with Git history
+
+✅ **Easy disaster recovery** - entire cluster config is version controlled
+
+✅ **ArgoCD provides both CLI and web UI** - choose your preferred workflow
+
+✅ **App of Apps pattern** - manage all applications with a single root app
+
+✅ **Start with manual sync, enable auto-sync later** - build confidence gradually
+
+<Callout type="success">
+Your homelab is now running on GitOps principles! Any changes you push to your GitHub repo will automatically sync to your cluster. Welcome to the future of infrastructure management!
+</Callout>
