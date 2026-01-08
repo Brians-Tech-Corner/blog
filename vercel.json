@@ -5,12 +5,15 @@
   "installCommand": "pnpm install",
   "framework": "nextjs",
   "outputDirectory": ".next",
-  "redirects": [
+  "headers": [
     {
       "source": "/ads.txt",
-      "destination": "/ads.txt",
-      "permanent": false,
-      "statusCode": 200
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, must-revalidate"
+        }
+      ]
     }
   ]
 }
