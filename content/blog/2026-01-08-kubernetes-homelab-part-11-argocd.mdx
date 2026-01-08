@@ -49,6 +49,10 @@ GitOps is a methodology where your Git repository becomes the single source of t
 
 Before installing ArgoCD, let's create the GitHub repository that will store your cluster configuration.
 
+<Callout type="tip">
+**Example Repository Available**: You can reference the complete example repository at [github.com/Brians-Tech-Corner/k8s-homelab](https://github.com/Brians-Tech-Corner/k8s-homelab) to see the full structure and all configurations used in this guide.
+</Callout>
+
 ### Create a New Repository
 
 1. Go to [github.com](https://github.com) and sign in
@@ -420,6 +424,10 @@ spec:
 
 **apps/production/homepage/kustomization.yaml:**
 
+<Callout type="info">
+**What is Kustomize?** [Kustomize](https://kustomize.io/) is a built-in Kubernetes tool that lets you customize YAML files without modifying the originals. It's like a "manifest manager" that combines multiple YAML files and can apply patches, add labels, or create environment-specific variations. ArgoCD natively supports Kustomize - when it sees a `kustomization.yaml` file, it automatically runs `kustomize build` to generate the final manifests.
+</Callout>
+
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -429,7 +437,9 @@ resources:
 - service.yaml
 ```
 
-Commit and push these files to your repository.
+This simple `kustomization.yaml` tells Kustomize to combine both files into one deployment. Later, you can use Kustomize's advanced features like overlays for different environments (staging vs production).
+
+Commit and push these files to your repository:
 
 ## Creating an ArgoCD Application
 
@@ -543,18 +553,43 @@ Start with manual sync for critical applications, then enable auto-sync once you
 
 ### 3. Use Kustomize for Environment Differences
 
+Kustomize's **base and overlays** pattern lets you maintain one set of manifests and customize them per environment:
+
 ```text
 apps/
 └── homepage/
     ├── base/
     │   ├── deployment.yaml
-    │   └── service.yaml
+    │   ├── service.yaml
+    │   └── kustomization.yaml
     └── overlays/
         ├── production/
-        │   └── kustomization.yaml
+        │   └── kustomization.yaml  # Adds prod-specific changes (replicas, resources)
         └── staging/
-            └── kustomization.yaml
+            └── kustomization.yaml  # Adds staging-specific changes (smaller resources)
 ```
+
+**Example overlay** (`overlays/production/kustomization.yaml`):
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Reference the base
+bases:
+- ../../base
+
+# Override replica count for production
+replicas:
+- name: homepage
+  count: 5
+
+# Add production-specific labels
+commonLabels:
+  environment: production
+```
+
+This approach keeps your configurations DRY (Don't Repeat Yourself) while allowing environment-specific customization.
 
 ### 4. Implement RBAC
 
@@ -670,6 +705,8 @@ This series has laid the foundation, but there's so much more to explore! **Stay
 - 🎮 **Fun Projects** - Game servers, home automation, and more
 
 For now, experiment with deploying different applications through Git. Try adding more apps to your repository and watching ArgoCD automatically deploy them!
+
+**Need inspiration?** Check out the [example k8s-homelab repository](https://github.com/Brians-Tech-Corner/k8s-homelab) to see how all the configurations from this series are organized in a real GitOps repo.
 
 <Callout type="tip">
 **Want to suggest topics?** Join the [Discord community](https://discord.gg/q2N7R2KDRs) and let me know what you'd like to see next!
