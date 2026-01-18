@@ -1,0 +1,596 @@
+---
+title: "Monitoring My Homelab with Grafana: From Proxmox to Kubernetes"
+date: "2026-01-18"
+description: "A practical, beginner-friendly observability setup for a two-host Proxmox homelab: Prometheus + Grafana in Kubernetes, scraping Proxmox hosts and Pi-hole."
+tags: ["homelab", "monitoring", "grafana", "prometheus", "proxmox", "kubernetes", "observability"]
+series: "homelab-observability"
+seriesOrder: 1
+image: "/post-images/grafana-hero.jpg"
+draft: false
+---
+
+## Overview
+
+Once your homelab grows beyond a single VM, “it feels slow” isn’t a troubleshooting strategy anymore.
+
+My current setup looks like this:
+
+- **Two Proxmox servers**
+  - **Host A:** runs my **Kubernetes cluster**
+  - **Host B:** runs “house services” (right now: a single **Pi-hole VM**)
+- Goal: **one place** to understand health and performance across all of it.
+
+This post is a practical walkthrough for deploying a simple monitoring stack:
+
+- **Prometheus** to collect metrics
+- **Grafana** to visualize them
+- **Node Exporter** to monitor hosts and nodes
+- **Pi-hole exporter** to monitor DNS performance and ad-block stats
+
+> Uptime isn’t the goal — **visibility is**.
+
+---
+
+## What I Monitor (and Why)
+
+I keep it opinionated and small. If a metric doesn’t help me make decisions, it doesn’t get a dashboard.
+
+### Proxmox hosts
+- CPU usage (and **steal time**, if applicable)
+- Memory pressure
+- Disk I/O latency and saturation
+- Network throughput / errors
+
+### Kubernetes
+- Node CPU/memory
+- Pod restarts / crash loops
+- Node readiness
+
+### Pi-hole
+- Queries/sec and blocked %
+- DNS latency (fast DNS feels like fast internet)
+- Top clients (what device is being noisy?)
+
+---
+
+## High-Level Architecture
+
+I’m deliberately splitting responsibilities:
+
+- **Monitoring stack runs inside Kubernetes**
+- Prometheus scrapes:
+  - Kubernetes node metrics
+  - Proxmox host metrics (via node_exporter)
+  - Pi-hole metrics (via exporter)
+
+```text
+Proxmox hosts ─┐
+Pi-hole VM  ───┼─> Prometheus ─> Grafana
+Kubernetes  ───┘
+```
+
+---
+
+## Prerequisites
+
+- A working Kubernetes cluster
+- `kubectl` access
+- Helm installed on your workstation
+- A storage class for persistent volumes (Longhorn, etc.) if you want Grafana persistence
+
+---
+
+## Install the stack with Helm
+
+I use **kube-prometheus-stack** because it gives you a solid baseline quickly:
+- Prometheus
+- Grafana
+- Node exporter (as a DaemonSet)
+- Lots of ready-to-use dashboards
+
+We’ll disable Alertmanager for now to keep things simple.
+
+### 1) Add the Helm repo
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+```
+
+### 2) Create a namespace
+
+```bash
+kubectl create namespace monitoring
+```
+
+### 3) Create a minimal `values.yaml`
+
+Save as `values.yaml`:
+
+```yaml
+grafana:
+  enabled: true
+
+  # Optional but recommended so dashboards/users persist across restarts
+  persistence:
+    enabled: true
+    type: pvc
+    size: 10Gi
+
+  # Expose Grafana in a simple way for a homelab.
+  # You can swap this to an Ingress later.
+  service:
+    type: ClusterIP
+
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+
+alertmanager:
+  enabled: false
+
+# A lot of homelabs don't need these at first.
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+```
+
+> Note: the `kubeEtcd/kubeControllerManager/kubeScheduler` toggles depend on your distro and whether those endpoints are reachable. Disabling them avoids noisy “target down” alerts in many homelabs.
+
+### 4) Install
+
+```bash
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --values values.yaml
+```
+
+### 5) Access Grafana
+
+Get the Grafana admin password:
+
+```bash
+kubectl -n monitoring get secret monitoring-grafana -o jsonpath="{.data.admin-password}" | base64 --decode; echo
+```
+
+Port-forward:
+
+```bash
+kubectl -n monitoring port-forward svc/monitoring-grafana 3000:80
+```
+
+Open: `http://localhost:3000`
+
+Login:
+- User: `admin`
+- Password: (the command output above)
+
+---
+
+## Monitor Proxmox hosts with node_exporter
+
+This is the “80% win” for Proxmox monitoring. You can later add a Proxmox API exporter if you want deeper VM-level insights.
+
+### Option A (recommended): install node_exporter directly on each Proxmox host
+
+On each Proxmox node:
+
+```bash
+apt-get update
+apt-get install -y prometheus-node-exporter
+systemctl enable --now prometheus-node-exporter
+```
+
+By default, node_exporter listens on **:9100**.
+
+Validate from another machine (replace IP):
+
+```bash
+curl -s http://PROXMOX_IP:9100/metrics | head
+```
+
+### Add Proxmox targets to Prometheus
+
+In kube-prometheus-stack, the cleanest way is to add a small **additional scrape config**.
+
+1) Create a file `additional-scrape-configs.yaml`:
+
+```yaml
+- job_name: "proxmox-nodes"
+  static_configs:
+    - targets:
+        - "192.168.30.10:9100"   # proxmox-1
+        - "192.168.30.11:9100"   # proxmox-2
+```
+
+2) Create a secret from it:
+
+```bash
+kubectl -n monitoring create secret generic additional-scrape-configs \
+  --from-file=additional-scrape-configs.yaml \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+3) Update `values.yaml` to reference it:
+
+```yaml
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigsSecret:
+      enabled: true
+      name: additional-scrape-configs
+      key: additional-scrape-configs.yaml
+```
+
+4) Apply the Helm upgrade:
+
+```bash
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --values values.yaml
+```
+
+Now Grafana/Prometheus should show your Proxmox targets.
+
+# Viewing Proxmox Host Metrics in Grafana
+
+Once you have node-exporter running on your Proxmox hosts and Prometheus scraping their metrics, you can visualize host data in Grafana using the Node Exporter Full dashboard.
+
+**How to import the Node Exporter Full dashboard:**
+
+1. In Grafana, go to the left sidebar and click on **Dashboards > Import**.
+2. In the “Import via grafana.com” field, enter the dashboard ID: **1860**
+3. Click **Load**.
+4. Select your Prometheus data source.
+5. Click **Import**.
+
+After importing, open the **Node Exporter Full** dashboard. In the **Instance** dropdown, you should see your Proxmox host(s) (e.g., `192.168.30.67:9100`). Select your host to view its metrics (CPU, memory, disk, network, etc.).
+
+If you don’t see your host, double-check that:
+- node-exporter is running and accessible on port 9100 from your Prometheus server
+- Prometheus is scraping the correct IP:9100
+- The firewall allows traffic on port 9100
+
+This dashboard provides a comprehensive view of your Proxmox host’s health and performance alongside your Kubernetes cluster metrics.
+
+---
+
+## Monitor Pi-hole
+
+
+Pi-hole has a web UI and some internal stats, but exporters make it easy to graph in Grafana.
+
+### 1) Create a Pi-hole App Password
+
+Recent versions of Pi-hole use **App Passwords** for API access (not a traditional API token):
+
+1. Log in to the Pi-hole admin web UI (usually at `http://<pihole-ip>/admin`).
+2. Go to **Settings** > **API / Web interface**.
+3. In the **App Passwords** section, create a new app password (give it a name like "exporter").
+4. Enable the app password and copy the generated value—this is what you’ll use as `PIHOLE_PASSWORD` in the exporter config.
+
+If you do not see the App Passwords section, update Pi-hole to the latest version. You must be logged in as an admin user to create or manage app passwords.
+
+### 2) Install a Pi-hole exporter in Kubernetes
+Before you create the Deployment, first create a Kubernetes Secret to securely store your Pi-hole app password:
+
+```bash
+kubectl -n monitoring create secret generic pihole-exporter-secret \
+  --from-literal=PIHOLE_PASSWORD="YOUR_PIHOLE_APP_PASSWORD"
+```
+
+Replace `YOUR_PIHOLE_APP_PASSWORD` with the app password you created in the Pi-hole UI.
+
+
+One commonly used exporter is `eko/pihole-exporter`. We’ll deploy it as a simple Deployment + Service.
+
+Create `pihole-exporter.yaml`:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole-exporter
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pihole-exporter
+  template:
+    metadata:
+      labels:
+        app: pihole-exporter
+    spec:
+      containers:
+        - name: pihole-exporter
+          image: ekofr/pihole-exporter:latest
+          ports:
+            - containerPort: 9617
+          env:
+            - name: PIHOLE_HOSTNAME
+              value: "192.168.30.20"   # <-- Pi-hole IP
+            - name: PIHOLE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pihole-exporter-secret
+                  key: PIHOLE_PASSWORD
+
+```
+
+Apply it:
+
+```bash
+kubectl apply -f pihole-exporter.yaml
+```
+
+This way, your app password is not stored in source control or visible in the manifest.
+
+#### c) Expose the exporter with a Service
+
+Create `pihole-exporter-service.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pihole-exporter
+  namespace: monitoring
+  labels:
+    app: pihole-exporter
+spec:
+  selector:
+    app: pihole-exporter
+  ports:
+    - name: metrics
+      port: 9617
+      targetPort: 9617
+```
+
+Apply it:
+
+```bash
+kubectl apply -f pihole-exporter-service.yaml
+```
+
+### 3) Tell Prometheus to scrape the exporter
+
+Create `pihole-servicemonitor.yaml`:
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: pihole-exporter
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: pihole-exporter
+  namespaceSelector:
+    matchNames:
+      - monitoring
+  endpoints:
+    - port: metrics
+      interval: 30s
+```
+
+Apply it:
+
+```bash
+kubectl apply -f pihole-servicemonitor.yaml
+```
+
+> If the ServiceMonitor doesn’t get picked up, double-check the `release: monitoring` label matches your kube-prometheus-stack release name (`monitoring` in this post).
+
+---
+
+## Dashboards I Use (Minimal but High Signal)
+
+
+These give you immediate value without dashboard overload:
+
+---
+
+## Setting Up Grafana Dashboards
+---
+
+
+Once your exporters and Prometheus are running, you can visualize your data in Grafana. Here’s how to get started with the most useful dashboards for your homelab:
+
+### 1) Node Exporter Full (Proxmox & Kubernetes nodes)
+
+1. In Grafana, go to **Dashboards > Import**.
+
+<ClickableImage
+  src="/post-images/k8s-monitoring-series/grafana-import.jpg"
+  alt="Grafana dashboard import screen"
+  className="my-4"
+/>
+2. Enter dashboard ID **1860** ("Node Exporter Full") and click **Load**.
+3. Select your Prometheus data source and click **Import**.
+4. Use the **Instance** dropdown to select your Proxmox or Kubernetes node (e.g., `192.168.30.10:9100`).
+
+This dashboard shows CPU, memory, disk, network, and more for any host running node_exporter.
+
+### 2) Pi-hole Exporter Dashboard
+
+1. Go to **Dashboards > Import** in Grafana.
+2. Use dashboard ID **10176** ("Pi-hole Exporter - Grafana Dashboard") or search for "pihole" on [grafana.com/dashboards](https://grafana.com/grafana/dashboards/).
+3. Select your Prometheus data source and import.
+4. In the dashboard, use the **instance** dropdown to select your Pi-hole exporter (e.g., `pihole-exporter:9617`).
+
+You’ll see queries over time, blocked percentage, top clients, and more.
+
+### 3) Kubernetes Cluster Dashboards
+
+If you installed kube-prometheus-stack, you’ll get several built-in dashboards for cluster health, pods, and nodes. Look for dashboards like **Kubernetes / Compute Resources / Node** and **Kubernetes / Compute Resources / Pod**.
+
+---
+
+## Tips for Exploring Your Data
+
+- Use the **Explore** tab in Grafana to run ad-hoc PromQL queries (e.g., `pihole_domains_blocked` or `node_cpu_seconds_total`).
+- Filter by **instance** to focus on a specific host or exporter.
+- Set dashboard time ranges to match your troubleshooting window.
+
+With these dashboards, you’ll have a single pane of glass for your Proxmox hosts, Kubernetes nodes, and Pi-hole DNS stats.
+
+---
+
+## Hardening and “Nice to Have” Improvements
+---
+
+## Exposing Grafana with an Ingress
+**How to find your ClusterIssuer name:**
+
+To list all cert-manager ClusterIssuers in your cluster, run:
+
+```bash
+kubectl get clusterissuer
+```
+
+Use the name from the output (e.g., `letsencrypt-prod`) in the Ingress annotation:
+
+```yaml
+annotations:
+  cert-manager.io/cluster-issuer: letsencrypt-prod
+```
+
+To access Grafana from outside your cluster, you can expose it with an Ingress (just like Argo CD). Here’s a basic example using the Kubernetes Ingress API:
+
+### Step 1: Create a Certificate for Grafana
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-cert
+  namespace: monitoring
+spec:
+  secretName: grafana-tls
+  issuerRef:
+    name: letsencrypt-prod   # or your ClusterIssuer name
+    kind: ClusterIssuer
+  commonName: grafana.example.com
+  dnsNames:
+    - grafana.example.com
+```
+
+Apply it with:
+```bash
+kubectl apply -f grafana-cert.yaml
+```
+
+Wait for the certificate to be issued (check with `kubectl describe certificate -n monitoring`).
+
+### Step 2: Create the Ingress for Grafana
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: monitoring
+spec:
+  rules:
+    - host: grafana.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: monitoring-grafana  # Use the actual Service name from kubectl get svc -n monitoring
+                port:
+                  number: 80              # Use the actual Service port
+  **How to check your Service name and port:**
+
+  Run:
+  ```bash
+  kubectl get svc -n monitoring
+  ```
+  Look for the Service that points to your Grafana pod (often monitoring-grafana) and note the port (usually 80 or 3000). Update your Ingress manifest to match.
+  tls:
+    - hosts:
+        - grafana.example.com
+      secretName: grafana-tls
+```
+
+Apply it with:
+```bash
+kubectl apply -f grafana-ingress.yaml
+```
+
+**Key tips:**
+- Replace `grafana.example.com` with your domain.
+- Make sure your DNS points to your ingress controller.
+- The `secretName` (e.g., `grafana-tls`) must match the one in your Certificate.
+- The service name/port should match your Grafana Service (often `grafana` on port 80 or 3000).
+
+After a minute, you should be able to access Grafana securely at your chosen domain with HTTPS.
+
+These are great follow-ups (or a Part 2):
+
+- Add an **Ingress** for Grafana (and put it behind auth)
+- Add **Alertmanager** (simple “disk full” and “node down” alerts first)
+- Add **Loki** for centralized logs
+- Add long-term retention or remote storage (if you care)
+
+---
+
+## Lessons Learned (So Far)
+
+- Disk latency causes more “random issues” than CPU.
+- Pi-hole performance affects the entire house.
+- Kubernetes will happily restart things and you won’t notice… unless you’re watching.
+
+Monitoring isn’t about collecting metrics — it’s about **understanding your system**.
+
+---
+
+## Troubleshooting: Pi-hole Data Not Showing in Grafana
+
+If your Pi-hole info isn’t showing up in Grafana or isn’t available as a host in the Pi-hole dashboard, check the following:
+
+1. **Exporter Pod Status**: Make sure the `pihole-exporter` pod is running and not in a CrashLoop or error state:
+  ```bash
+  kubectl -n monitoring get pods
+  ```
+2. **Service & Endpoints**: Confirm the `pihole-exporter` Service exists and has endpoints:
+  ```bash
+  kubectl -n monitoring get svc,pods,endpoints | grep pihole
+  ```
+3. **Prometheus Target Discovery**:
+  - In Grafana, go to **Connections > Data sources**, select your Prometheus data source, then click the **Explore** tab or look for a **Targets** or **Status** section (the exact location may vary by Grafana version).
+  - Alternatively, access the Prometheus UI directly (often at `/prometheus` on your cluster or via port-forward) and go to **Status > Targets**.
+  - Look for a `pihole-exporter` job/target. If it’s missing or “down,” check your ServiceMonitor and Service labels/selectors.
+4. **ServiceMonitor Configuration**: Ensure the `ServiceMonitor` is in the same namespace as the exporter and matches the Service labels.
+5. **Exporter Logs**: Check the logs for the exporter pod for errors connecting to Pi-hole or authentication issues:
+  ```bash
+  kubectl -n monitoring logs deploy/pihole-exporter
+  ```
+6. **App Password**: Double-check the app password in your Kubernetes Secret matches what you created in Pi-hole.
+7. **Network Access**: The exporter pod must be able to reach your Pi-hole instance (check network policies, firewalls, and the `PIHOLE_HOSTNAME` value).
+8. **Prometheus Scrape**: Confirm Prometheus is scraping the exporter endpoint (should see metrics at `/metrics`).
+
+If all the above are correct, the Pi-hole exporter should appear as an “instance” in the Grafana dashboard dropdown. If not, review the logs and configuration for typos or network issues.
+
+This post is Part 1 of my **Homelab Observability** series:
+
+- Part 1: Metrics with Grafana + Prometheus ✅
+- Part 2: Alerting with Alertmanager
+- Part 3: Logs with Loki
+- Part 4: Capacity planning with real data

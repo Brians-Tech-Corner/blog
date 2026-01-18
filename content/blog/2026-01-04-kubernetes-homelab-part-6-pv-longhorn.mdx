@@ -237,6 +237,9 @@ This may take several minutes on first install.
 ---
 
 ## Access the Longhorn UI
+<Callout type="warning">
+If you run the port-forward command from your control plane node, you must use the `--address 0.0.0.0` flag. Without it, the UI will only be accessible from localhost on the CP node and not from your workstation or other machines.
+</Callout>
 
 Once Longhorn is running, expose the UI using a temporary port-forward.
 
@@ -268,6 +271,8 @@ http://localhost:8080
 
 <Callout type="info">
 The `--address 0.0.0.0` flag binds the port-forward to all network interfaces, making it accessible from other machines. By default, kubectl port-forward only binds to localhost, which won't work if you're port-forwarding from a remote VM.
+
+**Tip:** If you run the port-forward command on your control plane node, use that node's IP address (e.g., http://192.168.30.67:8080) to access the UI from your workstation. If you run it locally, use http://localhost:8080.
 </Callout>
 
 You should see all worker nodes listed, along with their available disks.
@@ -466,9 +471,32 @@ When you delete a PVC, Longhorn automatically deletes the underlying PersistentV
 
 You can also check the Longhorn UI to verify the volume has been removed.
 
----
-## What’s Next
+## Migrating Volumes to New Disks and Updating Replica Locations
 
+If you add new disks or change disk locations (for example, moving from the default `/var/lib/longhorn/` to a dedicated mount like `/mnt/longhorn-storage`), you need to migrate existing volume replicas to the new disk location. This ensures Longhorn uses your full disk capacity and avoids issues with insufficient storage.
+
+**Steps to migrate volumes and update replica locations:**
+
+1. In the Longhorn UI, go to the **Nodes** tab and verify your new disk is listed and marked as Schedulable.
+2. Disable scheduling on the old disk (e.g., `/var/lib/longhorn/`) and enable scheduling on the new disk (e.g., `/mnt/longhorn-storage`).
+3. For the old disk, enable **Eviction Requested**. Longhorn will automatically migrate replicas off the old disk to the new disk.
+4. Wait for migration to complete. You can monitor progress in the **Disks** and **Volumes** tabs.
+5. Once all replicas have moved, delete the old disk entry from the node in the Longhorn UI.
+
+**Update Replica Count for Existing Volumes:**
+
+If you have fewer nodes than the default replica count (e.g., only 2 nodes but volumes were created with 3 replicas), you must manually update the replica count for each volume:
+
+1. In the Longhorn UI, go to the **Volumes** tab.
+2. Click on each volume and select **Update Replicas**.
+3. Set the replica count to match your node count (e.g., 2).
+4. Save changes and wait for Longhorn to rebalance the replicas.
+
+**Note:** The global default replica count only applies to new volumes. Existing volumes must be updated individually.
+
+**Best Practice:**
+Always migrate replicas and update volume settings when changing disk locations or resizing your cluster. This prevents scheduling failures and ensures Longhorn uses your available storage efficiently.
+## What’s Next
 At this point, the cluster has:
 
 - Networking
