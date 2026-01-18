@@ -397,13 +397,6 @@ kubectl apply -f pihole-servicemonitor.yaml
 
 ---
 
-## Dashboards I Use (Minimal but High Signal)
-
-
-These give you immediate value without dashboard overload:
-
----
-
 ## Setting Up Grafana Dashboards
 ---
 
@@ -516,18 +509,22 @@ spec:
                 name: monitoring-grafana  # Use the actual Service name from kubectl get svc -n monitoring
                 port:
                   number: 80              # Use the actual Service port
+  ```
+
   **How to check your Service name and port:**
 
   Run:
   ```bash
   kubectl get svc -n monitoring
   ```
+
   Look for the Service that points to your Grafana pod (often monitoring-grafana) and note the port (usually 80 or 3000). Update your Ingress manifest to match.
+  ```yaml
   tls:
     - hosts:
         - grafana.example.com
       secretName: grafana-tls
-```
+  ```
 
 Apply it with:
 ```bash
