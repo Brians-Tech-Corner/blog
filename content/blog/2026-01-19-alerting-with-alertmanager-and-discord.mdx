@@ -255,6 +255,11 @@ Once you’ve confirmed that alerts are working and you see the test message in 
 kubectl delete prometheusrule test-alert -n monitoring
 ```
 
+Your discord message might look something like this depending on the alert you setup:
+
+<ClickableImage src="/post-images/k8s-monitoring-series/discord-alert.jpg" alt="Discord alert notification example" caption="Example Discord alert notification from Alertmanager" />
+
+
 ---
 
 ## Example: Real Alert for High CPU on Proxmox
@@ -305,7 +310,6 @@ You can adapt this pattern for memory, disk, or other metrics. Adjust the `expr`
 ## Resources
 
 - [Prometheus Alertmanager Docs](https://prometheus.io/docs/alerting/latest/alertmanager/)
-- [alertmanager-discord Relay](https://github.com/metalmatze/alertmanager-discord)
 - [Kube-Prometheus-Stack Helm Chart](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
 
 ---
