@@ -1,0 +1,314 @@
+---
+title: "Kubernetes Logging with Loki"
+date: "2026-01-20"
+description: "Collect, store, and query Kubernetes logs using Loki with MinIO object storage and Grafana."
+tags: ["kubernetes", "logging", "loki", "observability", "grafana", "minio", "traefik"]
+draft: false
+series: "homelab-observability"
+seriesOrder: 3
+image: "/post-images/loki-logs-hero.jpg"
+---
+
+# Kubernetes Logging with Loki (Homelab-Friendly)
+
+This post documents a **real, working Loki setup** built step-by-step in a homelab Kubernetes cluster.  
+It intentionally includes the *gotchas* you will actually hit when combining Loki, MinIO, Traefik, and Grafana.
+
+
+
+<Callout type="info">
+This post assumes you have already set up internal DNS, Cloudflare, and Let's Encrypt certificates using cert-manager, as described in <a href="/blog/2026-01-08-kubernetes-homelab-part-10-cert-manager-https">Part 10: Secure Your Apps with HTTPS and cert-manager</a> of this series. If you haven't completed that step, please follow those instructions first to ensure your domains and certificates are working.
+</Callout>
+
+> **Note:**
+      > This guide uses `example.com` as a placeholder. In your environment, use your own domain. This setup assumes you have internal DNS and a wildcard or specific records managed (e.g., via Cloudflare), and TLS certificates issued by cert-manager with Let’s Encrypt, as described in earlier posts in this Kubernetes series.
+
+---
+
+## Architecture Overview
+
+- **MinIO Console:** `https://minio.example.com` → port **9001**
+- **MinIO S3 API:** `https://minio-api.example.com` → port **9000**
+- **Loki Gateway:** internal service (`loki-gateway`)
+- **Promtail:** ships logs → Loki Gateway
+- **Grafana:** queries Loki via Gateway
+
+> **Why two MinIO hostnames?**  
+> MinIO Console must run at `/` on its own hostname. Subpaths (like `/console`) cause auth and redirect failures.
+
+---
+
+## 1. DNS Setup (Pi-hole)
+
+Create **two local DNS records** pointing to your Traefik ingress IP:
+
+| Hostname | IP |
+|--------|----|
+| minio.example.com | 192.168.30.200 |
+| minio-api.example.com | 192.168.30.200 |
+
+Traefik routes by **hostname**, not IP.
+
+---
+
+## 2. Deploy MinIO
+
+### 2.1 Persistent Volume
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-data
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: longhorn
+```
+
+---
+
+### 2.2 MinIO Deployment (Critical Env Vars)
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+        - name: minio
+          image: quay.io/minio/minio:latest
+          args:
+            - server
+            - /data
+            - --address
+            - ":9000"
+            - --console-address
+            - ":9001"
+          env:
+            - name: MINIO_ROOT_USER
+              value: "admin"
+            - name: MINIO_ROOT_PASSWORD
+              value: "MiniHome!"
+            - name: MINIO_SERVER_URL
+              value: "https://minio-api.example.com"
+            - name: MINIO_BROWSER_REDIRECT_URL
+              value: "https://minio.example.com"
+          ports:
+            - name: api
+              containerPort: 9000
+            - name: console
+              containerPort: 9001
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minio-data
+```
+
+> Without `MINIO_SERVER_URL` and `MINIO_BROWSER_REDIRECT_URL`, the console loads but login fails.
+
+---
+
+## 3. Expose MinIO with Traefik Ingress
+
+### Console Ingress (9001)
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-console-ingress
+  namespace: monitoring
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - minio.example.com
+      secretName: minio-console-tls
+  rules:
+    - host: minio.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9001
+```
+
+### API Ingress (9000)
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-api-ingress
+  namespace: monitoring
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - minio-api.example.com
+      secretName: minio-api-tls
+  rules:
+    - host: minio-api.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9000
+```
+
+---
+
+## 4. Create MinIO Buckets
+
+Login to:
+
+👉 **https://minio.example.com**
+
+Create:
+- `loki-chunks`
+- `loki-ruler`
+- `loki-admin`
+
+---
+
+## 5. Configure Loki (SimpleScalable)
+
+### `loki-values.yaml`
+
+```yaml
+loki:
+  storage:
+    type: s3
+    s3:
+      endpoint: https://minio-api.example.com
+      access_key_id: admin
+      secret_access_key: MiniHome!
+      s3forcepathstyle: true
+      insecure: false
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-ruler
+      admin: loki-admin
+
+  schemaConfig:
+    configs:
+      - from: 2023-01-01
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+
+# Homelab: disable large memcached cache
+chunksCache:
+  enabled: false
+```
+
+Install Loki:
+
+```bash
+helm upgrade --install loki grafana/loki   --namespace monitoring --create-namespace   -f loki-values.yaml
+```
+
+---
+
+## 6. Install Promtail (Deprecated Chart)
+
+```bash
+helm upgrade --install promtail grafana/promtail   --namespace monitoring
+```
+
+> Promtail Helm chart is deprecated but still fully functional.  
+> Grafana Agent / Alloy is the long-term replacement.
+
+---
+
+## 7. Configure Grafana Loki Datasource (IMPORTANT)
+
+Use the **internal Loki Gateway service**, not MinIO ingress URLs.
+
+**URL:**
+
+```text
+http://loki-gateway.monitoring.svc.cluster.local
+```
+
+### Required Header (Fixes `no org id` errors)
+
+Grafana does **not** automatically send an Org ID header.  
+Add this under **HTTP Headers**:
+
+- Header: `X-Scope-OrgID`
+- Value: `1`
+
+Without this, Grafana health checks fail with:
+
+```text
+error from loki: no org id
+```
+
+---
+
+## 8. Verify Loki Health
+
+```bash
+kubectl -n monitoring port-forward svc/loki-gateway 3100:80
+curl http://127.0.0.1:3100/loki/api/v1/status/buildinfo
+```
+
+Expected JSON output confirms Loki is reachable.
+
+This is an example of what Grafana will look like pulling up the logs.
+
+<ClickableImage
+    src="/post-images/k8s-monitoring-series/grafana-loki.jpg"
+    alt="Grafana Explore tab showing Loki logs"
+    caption="This is how Grafana should look when searching for Loki logs. Click to enlarge."
+  />
+
+---
+
+## Conclusion
+
+You now have a **production-style Loki logging stack** running cleanly in a homelab:
+
+- Proper MinIO ingress separation
+- Stable Loki SimpleScalable deployment
+- Promtail shipping logs successfully
+- Grafana querying via Loki Gateway with Org ID header
+
+This setup avoids deprecated charts, broken subpaths, and common auth pitfalls.
+
+**Next up:** migrating from Promtail to Grafana Agent (Alloy), log-based alerts, and retention tuning.
