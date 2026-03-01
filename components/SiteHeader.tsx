@@ -25,9 +25,9 @@ export function SiteHeader() {
             priority
           />
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+            <p className="text-xl font-bold tracking-tight text-white sm:text-2xl">
               Brian&apos;s Tech Corner
-            </h1>
+            </p>
             <p className="mt-1 text-sm text-zinc-400 sm:text-base">
               Platform engineering, homelabs, and open source — notes from the field.
             </p>
