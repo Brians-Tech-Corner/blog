@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
+const ogImage = `${siteUrl}/api/og?${new URLSearchParams({ title: 'About', description: 'Staff Platform Engineer writing about platform engineering, homelabs, and open source' }).toString()}`;
+const twitterImage = `${siteUrl}/api/og?${new URLSearchParams({ title: 'About', description: 'Staff Platform Engineer writing about platform engineering and homelabs' }).toString()}`;
+
 export const metadata: Metadata = {
   title: 'About',
   description:
@@ -16,22 +19,14 @@ export const metadata: Metadata = {
     url: `${siteUrl}/about`,
     siteName: "Brian's Tech Corner",
     type: 'website',
-    images: [
-      {
-        url: `${siteUrl}/api/og?title=About&description=Staff Platform Engineer writing about platform engineering, homelabs, and open source`,
-        width: 1200,
-        height: 630,
-      },
-    ],
+    images: [{ url: ogImage, width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: "About | Brian's Tech Corner",
     description:
       "Staff Platform Engineer writing about platform engineering, homelabs, open source, and building in public.",
-    images: [
-      `${siteUrl}/api/og?title=About&description=Staff Platform Engineer writing about platform engineering and homelabs`,
-    ],
+    images: [twitterImage],
   },
 };
 
@@ -154,7 +149,7 @@ export default function AboutPage() {
           href="https://github.com/Brians-Tech-Corner"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Visit Brians Tech Corner on GitHub"
+          aria-label="Visit Brian's Tech Corner on GitHub"
           className={linkClassName}
         >
           Brians Tech Corner GitHub

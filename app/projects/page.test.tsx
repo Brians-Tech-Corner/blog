@@ -51,7 +51,9 @@ describe('ProjectsPage', () => {
 
   it('renders tech tags for each project', () => {
     render(<ProjectsPage />);
-    expect(screen.getByText('Python')).toBeInTheDocument();
+    // Python appears in both Greybeard and Herp Ops
+    const pythonTags = screen.getAllByText('Python');
+    expect(pythonTags.length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText('MCP')).toBeInTheDocument();
     expect(screen.getByText('Next.js')).toBeInTheDocument();
     expect(screen.getByText('FastAPI')).toBeInTheDocument();
