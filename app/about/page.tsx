@@ -3,22 +3,22 @@ import type { Metadata } from 'next';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
 export const metadata: Metadata = {
-  title: "About",
+  title: 'About',
   description:
-    "Learn about Brian's Tech Corner - exploring homelabs, home automation, Kubernetes, and self-hosted solutions. Building and documenting things at home.",
+    "Brian is a Staff Platform Engineer who writes about platform engineering, homelabs, open source tooling, and building production SaaS products in public.",
   alternates: {
     canonical: `${siteUrl}/about`,
   },
   openGraph: {
     title: "About | Brian's Tech Corner",
     description:
-      "Learn about Brian's Tech Corner - exploring homelabs, home automation, Kubernetes, and self-hosted solutions. Building and documenting things at home.",
+      "Staff Platform Engineer writing about platform engineering, homelabs, open source, and building in public.",
     url: `${siteUrl}/about`,
     siteName: "Brian's Tech Corner",
     type: 'website',
     images: [
       {
-        url: `${siteUrl}/api/og?title=About&description=Exploring homelabs, home automation, and self-hosted solutions`,
+        url: `${siteUrl}/api/og?title=About&description=Staff Platform Engineer writing about platform engineering, homelabs, and open source`,
         width: 1200,
         height: 630,
       },
@@ -28,9 +28,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "About | Brian's Tech Corner",
     description:
-      "Learn about Brian's Tech Corner - exploring homelabs, home automation, Kubernetes, and self-hosted solutions. Building and documenting things at home.",
+      "Staff Platform Engineer writing about platform engineering, homelabs, open source, and building in public.",
     images: [
-      `${siteUrl}/api/og?title=About&description=Exploring homelabs, home automation, and self-hosted solutions`,
+      `${siteUrl}/api/og?title=About&description=Staff Platform Engineer writing about platform engineering and homelabs`,
     ],
   },
 };
@@ -44,76 +44,89 @@ export default function AboutPage() {
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
 
       <p className="mt-6 text-lg text-zinc-700 dark:text-zinc-300">
-        Hey, I&apos;m Brian — welcome to my corner of the internet where I document my
-        homelab and home automation projects.
+        Hey, I&apos;m Brian — Staff Platform Engineer by day, open source builder and homelab
+        tinkerer by night.
       </p>
 
       <h2 className="mt-10 text-xl font-semibold">What You&apos;ll Find Here</h2>
 
       <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-        This site is all about building, breaking, and learning through hands-on projects
-        at home. The main focus areas are:
+        This site is my public notebook — a mix of platform engineering deep-dives,
+        homelab projects, and documentation for the open source tools I build. Main topics:
       </p>
 
       <ul className="mt-4 list-inside list-disc space-y-2 text-zinc-600 dark:text-zinc-400">
         <li>
-          <strong>Homelab projects</strong> — running Kubernetes on Mini PCs and other devices,
-          self-hosted services, and infrastructure experimentation
+          <strong>Platform engineering</strong> — internal developer platforms, developer
+          experience, Terraform, Port.io, SonarCloud, CI/CD, and everything that makes
+          engineering teams move faster
         </li>
         <li>
-          <strong>Home automation</strong> — Home Assistant integrations, smart home
-          setups, and automation workflows
+          <strong>Open source projects</strong> —&nbsp;
+          <a href="https://github.com/btotharye/greybeard" className={linkClassName} target="_blank" rel="noopener noreferrer">Greybeard</a>
+          {' '}(AI code reviewer), ProxiClaw (personal AI agent), and whatever I build next
         </li>
         <li>
-          <strong>Home networking</strong> — VLANs, DNS, firewalls, and everything needed
-          to run services securely at home using UniFi products.
+          <strong>Building in public</strong> — documenting{' '}
+          <a href="https://www.herpops.com" className={linkClassName} target="_blank" rel="noopener noreferrer">Herp Ops</a>,
+          a reptile care SaaS I&apos;m building solo — from architecture decisions to
+          production incidents
         </li>
         <li>
-          <strong>Self-hosted solutions</strong> — alternatives to cloud services, local
-          control, and privacy-focused tools
+          <strong>Homelab projects</strong> — Kubernetes on Mini PCs, self-hosted services,
+          GitOps, and infrastructure experimentation
+        </li>
+        <li>
+          <strong>Home automation</strong> — Home Assistant, smart home setups, and
+          automation workflows
+        </li>
+        <li>
+          <strong>Home networking</strong> — VLANs, DNS, firewalls, and UniFi gear
         </li>
       </ul>
 
       <h2 className="mt-10 text-xl font-semibold">Background</h2>
 
       <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-        By day, I work in DevOps and platform engineering, which gives me exposure to
-        enterprise-scale infrastructure. By night (and weekends), I bring those concepts
-        home — scaled down, simplified, and adapted for a homelab environment where I learn and improve my
-        skillset.
+        By day I work as a Staff Platform Engineer — building internal developer platforms,
+        managing infrastructure at scale, and helping engineering teams ship faster.
+        The tools I reach for at work (Kubernetes, Terraform, GitOps, observability stacks)
+        are the same ones I run at home, just scaled way down.
       </p>
 
       <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-        The goal here isn&apos;t to replicate production systems at home, but to learn,
-        experiment, and have fun building things that actually work for me and my family.
+        Outside of the day job I build open source tools and a SaaS product.{' '}
+        <a href="https://github.com/btotharye/greybeard" className={linkClassName} target="_blank" rel="noopener noreferrer">Greybeard</a>{' '}
+        is an AI code reviewer that models how Staff engineers think about systems.{' '}
+        <a href="https://www.herpops.com" className={linkClassName} target="_blank" rel="noopener noreferrer">Herp Ops</a>{' '}
+        is a reptile care SaaS I&apos;m building from scratch — it&apos;s as much a platform
+        engineering case study as it is a product.
       </p>
 
       <h2 className="mt-10 text-xl font-semibold">Why This Blog?</h2>
 
       <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-        This site serves as my public notebook. When I solve a problem, configure
-        something tricky, or build something useful, I document it here. Some posts are
-        comprehensive guides, others are quick notes for future reference.
+        Writing forces me to think clearly. When I solve something tricky, build something
+        useful, or make a decision I want to remember — I write it down here. Some posts
+        are comprehensive guides, others are quick notes for future reference.
       </p>
 
       <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-        If it helps someone else along the way, even better. Everything shared here is for
-        learning and experimentation purposes.
+        If it helps someone else along the way, even better.
       </p>
 
       <h2 className="mt-10 text-xl font-semibold">Get in Touch</h2>
 
       <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-        Feel free to reach out on social media or leave a comment on any post. I&apos;m always
-        interested in hearing about other people&apos;s homelab setups and automation projects.
+        Always interested in connecting with other engineers, homelab nerds, and open
+        source builders. Reach out on any of the links below.
       </p>
 
-      <div className="mt-6 flex gap-4">
+      <div className="mt-6 flex flex-wrap gap-4">
         <a
-          href="https://github.com/brians-tech-corner"
+          href="https://github.com/btotharye"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Visit Brian's Tech Corner on GitHub"
           className={linkClassName}
         >
           GitHub
@@ -122,7 +135,6 @@ export default function AboutPage() {
           href="https://x.com/brianstechcorn"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Follow Brian's Tech Corner on X (formerly Twitter)"
           className={linkClassName}
         >
           X (Twitter)
@@ -131,10 +143,17 @@ export default function AboutPage() {
           href="https://youtube.com/@brianstechcorner"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Subscribe to Brian's Tech Corner on YouTube"
           className={linkClassName}
         >
           YouTube
+        </a>
+        <a
+          href="https://github.com/Brians-Tech-Corner"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClassName}
+        >
+          Brians Tech Corner GitHub
         </a>
       </div>
     </main>
