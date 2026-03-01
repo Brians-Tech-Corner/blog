@@ -27,15 +27,16 @@ describe('HomePage', () => {
   it('renders the hero section', async () => {
     render(await HomePage());
     expect(
-      screen.getByRole('heading', { name: /Brian.s Tech Corner/i }),
+      screen.getByRole('heading', { name: /Latest Posts/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/A collection of notes, experiments, and walkthroughs/),
+      screen.getByText(/Notes, guides, and experiments/),
     ).toBeInTheDocument();
   });
 
   it('renders topic tags', async () => {
     render(await HomePage());
+    expect(screen.getByText('Platform Engineering')).toBeInTheDocument();
     expect(screen.getByText('Homelab')).toBeInTheDocument();
     expect(screen.getByText('Kubernetes')).toBeInTheDocument();
     expect(screen.getByText('Python')).toBeInTheDocument();
@@ -59,7 +60,7 @@ describe('HomePage', () => {
   it('renders latest posts with formatted dates', async () => {
     render(await HomePage());
     const latestSection = screen
-      .getByRole('heading', { name: /Latest/i })
+      .getByRole('heading', { name: /^Latest$/i })
       .closest('section');
     expect(latestSection).toBeInTheDocument();
 
