@@ -5,6 +5,7 @@ import { headerSocialLinks } from '@/lib/social-links';
 
 const links = [
   { href: '/blog', label: 'Blog' },
+  { href: '/projects', label: 'Projects' },
   { href: '/discord', label: 'Discord' },
   { href: '/about', label: 'About' },
 ];

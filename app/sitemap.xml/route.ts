@@ -57,6 +57,12 @@ export async function GET() {
       priority: 0.8,
     },
     {
+      url: '/projects',
+      lastModified: defaultStaticLastModified,
+      changeFreq: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: '/blog',
       // Falls back to defaultStaticLastModified if no posts exist
       lastModified: latestPostLastModified
