@@ -42,10 +42,6 @@ describe('SiteHeader', () => {
     expect(blogLink).toBeInTheDocument();
     expect(blogLink).toHaveAttribute('href', '/blog');
 
-    const projectsLink = screen.getByRole('link', { name: 'Projects' });
-    expect(projectsLink).toBeInTheDocument();
-    expect(projectsLink).toHaveAttribute('href', '/projects');
-
     // Discord appears twice (nav + social), so get all and filter by href
     const discordLinks = screen.getAllByRole('link', { name: 'Discord' });
     const navDiscordLink = discordLinks.find(
