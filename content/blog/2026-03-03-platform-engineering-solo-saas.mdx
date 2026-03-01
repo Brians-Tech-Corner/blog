@@ -1,0 +1,140 @@
+---
+title: "Platform Engineering for Solo Builders: How I Built an IDP for a One-Person SaaS"
+date: "2026-03-03"
+description: "You don't need a 200-person engineering org to benefit from an internal developer platform. Here's how I set up Port.io, Terraform, SonarCloud, and Jira for Herp Ops — a SaaS I build alone."
+tags: ["platform-engineering", "port-io", "terraform", "sonarcloud", "developer-experience", "idp", "gitops", "open-source"]
+image: "/post-images/platform-engineering-hero.jpg"
+---
+
+## Who Platform Engineering Is Actually For
+
+There's a common assumption that platform engineering — internal developer platforms, golden paths, developer experience programs — is for large engineering organizations. Teams big enough to justify dedicated platform teams.
+
+I'd push back on that. The principles behind platform engineering matter at any scale. Self-service capabilities, catalog visibility, quality gates, infrastructure as code — these aren't luxuries for big teams. They're habits that keep small teams from drowning in operational overhead as the system grows.
+
+This post walks through what I built for [Herp Ops](https://www.herpops.com), a reptile care SaaS I build alone, and why each piece is worth the setup time even at one engineer.
+
+## The Stack
+
+| Layer | Tool | Why |
+|---|---|---|
+| Software catalog | [Port.io](https://getport.io) | Single source of truth for services, quality, and deployments |
+| Infrastructure | Terraform + Terraform Cloud | All catalog config is code, version-controlled, reviewed via PR |
+| Code quality | SonarCloud | Automated quality gates on every PR |
+| CI/CD | GitHub Actions + Railway + Vercel | Zero-config deploys on merge to main |
+| Issue tracking | Jira | Structured backlog, connected to the catalog |
+| Backend | Railway (FastAPI/Python) | |
+| Frontend | Vercel (Next.js/TypeScript) | |
+
+## The Software Catalog
+
+Port.io is the hub. Everything connects to it — services, deployments, code quality, users, roadmap items.
+
+The catalog has blueprints for:
+- **Services** — `api`, `frontend`, `herp-ops-landing`, `herp-ops-infra`, `roadmap`, `herp-ops-ai`
+- **Environments** — production and staging for each service
+- **GitHub repos and PRs** — synced automatically via the GitHub Ocean integration
+- **SonarCloud projects** — test coverage, bugs, vulnerabilities, code smells
+- **Railway services** — deployment status, environment variables
+- **Vercel deployments** — deployment status, domains
+- **Users** — every user who signs up in the app syncs to Port with their subscription tier and usage stats
+- **Beta signups** — the waitlist
+
+The AI agent in Port can answer questions across all of this:
+> *"What's the code quality status for both services?"*
+> *"How many users are on the Pro tier?"*
+> *"Show me recent deployments"*
+
+That's not a custom integration — it's GPT-4o with the catalog as context.
+
+## Everything Is Code
+
+Every blueprint, scorecard, entity, and action is defined in Terraform:
+
+```
+terraform/port/
+├── blueprints.tf    # all schema definitions
+├── entities.tf      # seed data + import blocks
+├── scorecards.tf    # quality rules
+├── actions.tf       # self-service actions
+├── main.tf          # provider config
+└── variables.tf     # configurable values
+```
+
+Terraform Cloud runs `plan` and `apply` on every PR and merge. No click-ops in the Port UI — if you want to add a property to a blueprint, you open a PR.
+
+This matters even as a solo builder. Without IaC, the catalog configuration drifts. You forget what you clicked, you can't review changes, and you can't reproduce the setup if you had to start over. With IaC, the git log is the audit trail.
+
+<Callout type="info">
+**Port v2 provider note:** Port's Terraform provider uses typed sub-maps (`string_props`, `number_props`, `boolean_props`) rather than a flat properties map. The migration from v1 is documented but takes an afternoon if you have existing blueprints.
+</Callout>
+
+## Scorecards: Automated Quality Gates
+
+Port scorecards let you define rules that evaluate service quality and surface a Bronze/Silver/Gold status. My `production_readiness` scorecard checks:
+
+**Bronze** — any service must have:
+- CI/CD configured
+- A README
+- A health check endpoint
+
+**Silver** adds:
+- Test coverage ≥ 60%
+- SonarCloud quality gate passing
+- On-call runbook URL
+
+**Gold** adds:
+- Test coverage ≥ 80%
+- No open critical Sonar issues
+- Deployment documented
+
+The API is at Gold (96.6% coverage). The frontend is at Silver (75.5% — need to push to 80%). These aren't arbitrary targets — they're the questions I'd ask about any service I was about to hand off to someone else.
+
+## Self-Service Actions
+
+Port actions are forms that trigger GitHub Actions workflows. The ones I have:
+
+- **scaffold_service** — creates a new repo from a template, wires CI/CD, registers in catalog
+- **trigger_deployment** — redeploys a Railway service from Port
+- **sync_openapi_spec** — fetches the latest spec from the API and upserts it into Port
+- **reset_demo_data** — resets the demo account in the app (useful for demos)
+- **send_beta_invite** — marks a betaSignup entity as invited
+
+At one engineer this is less about self-service (there's no one else to serve) and more about having automation that's discoverable, documented, and not living in a Notion doc nobody reads.
+
+## Closing the Loop with Jira
+
+The Jira integration closes a loop I find genuinely useful: users can file feature requests directly from the app's AI chat widget. The chat detects the intent, creates a Jira issue in the `HOFR` (Feature Requests) project, and the Jira Ocean integration syncs it into Port.
+
+So from Port I can see:
+- What features users have asked for
+- Which service the request relates to
+- Whether it's been prioritized onto the roadmap
+
+That's the kind of visibility that usually requires a product manager and a weekly sync meeting. With the right integrations, it just... exists.
+
+## Was It Worth It?
+
+Honest answer: some of it, immediately — some of it, not yet.
+
+**Worth it immediately:**
+- SonarCloud quality gates — caught real bugs before they hit production
+- Terraform for catalog config — already saved me from drift twice
+- Railway + Vercel + GitHub Actions — zero-touch deploys are genuinely freeing
+
+**Worth it eventually (investment pays off as the system grows):**
+- Port catalog — more useful as more services and integrations exist
+- Scorecards — enforce standards before technical debt compounds
+- Self-service actions — useful once there are more people or more repetitive operations
+
+**Still not sure:**
+- Jira for one person — might be overkill vs. a simple GitHub Projects board
+
+The honest framing: this isn't about having a "real" platform engineering setup for clout. It's about not making decisions I'll regret in two years when the system is bigger and harder to change. The time to establish good habits is before you're in the middle of an incident wondering why nothing is observable.
+
+## Resources
+
+- [Port.io docs](https://docs.getport.io) — the catalog, scorecards, actions
+- [Port Terraform provider](https://registry.terraform.io/providers/port-labs/port-labs/latest)
+- [Herp-Ops GitHub org](https://github.com/Herp-Ops) — the infra repo is public
+- [Herp Ops](https://www.herpops.com) — the actual product
