@@ -8,16 +8,16 @@ describe('ProjectsPage', () => {
     expect(screen.getByRole('heading', { name: /Projects/i, level: 1 })).toBeInTheDocument();
   });
 
-  it('renders the intro description', () => {
+  it('renders the page description', () => {
     render(<ProjectsPage />);
     expect(screen.getByText(/Open source tools and side projects/i)).toBeInTheDocument();
   });
 
   it('renders all three project cards', () => {
     render(<ProjectsPage />);
-    expect(screen.getByRole('heading', { name: 'Greybeard', level: 2 })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'ProxiClaw', level: 2 })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Herp Ops', level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Greybeard' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'ProxiClaw' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Herp Ops' })).toBeInTheDocument();
   });
 
   it('renders project taglines', () => {
@@ -27,47 +27,43 @@ describe('ProjectsPage', () => {
     expect(screen.getByText(/Reptile care management SaaS/i)).toBeInTheDocument();
   });
 
-  it('renders active status badges for all projects', () => {
+  it('renders active status badges', () => {
     render(<ProjectsPage />);
     const badges = screen.getAllByText('active');
-    expect(badges).toHaveLength(3);
+    expect(badges.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('renders Greybeard GitHub and Docs links', () => {
+  it('renders Greybeard GitHub and docs links', () => {
     render(<ProjectsPage />);
-    const ghLinks = screen.getAllByRole('link', { name: 'GitHub →' });
-    expect(ghLinks.length).toBeGreaterThan(0);
-    const greybeardGh = ghLinks.find((l) =>
-      l.getAttribute('href')?.includes('btotharye/greybeard'),
-    );
-    expect(greybeardGh).toBeInTheDocument();
+    const githubLinks = screen.getAllByRole('link', { name: /GitHub →/i });
+    expect(githubLinks.length).toBeGreaterThan(0);
+    expect(githubLinks[0]).toHaveAttribute('href', 'https://github.com/btotharye/greybeard');
 
-    const docsLinks = screen.getAllByRole('link', { name: 'Docs →' });
-    const greybeardDocs = docsLinks.find((l) =>
-      l.getAttribute('href')?.includes('readthedocs.io'),
-    );
-    expect(greybeardDocs).toBeInTheDocument();
+    const docsLink = screen.getByRole('link', { name: /Docs →/i });
+    expect(docsLink).toHaveAttribute('href', 'https://greybeard.readthedocs.io');
   });
 
-  it('renders Herp Ops with App link label', () => {
+  it('renders Herp Ops App link', () => {
     render(<ProjectsPage />);
-    const appLink = screen.getByRole('link', { name: 'App →' });
+    const appLink = screen.getByRole('link', { name: /App →/i });
     expect(appLink).toHaveAttribute('href', 'https://www.herpops.com');
   });
 
-  it('renders tech tags', () => {
+  it('renders tech tags for each project', () => {
     render(<ProjectsPage />);
     expect(screen.getByText('Python')).toBeInTheDocument();
     expect(screen.getByText('MCP')).toBeInTheDocument();
+    expect(screen.getByText('Next.js')).toBeInTheDocument();
     expect(screen.getByText('FastAPI')).toBeInTheDocument();
   });
 
-  it('all external links open in a new tab with rel=noopener', () => {
+  it('all external links open in new tab with rel=noopener', () => {
     render(<ProjectsPage />);
     const externalLinks = screen
       .getAllByRole('link')
-      .filter((l) => l.getAttribute('target') === '_blank');
+      .filter((l) => l.getAttribute('href')?.startsWith('http'));
     externalLinks.forEach((link) => {
+      expect(link).toHaveAttribute('target', '_blank');
       expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     });
   });

@@ -63,7 +63,6 @@ const PROJECTS = [
     github: 'https://github.com/Herp-Ops',
     docs: 'https://www.herpops.com',
     docsLabel: 'App →',
-    docsLabel: 'App →',
     status: 'active',
   },
 ];
