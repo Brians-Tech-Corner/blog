@@ -127,6 +127,7 @@ export default function AboutPage() {
           href="https://github.com/btotharye"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Visit btotharye on GitHub"
           className={linkClassName}
         >
           GitHub
@@ -135,6 +136,7 @@ export default function AboutPage() {
           href="https://x.com/brianstechcorn"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Follow Brian's Tech Corner on X (formerly Twitter)"
           className={linkClassName}
         >
           X (Twitter)
@@ -143,6 +145,7 @@ export default function AboutPage() {
           href="https://youtube.com/@brianstechcorner"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Subscribe to Brian's Tech Corner on YouTube"
           className={linkClassName}
         >
           YouTube
@@ -151,6 +154,7 @@ export default function AboutPage() {
           href="https://github.com/Brians-Tech-Corner"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Visit Brians Tech Corner on GitHub"
           className={linkClassName}
         >
           Brians Tech Corner GitHub

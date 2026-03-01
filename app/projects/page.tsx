@@ -9,10 +9,25 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteUrl}/projects` },
   openGraph: {
     title: 'Projects | Brian\'s Tech Corner',
-    description: "Open source tools and side projects built by Brian.",
+    description: "Open source tools and side projects built by Brian — including Greybeard, ProxiClaw, and Herp Ops.",
     url: `${siteUrl}/projects`,
     siteName: "Brian's Tech Corner",
     type: 'website',
+    images: [
+      {
+        url: `${siteUrl}/api/og?${new URLSearchParams({ title: 'Projects', description: 'Open source tools and side projects — Greybeard, ProxiClaw, Herp Ops' }).toString()}`,
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Projects | Brian's Tech Corner",
+    description: "Open source tools and side projects built by Brian — including Greybeard, ProxiClaw, and Herp Ops.",
+    images: [
+      `${siteUrl}/api/og?${new URLSearchParams({ title: 'Projects', description: 'Open source tools and side projects — Greybeard, ProxiClaw, Herp Ops' }).toString()}`,
+    ],
   },
 };
 
@@ -21,10 +36,11 @@ const PROJECTS = [
     name: 'Greybeard',
     tagline: 'Staff-level AI code review assistant',
     description:
-      'A CLI + MCP server that channels the calm, battle-tested wisdom of a Staff Engineer. Channels failure modes, ownership gaps, and operational cost into every review. Supports OpenAI, Anthropic, and local models via Ollama. Content packs let you swap perspectives — from on-call engineer to solutions architect.',
+      'A CLI + MCP server that channels the calm, battle-tested wisdom of a Staff Engineer into every code review. Surfaces failure modes, ownership gaps, and operational cost. Supports OpenAI, Anthropic, and local models via Ollama. Content packs let you swap perspectives — from on-call engineer to solutions architect.',
     tags: ['Python', 'CLI', 'MCP', 'AI', 'Open Source'],
     github: 'https://github.com/btotharye/greybeard',
     docs: 'https://greybeard.readthedocs.io',
+    docsLabel: 'Docs →',
     status: 'active',
   },
   {
@@ -35,6 +51,7 @@ const PROJECTS = [
     tags: ['AI', 'Automation', 'OpenClaw', 'TypeScript'],
     github: null,
     docs: null,
+    docsLabel: null,
     status: 'active',
   },
   {
@@ -45,6 +62,8 @@ const PROJECTS = [
     tags: ['Next.js', 'FastAPI', 'Python', 'SaaS', 'Platform Engineering'],
     github: 'https://github.com/Herp-Ops',
     docs: 'https://www.herpops.com',
+    docsLabel: 'App →',
+    docsLabel: 'App →',
     status: 'active',
   },
 ];
@@ -119,7 +138,7 @@ export default function ProjectsPage() {
                     rel="noopener noreferrer"
                     className="text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
                   >
-                    {project.name === 'Herp Ops' ? 'App →' : 'Docs →'}
+                    {project.docsLabel ?? 'Docs →'}
                   </a>
                 )}
               </div>
