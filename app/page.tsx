@@ -15,9 +15,11 @@ export const metadata: Metadata = {
 };
 
 const TOPICS = [
+  { label: 'Platform Engineering', tag: 'platform-engineering' },
   { label: 'Homelab', tag: 'homelab' },
   { label: 'Kubernetes', tag: 'kubernetes' },
   { label: 'GitOps', tag: 'gitops' },
+  { label: 'Open Source', tag: 'open-source' },
   { label: 'Home Assistant', tag: 'home-assistant' },
   { label: 'Networking', tag: 'networking' },
   { label: 'Python', tag: 'python' },
@@ -40,13 +42,13 @@ export default async function HomePage() {
       <main className="mx-auto max-w-5xl px-4 py-14">
         {/* Hero */}
         <section className="mb-10">
-          <h1 className="text-4xl font-bold tracking-tight dark:text-zinc-100">
-            Brian&apos;s Tech Corner
-          </h1>
+          <h2 className="text-3xl font-bold tracking-tight dark:text-zinc-100">
+            Latest Posts
+          </h2>
 
-          <p className="mt-4 max-w-2xl text-lg text-zinc-700 dark:text-zinc-300">
-            A collection of notes, experiments, and walkthroughs from building things at
-            home — covering homelabs, automation, infrastructure, and backend projects.
+          <p className="mt-3 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
+            Notes, guides, and experiments — from platform engineering and open source to
+            homelabs and home automation.
           </p>
 
           {/* Topics */}
