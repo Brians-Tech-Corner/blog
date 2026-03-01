@@ -60,7 +60,7 @@ describe('HomePage', () => {
   it('renders latest posts with formatted dates', async () => {
     render(await HomePage());
     const latestSection = screen
-      .getByRole('heading', { name: /Latest/i })
+      .getByRole('heading', { name: /^Latest$/i })
       .closest('section');
     expect(latestSection).toBeInTheDocument();
 
