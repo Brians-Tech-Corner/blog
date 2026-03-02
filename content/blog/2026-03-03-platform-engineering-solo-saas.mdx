@@ -16,15 +16,15 @@ This post walks through what I built for [Herp Ops](https://www.herpops.com), a 
 
 ## The Stack
 
-| Layer | Tool | Why |
+| Layer | Tool | What It Does |
 |---|---|---|
-| Software catalog | [Port.io](https://getport.io) | Single source of truth for services, quality, and deployments |
-| Infrastructure | Terraform + Terraform Cloud | All catalog config is code, version-controlled, reviewed via PR |
-| Code quality | SonarCloud | Automated quality gates on every PR |
-| CI/CD | GitHub Actions + Railway + Vercel | Zero-config deploys on merge to main |
-| Issue tracking | Jira | Structured backlog, connected to the catalog |
-| Backend | Railway (FastAPI/Python) | |
-| Frontend | Vercel (Next.js/TypeScript) | |
+| **Catalog** | [Port.io](https://getport.io) | Single source of truth — connects GitHub repos, deployments, code quality, and usage metrics into one queryable platform |
+| **Infrastructure** | Terraform + Terraform Cloud | All catalog configuration as code, version-controlled, reviewed via PR — no click-ops |
+| **Code Quality** | SonarCloud | Automated quality gates on every PR — catches real bugs before production |
+| **CI/CD** | GitHub Actions + Railway + Vercel | Zero-config deployments on merge — fully automated from push to live |
+| **Issue Tracking** | GitHub Projects | Lightweight backlog tied to code |
+| **Backend** | Railway (FastAPI/Python) | Managed hosting with built-in observability |
+| **Frontend** | Vercel (Next.js/TypeScript) | Edge-deployed frontend with preview deploys on every PR |
 
 ## The Software Catalog
 
@@ -37,8 +37,8 @@ The catalog has blueprints for:
 - **SonarCloud projects** — test coverage, bugs, vulnerabilities, code smells
 - **Railway services** — deployment status, environment variables
 - **Vercel deployments** — deployment status, domains
-- **Users** — every user who signs up in the app syncs to Port with their subscription tier and usage stats
-- **Beta signups** — the waitlist
+- **Users** — every user who signs up syncs to Port with subscription tier and usage stats
+- **Beta signups** — the waitlist funnel
 
 The AI agent in Port can answer questions across all of this:
 > *"What's the code quality status for both services?"*
@@ -50,6 +50,27 @@ That's not a custom integration — it's GPT-4o with the catalog as context.
 ## Everything Is Code
 
 Every blueprint, scorecard, entity, and action is defined in Terraform:
+
+```hcl
+# Example: Service blueprint definition
+resource "port_blueprint" "service" {
+  title       = "Service"
+  icon        = "Service"
+  description = "A microservice or deployed application"
+
+  properties = {
+    # GitHub integration syncs these
+    repo_url   = "string"
+    language   = "string"
+    framework  = "string"
+    # Quality gates
+    test_coverage = "number"
+    open_issues   = "number"
+  }
+}
+```
+
+The full structure looks like:
 
 ```text
 terraform/port/
@@ -95,8 +116,8 @@ The API is at Gold (96.6% coverage). The frontend is at Silver (75.5% — need t
 Port actions are forms that trigger GitHub Actions workflows. The ones I have:
 
 - **scaffold_service** — creates a new repo from a template, wires CI/CD, registers in catalog
-- **trigger_deployment** — redeploys a Railway service from Port
-- **sync_openapi_spec** — fetches the latest spec from the API and upserts it into Port
+- **trigger_deployment** — redeploys a Railway service without leaving Port
+- **sync_openapi_spec** — fetches the latest API spec and upserts it into Port
 - **reset_demo_data** — resets the demo account in the app (useful for demos)
 - **send_beta_invite** — marks a betaSignup entity as invited
 
@@ -104,37 +125,43 @@ At one engineer this is less about self-service (there's no one else to serve) a
 
 ## Closing the Loop with Jira
 
-The Jira integration closes a loop I find genuinely useful: users can file feature requests directly from the app's AI chat widget. The chat detects the intent, creates a Jira issue in the `HOFR` (Feature Requests) project, and the Jira Ocean integration syncs it into Port.
+The Jira integration (via Jira Ocean) closes a loop I find genuinely useful: users can file feature requests directly from the app's AI chat widget. The chat detects the intent, creates a Jira issue in the `HOFR` (Feature Requests) project, and the Jira Ocean integration syncs it into Port.
 
-So from Port I can see:
+From Port I can see:
 - What features users have asked for
 - Which service the request relates to
 - Whether it's been prioritized onto the roadmap
 
 That's the kind of visibility that usually requires a product manager and a weekly sync meeting. With the right integrations, it just... exists.
 
+**Note:** After using Jira for a few months, I'm planning to switch back to GitHub Projects — simpler for one person, and everything already lives in GitHub.
+
 ## Was It Worth It?
 
 Honest answer: some of it, immediately — some of it, not yet.
 
 **Worth it immediately:**
-- SonarCloud quality gates — caught real bugs before they hit production
-- Terraform for catalog config — already saved me from drift twice
-- Railway + Vercel + GitHub Actions — zero-touch deploys are genuinely freeing
+- **SonarCloud quality gates** — caught real bugs before they hit production; paid for itself week one
+- **Terraform for catalog config** — already saved me from drift twice; essential for reproducibility
+- **Railway + Vercel + GitHub Actions** — zero-touch deploys are genuinely freeing; no manual deploy steps ever
 
 **Worth it eventually (investment pays off as the system grows):**
-- Port catalog — more useful as more services and integrations exist
-- Scorecards — enforce standards before technical debt compounds
-- Self-service actions — useful once there are more people or more repetitive operations
+- **Port catalog** — more useful as more services and integrations exist; will be essential before hiring
+- **Scorecards** — enforce standards before technical debt compounds; critical if this becomes a team
+- **Self-service actions** — handy now, invaluable once there are more people or more repetitive operations
 
-**Still not sure:**
-- Jira for one person — might be overkill vs. a simple GitHub Projects board
+**My recommendation:** Start with SonarCloud + GitHub Actions. Add Port + Terraform when you have 3+ services. Add Port scorecards when you're thinking about scaling the team. Most solo builders don't need Jira — GitHub Projects works fine.
 
 The honest framing: this isn't about having a "real" platform engineering setup for clout. It's about not making decisions I'll regret in two years when the system is bigger and harder to change. The time to establish good habits is before you're in the middle of an incident wondering why nothing is observable.
 
 ## Resources
 
 - [Port.io docs](https://docs.getport.io) — the catalog, scorecards, actions
-- [Port Terraform provider](https://registry.terraform.io/providers/port-labs/port-labs/latest)
+- [Port Terraform provider](https://registry.terraform.io/providers/port-labs/port-labs/latest) — infrastructure as code
 - [Herp-Ops GitHub org](https://github.com/Herp-Ops) — the infra repo is public
+- [SonarCloud](https://www.sonarsource.com/products/sonarcloud/) — code quality gates
 - [Herp Ops](https://www.herpops.com) — the actual product
+
+---
+
+*See also: [ProxiClaw: What It's Like to Have an AI Agent That Actually Knows Your Stack](/blog/2026-03-02-proxiclaw-ai-agent) — how automation changes your workflow, and [Greybeard: Building an AI Code Reviewer](/blog/2026-03-01-greybeard-ai-code-reviewer) — how to bring expert perspective to your reviews.*

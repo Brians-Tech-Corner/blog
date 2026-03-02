@@ -37,17 +37,17 @@ The key idea that makes Greybeard more than a wrapper around GPT is **content pa
 
 The built-in packs ship with it:
 
-| Pack | Perspective |
-|---|---|
-| `staff-core` | Staff Engineer — ops, ownership, long-term cost |
-| `oncall-future-you` | On-call engineer at 3am — failure modes, pager noise |
-| `mentor-mode` | Experienced mentor — teaching, not just reviewing |
-| `solutions-architect` | SA lens — boundaries, fit-for-purpose |
-| `idp-readiness` | Platform Engineering — IDP maturity, automation |
-| `security-reviewer` | AppSec — auth flaws, injection, secrets, abuse surface |
-| `startup-pragmatist` | Counter to over-engineering — is this complexity warranted right now? |
-| `incident-postmortem` | SRE — blamelessness, root cause depth, action item quality |
-| `data-migrations` | Migration safety — locks, rollbacks, backfill blast radius |
+| Pack | Perspective | Example Question |
+|---|---|---|
+| `staff-core` | Staff Engineer — ops, ownership, long-term cost | "Who owns this if things break?" |
+| `oncall-future-you` | On-call engineer at 3am — failure modes, pager noise | "What wakes us up at 3am?" |
+| `mentor-mode` | Experienced mentor — teaching, not just reviewing | "What's the learning opportunity here?" |
+| `solutions-architect` | SA lens — boundaries, fit-for-purpose | "Is this solving the right problem?" |
+| `idp-readiness` | Platform Engineering — IDP maturity, automation | "Does this fit the golden path?" |
+| `security-reviewer` | AppSec — auth flaws, injection, secrets, abuse surface | "What happens if a valid token from tenant A is used against tenant B?" |
+| `startup-pragmatist` | Counter to over-engineering — is this complexity warranted? | "Will this matter in 6 months?" |
+| `incident-postmortem` | SRE — blamelessness, root cause depth, action item quality | "What would we wish we'd done differently?" |
+| `data-migrations` | Migration safety — locks, rollbacks, backfill blast radius | "Can we roll this back at 2am if it breaks?" |
 
 The `security-reviewer` pack, for example, asks questions like:
 
@@ -128,6 +128,8 @@ greybeard packs
 git diff main | greybeard analyze
 ```
 
+You'll need an API key from your LLM provider (OpenAI, Anthropic, or a local model via Ollama). `greybeard init` walks you through that.
+
 The project is open source at [github.com/btotharye/greybeard](https://github.com/btotharye/greybeard) and on PyPI. Contributions welcome — especially new content packs for domains I haven't covered yet.
 
 ## What's Next
@@ -138,3 +140,7 @@ The next things I want to build:
 - Team config via `.greybeard.yaml` at the repo root
 
 If you try it and have feedback or a pack idea, open an issue. The pack format is intentionally simple — if you have domain expertise worth sharing, it's a few lines of YAML.
+
+---
+
+*See also: [ProxiClaw: What It's Like to Have an AI Agent That Actually Knows Your Stack](/blog/2026-03-02-proxiclaw-ai-agent) — how automation changes your engineering workflow.*

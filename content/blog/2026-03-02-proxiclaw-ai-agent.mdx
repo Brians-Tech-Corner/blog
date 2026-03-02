@@ -26,28 +26,25 @@ This comes from a set of workspace files it maintains itself: `SOUL.md` (who it 
 
 ## What It Can Do
 
-The tool integrations are where it gets genuinely useful. On any given day ProxiClaw might:
+The tool integrations are where it gets genuinely useful. ProxiClaw operates across three major domains:
 
-**Code and infrastructure:**
+**Code & Infrastructure:**
 - Open a PR with a bug fix, including writing the tests
 - Review a SonarCloud analysis and fix the flagged issues
 - Resolve a merge conflict and push the result
 - Update Terraform config and explain what changed
 
-**Project tracking:**
+**Project & Ops:**
 - File a Jira bug when I describe a problem
 - Search Notion for notes I wrote two weeks ago
 - Create a structured design doc from a bullet list
-
-**Ops:**
-- Check Railway logs for errors
+- Check Railway logs for errors and trigger deployments
 - Run a database migration and watch the output
-- Trigger a deployment and confirm it went green
 
-**Research:**
+**Research & Discovery:**
 - Pull documentation from a URL and summarize it
 - Search for how other teams solve a specific problem
-- Compare approaches and give me a recommendation with tradeoffs
+- Compare approaches and give a recommendation with tradeoffs
 
 The key is that these aren't separate tools I have to switch between. I describe what I want in plain language and ProxiClaw figures out which tools to use and in what order.
 
@@ -78,12 +75,14 @@ This sounds minor but it's the difference between an assistant that learns over 
 
 ProxiClaw isn't magic. It makes mistakes, especially on complex multi-step operations. It occasionally goes down a wrong path and needs a correction. The memory system helps but it's not perfect — sometimes context gets stale.
 
-The right mental model is a very capable junior engineer who has full access to your systems, knows your preferences, and has been working alongside you for months. You still need to review their PRs. You still need to think through architecture. But the mechanical parts of engineering — the boilerplate, the debugging cycles, the cross-referencing documentation — those get dramatically faster.
+The right mental model is a **very capable junior engineer** who has full access to your systems, knows your preferences, and has been working alongside you for months. You still need to review their PRs. You still need to think through architecture. But the mechanical parts of engineering — the boilerplate, the debugging cycles, the cross-referencing documentation — those get dramatically faster.
 
 ## Getting Started
 
 ProxiClaw runs inside [OpenClaw](https://openclaw.ai). The workspace files (`SOUL.md`, `USER.md`, `AGENTS.md`) set up its persona and context. Tool access is configured per-workspace — you add API tokens for the services you want it to have access to.
 
-The more context you give it upfront (what projects you're working on, what your preferences are, what tools you use), the better it gets from day one.
+Setup takes about 30 minutes once you have your API tokens. The more context you give it upfront (what projects you're working on, what your preferences are, what tools you use), the better it gets from day one. The documentation at https://docs.openclaw.ai covers the full setup.
 
-I'll write more about the specific setup and configuration in a follow-up post.
+---
+
+*See also: [Greybeard: Building an AI Code Reviewer That Thinks Like a Staff Engineer](/blog/2026-03-01-greybeard-ai-code-reviewer) — how to bring expert perspective to your reviews, and [Platform Engineering for Solo Builders](/blog/2026-03-03-platform-engineering-solo-saas) — how to scale your systems as they grow.*
