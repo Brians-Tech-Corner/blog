@@ -2,13 +2,13 @@
 title: "ProxiClaw: What It's Like to Have an AI Agent That Actually Knows Your Stack"
 date: "2026-03-02"
 description: "ProxiClaw is a persistent AI agent with memory, tool access, and context across your entire engineering stack. Here's what it actually looks like to use one day-to-day."
-tags: ["ai", "open-source", "platform-engineering", "developer-experience", "automation", "openclaw"]
+tags: ["ai", "open-source", "platform-engineering", "developer-experience", "automation", "openclaw", "agents"]
 image: "/post-images/proxiclaw-hero.jpg"
 ---
 
 ## The Difference Between a Chatbot and an Agent
 
-Most AI coding tools answer questions. You ask, they respond. The conversation resets on the next session. There's no memory of what you decided last week, no awareness of what's deployed in production, no ability to actually do things — just answer things.
+Most AI coding tools answer questions. You ask, they respond. The conversation resets on the next session. There's no memory of what you decided last week, no awareness of what's deployed in production, no ability to actually *do* things — just answer things.
 
 ProxiClaw is different. It's an AI agent that runs inside [OpenClaw](https://openclaw.ai) — a personal AI gateway — and it has persistent memory, tool access across my entire stack, and genuine context about what I'm working on. When I say "agent", I mean it in the literal sense: it takes action, not just provides information.
 
@@ -66,8 +66,8 @@ Every session, ProxiClaw reads its memory files before doing anything. At the en
 Long-term memory (`MEMORY.md`) is curated — it distills the important stuff from the daily notes. Things like:
 
 - The Port API uses POST for upserts, not PUT (learned the hard way)
-- Brian doesn't like sweet potatoes, cucumbers, or zucchini (meal prep context)
 - The SonarCloud org key is lowercase `herp-ops` not `Herp-Ops`
+- Preferences I've stated once and shouldn't have to repeat
 
 This sounds minor but it's the difference between an assistant that learns over time and one that starts from scratch every session.
 
@@ -81,7 +81,7 @@ The right mental model is a **very capable junior engineer** who has full access
 
 ProxiClaw runs inside [OpenClaw](https://openclaw.ai). The workspace files (`SOUL.md`, `USER.md`, `AGENTS.md`) set up its persona and context. Tool access is configured per-workspace — you add API tokens for the services you want it to have access to.
 
-Setup takes about 30 minutes once you have your API tokens. The more context you give it upfront (what projects you're working on, what your preferences are, what tools you use), the better it gets from day one. The documentation at https://docs.openclaw.ai covers the full setup.
+Setup takes about 30 minutes once you have your API tokens. The more context you give it upfront (what projects you're working on, what your preferences are, what tools you use), the better it gets from day one. Full setup docs are at [docs.openclaw.ai](https://docs.openclaw.ai).
 
 ---
 
