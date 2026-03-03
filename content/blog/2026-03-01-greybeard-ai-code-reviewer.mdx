@@ -2,7 +2,7 @@
 title: "Greybeard: Building an AI Code Reviewer That Thinks Like a Staff Engineer"
 date: "2026-03-01"
 description: "How I built Greybeard — a CLI tool and MCP server that brings Staff Engineer-level thinking to code review, using content packs to model different expert perspectives."
-tags: ["open-source", "ai", "python", "code-review", "platform-engineering", "developer-experience", "cli", "mcp"]
+tags: ["open-source", "ai", "python", "code-review", "platform-engineering", "developer-experience", "cli", "mcp", "developer-tools"]
 image: "/post-images/greybeard-hero.jpg"
 ---
 
@@ -130,16 +130,16 @@ git diff main | greybeard analyze
 
 You'll need an API key from your LLM provider (OpenAI, Anthropic, or a local model via Ollama). `greybeard init` walks you through that.
 
-The project is open source at [github.com/btotharye/greybeard](https://github.com/btotharye/greybeard) and on PyPI. Contributions welcome — especially new content packs for domains I haven't covered yet.
+The project is open source at [github.com/btotharye/greybeard](https://github.com/btotharye/greybeard) and on PyPI. Contributions are welcome — especially new content packs for domains I haven't covered yet. If you have domain expertise worth sharing, the pack format is intentionally simple: a few lines of YAML.
 
 ## What's Next
 
 The next things I want to build:
 - A GitHub Action integration — post Greybeard's review as a PR comment
-- A `--explain` flag to get the greybeard to justify a specific concern
+- A `--explain` flag to get Greybeard to justify a specific concern
 - Team config via `.greybeard.yaml` at the repo root
 
-If you try it and have feedback or a pack idea, open an issue. The pack format is intentionally simple — if you have domain expertise worth sharing, it's a few lines of YAML.
+If you try it and have feedback or a pack idea, [open an issue](https://github.com/btotharye/greybeard/issues) on GitHub. The more perspectives represented in the pack library, the more useful it gets for everyone.
 
 ---
 
