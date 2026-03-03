@@ -47,6 +47,17 @@ The AI agent in Port can answer questions across all of this:
 
 That's not a custom integration — it's GPT-4o with the catalog as context.
 
+<!-- IMAGE PLACEHOLDER: Port Catalog UI
+  Location: /post-images/2026-03-03-platform-engineering/port-catalog-ui.png
+  Description: Screenshot showing:
+    1. Port.io dashboard with service cards
+    2. Show the 6 services with their status (health, deployment status, quality gates)
+    3. Display the "everything connected" visual - show one service expanded with related entities
+    4. Highlight the integration points (GitHub, SonarCloud, Railway, Vercel)
+  Size: 1400x700px, full dashboard view
+  Status: TO DO - Screenshot from actual Port.io instance
+-->
+
 ## Everything Is Code
 
 Every blueprint, scorecard, entity, and action is defined in Terraform:
@@ -82,6 +93,17 @@ terraform/port/
 └── variables.tf     # configurable values
 ```
 
+<!-- IMAGE PLACEHOLDER: Terraform Plan Output
+  Location: /post-images/2026-03-03-platform-engineering/terraform-plan.png
+  Description: Screenshot showing:
+    1. `terraform plan` output for Port resources
+    2. Show additions/modifications to blueprints or scorecards
+    3. Demonstrate IaC workflow - no click-ops, everything reviewed via PR
+    4. Highlight the audit trail aspect (git log shows all changes)
+  Size: 1200x500px, terminal output style
+  Status: TO DO - Screenshot from actual terraform plan run
+-->
+
 Terraform Cloud runs `plan` and `apply` on every PR and merge. No click-ops in the Port UI — if you want to add a property to a blueprint, you open a PR.
 
 This matters even as a solo builder. Without IaC, the catalog configuration drifts. You forget what you clicked, you can't review changes, and you can't reproduce the setup if you had to start over. With IaC, the git log is the audit trail.
@@ -110,6 +132,17 @@ Port scorecards let you define rules that evaluate service quality and surface a
 - Deployment documented
 
 The API is at Gold (96.6% coverage). The frontend is at Silver (75.5% — working toward 80%). These aren't arbitrary targets — they're the questions I'd ask about any service I was about to hand off to someone else.
+
+<!-- IMAGE PLACEHOLDER: Scorecard Status Visual
+  Location: /post-images/2026-03-03-platform-engineering/scorecard-status.png
+  Description: Visual showing:
+    1. Port scorecard UI displaying Bronze/Silver/Gold badges
+    2. Show API at Gold, Frontend at Silver with coverage %
+    3. Display the criteria checklist for each level
+    4. Show how this drives quality incrementally
+  Size: 1200x500px, dashboard or card view
+  Status: TO DO - Screenshot from actual Port.io scorecard view or create diagram
+-->
 
 ## Self-Service Actions
 

@@ -29,6 +29,16 @@ cat design-doc.md | greybeard analyze --mode mentor --pack startup-pragmatist
 greybeard self-check --context "We're migrating auth to a new provider mid-sprint"
 ```
 
+<!-- IMAGE PLACEHOLDER: Greybeard CLI Demo
+  Location: /post-images/2026-03-01-greybeard/cli-demo.gif
+  Description: Animated terminal showing:
+    1. `git diff main | greybeard analyze` execution
+    2. Purple-highlighted output with review questions
+    3. Real example from a code diff being analyzed
+  Size: 1200x600px, optimized GIF (<2MB)
+  Status: TO DO - Capture from actual greybeard execution or create screencast
+-->
+
 It works with whatever LLM you prefer — OpenAI, Anthropic Claude, or local models via Ollama and LM Studio. No mandatory cloud dependency.
 
 ## Content Packs: Swappable Perspectives
@@ -81,6 +91,16 @@ heuristics:
   - "Is every state transition in the payment lifecycle logged?"
 ```
 
+<!-- IMAGE PLACEHOLDER: Pack YAML Example
+  Location: /post-images/2026-03-01-greybeard/pack-yaml-example.png
+  Description: Screenshot or code block showing:
+    1. Real pack YAML structure with colors/syntax highlighting
+    2. Show what a custom team pack looks like
+    3. Emphasize simplicity - just YAML, no code
+  Size: 1200x400px
+  Status: TO DO - Screenshot from code editor or create visual
+-->
+
 ## MCP Server Integration
 
 Greybeard also runs as an MCP server, which means it integrates with Claude Desktop, Cursor, Zed, and any other MCP-compatible tool:
@@ -127,6 +147,16 @@ greybeard packs
 # Review your current diff
 git diff main | greybeard analyze
 ```
+
+<!-- IMAGE PLACEHOLDER: Terminal Output Example
+  Location: /post-images/2026-03-01-greybeard/terminal-output.png
+  Description: Screenshot showing:
+    1. Output from `greybeard packs` command (lists available packs)
+    2. Real example of `greybeard analyze` output with colored questions
+    3. Show the actual UX - what users will see
+  Size: 1200x500px
+  Status: TO DO - Capture from actual greybeard CLI
+-->
 
 You'll need an API key from your LLM provider (OpenAI, Anthropic, or a local model via Ollama). `greybeard init` walks you through that.
 
