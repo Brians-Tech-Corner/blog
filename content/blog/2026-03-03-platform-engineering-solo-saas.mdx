@@ -2,7 +2,7 @@
 title: "Platform Engineering for Solo Builders: How I Built an IDP for a One-Person SaaS"
 date: "2026-03-03"
 description: "You don't need a 200-person engineering org to benefit from an internal developer platform. Here's how I set up Port.io, Terraform, SonarCloud, and Jira for Herp Ops — a SaaS I build alone."
-tags: ["platform-engineering", "port-io", "terraform", "sonarcloud", "developer-experience", "idp", "gitops", "open-source"]
+tags: ["platform-engineering", "port-io", "terraform", "sonarcloud", "developer-experience", "idp", "gitops", "open-source", "saas"]
 image: "/post-images/platform-engineering-hero.jpg"
 ---
 
@@ -109,7 +109,7 @@ Port scorecards let you define rules that evaluate service quality and surface a
 - No open critical Sonar issues
 - Deployment documented
 
-The API is at Gold (96.6% coverage). The frontend is at Silver (75.5% — need to push to 80%). These aren't arbitrary targets — they're the questions I'd ask about any service I was about to hand off to someone else.
+The API is at Gold (96.6% coverage). The frontend is at Silver (75.5% — working toward 80%). These aren't arbitrary targets — they're the questions I'd ask about any service I was about to hand off to someone else.
 
 ## Self-Service Actions
 
@@ -134,7 +134,7 @@ From Port I can see:
 
 That's the kind of visibility that usually requires a product manager and a weekly sync meeting. With the right integrations, it just... exists.
 
-**Note:** After using Jira for a few months, I'm planning to switch back to GitHub Projects — simpler for one person, and everything already lives in GitHub.
+> **Note:** After a few months with Jira, I'm planning to migrate back to GitHub Projects. Simpler for one person, and everything already lives in GitHub anyway.
 
 ## Was It Worth It?
 
