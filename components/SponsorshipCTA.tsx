@@ -20,8 +20,7 @@ export function SponsorshipCTA() {
             space. My audience makes infrastructure decisions.
           </p>
           <p className="mt-3 text-sm text-amber-700 dark:text-amber-400">
-            Featured posts reach 10k+ engineering professionals. Reach out to discuss partnership
-            opportunities.
+            Reach out to discuss partnership opportunities and sponsorship options.
           </p>
         </div>
         <a
