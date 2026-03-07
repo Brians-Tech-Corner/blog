@@ -208,7 +208,7 @@ pnpm test
 
 ### Project Stack
 
-- **Framework:** Next.js 15+ (App Router)
+- **Framework:** Next.js 16+ (App Router)
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS
 - **Content:** MDX (Markdown + JSX)
