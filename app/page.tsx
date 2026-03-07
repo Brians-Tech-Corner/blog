@@ -6,6 +6,7 @@ import { formatDate } from '@/lib/formatDate';
 import { JsonLd, getOrganizationSchema, getWebSiteSchema } from '@/lib/json-ld';
 import { SubscribeCTA } from '@/components/SubscribeCTA';
 import { HomeHero } from '@/components/HomeHero';
+import { SponsorshipCTA } from '@/components/SponsorshipCTA';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
@@ -125,6 +126,9 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
+
+        {/* Sponsorship CTA */}
+        <SponsorshipCTA />
 
         {/* Newsletter Subscribe CTA */}
         <div id="newsletter">
