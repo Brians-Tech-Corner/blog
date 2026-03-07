@@ -49,10 +49,10 @@ The blog references `NEXT_PUBLIC_BEEHIIV_URL` in the SubscribeCTA component.
    ```bash
    NEXT_PUBLIC_BEEHIIV_URL=https://yourname.beehiiv.com
    ```
-5. Test locally: `npm run dev` → visit homepage, click "Subscribe"
+5. Test locally: `pnpm dev` (or `make dev`) → visit homepage, click "Subscribe"
 
 **The SubscribeCTA component will:**
-- Display on homepage (before latest posts section)
+- Display on homepage (after the Latest Posts section)
 - Display at end of every blog post
 - Link directly to your Beehiiv newsletter signup
 
@@ -60,20 +60,15 @@ The blog references `NEXT_PUBLIC_BEEHIIV_URL` in the SubscribeCTA component.
 
 ### Step 3: Update SponsorshipCTA Email (REQUIRED)
 
-The SponsorshipCTA component needs your email address.
+The SponsorshipCTA component needs your email address via environment variable.
 
-**Edit `components/SponsorshipCTA.tsx`:**
+**Edit `.env.local` and add:**
 
-Replace `hello@example.com` with your email:
-
-```tsx
-<Link
-  href="mailto:your-email@example.com?subject=Sponsorship%20Inquiry"
-  // ...
->
-  Get in Touch
-</Link>
+```bash
+NEXT_PUBLIC_SPONSOR_EMAIL=your-email@example.com
 ```
+
+The SponsorshipCTA will not render if this variable is not set, preventing the component from using an invalid placeholder email.
 
 ---
 
@@ -180,15 +175,18 @@ Then add link to the footer or About page.
 ```bash
 # Set environment variables
 export NEXT_PUBLIC_BEEHIIV_URL=https://yourname.beehiiv.com
+export NEXT_PUBLIC_SPONSOR_EMAIL=your-email@example.com
 export NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 # Run dev server
-npm run dev
+pnpm dev
+# or use make if available:
+# make dev
 
 # Visit:
 # - Homepage: http://localhost:3000 (should see new hero)
 # - Blog post: http://localhost:3000/blog/2026-03-03-platform-engineering-solo-saas
-#   (should see SubscribeCTA at bottom instead of AdSense)
+#   (should see SubscribeCTA at bottom, no AdSense)
 ```
 
 ---
@@ -248,10 +246,11 @@ A: Three ways:
 ## Support
 
 If something's not working:
-1. Check your `.env.local` has `NEXT_PUBLIC_BEEHIIV_URL`
-2. Verify Beehiiv URL is correct (should be a valid link)
-3. Run `npm run dev` and test locally
+1. Check your `.env.local` has `NEXT_PUBLIC_BEEHIIV_URL` and `NEXT_PUBLIC_SPONSOR_EMAIL`
+2. Verify both URLs/emails are correct
+3. Run `pnpm dev` (or `make dev`) and test locally
 4. Check browser console for errors
+5. If SponsorshipCTA doesn't appear: confirm `NEXT_PUBLIC_SPONSOR_EMAIL` is set
 
 ---
 

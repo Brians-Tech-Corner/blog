@@ -27,10 +27,10 @@ describe('HomePage', () => {
   it('renders the hero section', async () => {
     render(await HomePage());
     expect(
-      screen.getByRole('heading', { name: /Latest Posts/i }),
+      screen.getByRole('heading', { name: /Brian's Tech Corner/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Notes, guides, and experiments/),
+      screen.getByText(/Deep dives on platform engineering/i),
     ).toBeInTheDocument();
   });
 
@@ -60,7 +60,7 @@ describe('HomePage', () => {
   it('renders latest posts with formatted dates', async () => {
     render(await HomePage());
     const latestSection = screen
-      .getByRole('heading', { name: /^Latest$/i })
+      .getByRole('heading', { name: /Latest Posts/i })
       .closest('section');
     expect(latestSection).toBeInTheDocument();
 

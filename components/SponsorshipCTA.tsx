@@ -1,4 +1,13 @@
 export function SponsorshipCTA() {
+  const sponsorEmail = process.env.NEXT_PUBLIC_SPONSOR_EMAIL;
+  
+  // Don't render if email is not configured
+  if (!sponsorEmail || sponsorEmail === 'undefined') {
+    return null;
+  }
+
+  const mailtoLink = `mailto:${sponsorEmail}?subject=Sponsorship%20Inquiry`;
+
   return (
     <section className="my-12 rounded-2xl border border-amber-200 bg-amber-50 p-8 dark:border-amber-900/40 dark:bg-amber-950">
       <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
@@ -16,7 +25,7 @@ export function SponsorshipCTA() {
           </p>
         </div>
         <a
-          href="mailto:hello@example.com?subject=Sponsorship%20Inquiry"
+          href={mailtoLink}
           className="mt-2 flex-shrink-0 whitespace-nowrap rounded-lg bg-amber-600 px-4 py-2 text-white shadow transition hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-400 sm:mt-0"
         >
           Get in Touch

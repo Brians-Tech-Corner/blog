@@ -21,7 +21,8 @@ describe('SubscribeCTA', () => {
   it('renders the CTA if NEXT_PUBLIC_BEEHIIV_URL is set', () => {
     setBeehiivUrl('https://test.beehiiv.com');
     render(<SubscribeCTA />);
-    expect(screen.getByText('Get New Posts in Your Inbox')).toBeInTheDocument();
+    expect(screen.getByText('Get Weekly Posts in Your Inbox')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /subscribe on beehiiv/i })).toHaveAttribute('href', 'https://test.beehiiv.com');
   });
+
 });
