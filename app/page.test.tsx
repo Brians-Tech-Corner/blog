@@ -29,9 +29,10 @@ describe('HomePage', () => {
     expect(
       screen.getByRole('heading', { name: /Brian's Tech Corner/i }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Deep dives on platform engineering/i),
-    ).toBeInTheDocument();
+    // 'AI agents' is inside a <strong> in the HomeHero description paragraph;
+    // testing the full sentence isn't possible via getByText because it is split
+    // across multiple <strong> children, so we assert on one unique inline term.
+    expect(screen.getByText('AI agents')).toBeInTheDocument();
   });
 
   it('renders topic tags', async () => {
