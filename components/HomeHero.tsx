@@ -9,7 +9,7 @@ export function HomeHero() {
         </h1>
         <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-300">
           Deep dives on <strong>platform engineering</strong>, <strong>AI agents</strong>, and
-          <strong> infrastructure</strong>. Real experience, no fluff.
+          {' '}<strong>infrastructure</strong>. Real experience, no fluff.
         </p>
         <p className="mt-3 text-base text-zinc-500 dark:text-zinc-400">
           Sharing what I&apos;ve learned building{' '}
