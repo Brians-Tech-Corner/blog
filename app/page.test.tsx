@@ -30,7 +30,10 @@ describe('HomePage', () => {
       screen.getByRole('heading', { name: /Brian's Tech Corner/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Deep dives on platform engineering/i),
+      screen.getByText((_, element) =>
+        element?.tagName === 'P' &&
+        Boolean(element?.textContent?.match(/Deep dives on platform engineering/i)),
+      ),
     ).toBeInTheDocument();
   });
 
