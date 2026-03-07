@@ -1,9 +1,6 @@
-import Link from 'next/link';
-
 export function SubscribeCTA() {
   const beehiivUrl = process.env.NEXT_PUBLIC_BEEHIIV_URL;
   if (!beehiivUrl || beehiivUrl === 'undefined') {
-    // Optionally render nothing or a warning if the URL is missing or set to 'undefined'
     return null;
   }
   return (
@@ -17,14 +14,14 @@ export function SubscribeCTA() {
         <span className="text-sm">No spam, one weekly post.</span>
       </p>
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-        <Link
+        <a
           href={beehiivUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
           Subscribe on Beehiiv
-        </Link>
+        </a>
       </div>
     </section>
   );

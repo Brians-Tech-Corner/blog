@@ -13,13 +13,14 @@ export function HomeHero() {
         </p>
         <p className="mt-3 text-base text-zinc-500 dark:text-zinc-400">
           Sharing what I've learned building{' '}
-          <Link
+          <a
             href="https://www.herpops.com"
             className="underline hover:text-zinc-700 dark:hover:text-zinc-200"
             target="_blank"
+            rel="noopener noreferrer"
           >
             Herp Ops
-          </Link>
+          </a>
           , open source tools, and scaling systems.
         </p>
         <div className="mt-6 flex gap-4">
