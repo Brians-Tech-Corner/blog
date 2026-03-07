@@ -30,7 +30,7 @@ describe('HomePage', () => {
       screen.getByRole('heading', { name: /Latest Posts/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Notes, guides, and experiments/),
+      screen.getByText(/Deep dives on platform engineering/i),
     ).toBeInTheDocument();
   });
 

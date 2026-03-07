@@ -47,8 +47,7 @@ export default async function HomePage() {
           </h2>
 
           <p className="mt-3 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
-            Notes, guides, and experiments — from platform engineering and open source to
-            homelabs and home automation.
+            Deep dives on platform engineering, homelabs, open source, and home automation.
           </p>
 
           {/* Topics */}
