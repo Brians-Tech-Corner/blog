@@ -5,6 +5,8 @@ import { getAllPosts } from '@/lib/posts';
 import { formatDate } from '@/lib/formatDate';
 import { JsonLd, getOrganizationSchema, getWebSiteSchema } from '@/lib/json-ld';
 import { SubscribeCTA } from '@/components/SubscribeCTA';
+import { HomeHero } from '@/components/HomeHero';
+import { SponsorshipCTA } from '@/components/SponsorshipCTA';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
@@ -40,19 +42,13 @@ export default async function HomePage() {
       <JsonLd data={getWebSiteSchema()} />
 
       <main className="mx-auto max-w-5xl px-4 py-14">
-        {/* Hero */}
-        <section className="mb-10">
-          <h2 className="text-3xl font-bold tracking-tight dark:text-zinc-100">
-            Latest Posts
-          </h2>
+        {/* Hero Section */}
+        <HomeHero />
 
-          <p className="mt-3 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
-            Notes, guides, and experiments — from platform engineering and open source to
-            homelabs and home automation.
-          </p>
-
-          {/* Topics */}
-          <div className="mt-6 flex flex-wrap gap-2">
+        {/* Topics */}
+        <section className="mb-12">
+          <h2 className="mb-4 text-xl font-semibold dark:text-zinc-100">Browse by Topic</h2>
+          <div className="flex flex-wrap gap-2">
             {TOPICS.map((t) => (
               <Link
                 key={t.tag}
@@ -62,15 +58,6 @@ export default async function HomePage() {
                 {t.label}
               </Link>
             ))}
-          </div>
-
-          <div className="mt-6">
-            <Link
-              href="/blog"
-              className="text-sm font-medium text-zinc-800 underline underline-offset-4 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100"
-            >
-              View all posts →
-            </Link>
           </div>
         </section>
 
@@ -114,8 +101,8 @@ export default async function HomePage() {
         )}
 
         {/* Latest */}
-        <section>
-          <h2 className="mb-4 text-xl font-semibold dark:text-zinc-100">Latest</h2>
+        <section className="mb-16">
+          <h2 className="mb-4 text-xl font-semibold dark:text-zinc-100">Latest Posts</h2>
 
           <div className="divide-y divide-zinc-100 rounded-2xl border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-700">
             {latest.map((post) => (
@@ -139,11 +126,14 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
-      {/* Newsletter Subscribe CTA */}
-      {/* Inserted after Latest section for visibility */}
-      <div className="mt-16">
-        <SubscribeCTA />
-      </div>
+
+        {/* Sponsorship CTA */}
+        <SponsorshipCTA />
+
+        {/* Newsletter Subscribe CTA */}
+        <div id="newsletter">
+          <SubscribeCTA />
+        </div>
       </main>
     </>
   );
