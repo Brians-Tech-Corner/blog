@@ -32,7 +32,7 @@ git clone https://github.com/Brians-Tech-Corner/blog.git
 cd blog
 
 # Install dependencies
-npm install
+pnpm install
 
 # Copy environment template
 cp .env.example .env.local
@@ -42,7 +42,7 @@ cp .env.example .env.local
 # NEXT_PUBLIC_BEEHIIV_URL=https://yourname.beehiiv.com
 
 # Start development server
-npm run dev
+pnpm dev
 
 # Open browser
 # http://localhost:3000
@@ -173,7 +173,7 @@ Info callout — info, warning, error, success
 ### Draft Posts
 
 Posts with `draft: true` will:
-- ✅ Show in dev mode (`npm run dev`)
+- ✅ Show in dev mode (`pnpm dev`)
 - ❌ NOT show in production builds
 - ❌ NOT appear in post lists
 
@@ -187,23 +187,23 @@ Use drafts for work-in-progress posts before publishing.
 
 ```bash
 # Development server
-npm run dev
+pnpm dev
 
 # Production build
-npm run build
+pnpm build
 
 # Preview production build locally
-npm run build
-npm run start
+pnpm build
+pnpm start
 
 # Type checking
-npm run type-check
+pnpm typecheck
 
 # Linting
-npm run lint
+pnpm lint
 
 # Testing
-npm run test
+pnpm test
 ```
 
 ### Project Stack
