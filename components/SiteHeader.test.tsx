@@ -72,7 +72,7 @@ describe('SiteHeader', () => {
     expect(discordSocial).toHaveAttribute('rel', 'noopener noreferrer');
 
     const youtube = screen.getByLabelText('YouTube');
-    expect(youtube).toHaveAttribute('href', 'https://youtube.com/@brianstechcorner');
+    expect(youtube).toHaveAttribute('href', 'https://www.youtube.com/@briantechcorner');
     expect(youtube).toHaveAttribute('target', '_blank');
 
     const twitter = screen.getByLabelText('X (Twitter)');

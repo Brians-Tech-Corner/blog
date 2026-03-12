@@ -68,7 +68,7 @@ export const socialLinks: SocialLink[] = [
   },
   {
     name: 'YouTube',
-    href: 'https://youtube.com/@brianstechcorner',
+    href: 'https://www.youtube.com/@briantechcorner',
     icon: YouTubeIcon,
   },
   {

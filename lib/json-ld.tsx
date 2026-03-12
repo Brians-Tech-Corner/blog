@@ -8,7 +8,7 @@ const SITE_LOGO_PATH = '/brand/X-Banner-Blue.jpg';
 const SOCIAL_PROFILES = [
   'https://github.com/brians-tech-corner',
   'https://x.com/brianstechcorn',
-  'https://www.youtube.com/@brianstechcorner',
+  'https://www.youtube.com/@briantechcorner',
 ];
 
 /**

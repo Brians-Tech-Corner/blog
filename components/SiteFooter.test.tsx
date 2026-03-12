@@ -53,7 +53,7 @@ describe('SiteFooter', () => {
 
     const youtubeLink = screen.getByRole('link', { name: 'YouTube' });
     expect(youtubeLink).toBeInTheDocument();
-    expect(youtubeLink).toHaveAttribute('href', 'https://youtube.com/@brianstechcorner');
+    expect(youtubeLink).toHaveAttribute('href', 'https://www.youtube.com/@briantechcorner');
 
     const xLink = screen.getByRole('link', { name: 'X (Twitter)' });
     expect(xLink).toBeInTheDocument();
