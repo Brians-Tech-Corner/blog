@@ -40,7 +40,7 @@ describe('json-ld', () => {
       expect(Array.isArray(schema.sameAs)).toBe(true);
       expect(schema.sameAs).toContain('https://github.com/brians-tech-corner');
       expect(schema.sameAs).toContain('https://x.com/brianstechcorn');
-      expect(schema.sameAs).toContain('https://www.youtube.com/@brianstechcorner');
+      expect(schema.sameAs).toContain('https://www.youtube.com/@briantechcorner');
     });
 
     it('should use fallback URL when NEXT_PUBLIC_SITE_URL is not set', () => {
