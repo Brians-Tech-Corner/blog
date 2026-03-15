@@ -1,0 +1,272 @@
+---
+title: "How to Think Like a Platform Engineer: Introducing Greybeard's Platform Engineering Pack"
+description: "A thinking tool to catch bad platform decisions before they cost 6 months of engineering time"
+date: "2026-03-15"
+author: "Brian Hopkins"
+tags: ["platform-engineering", "architecture-decisions", "greybeard", "developer-experience"]
+image: "https://cdn.discordapp.com/attachments/1478146417766830112/1482726726898548896/greybeard-hero.png?ex=69b8005f&is=69b6aedf&hm=a9498bf4792c37d767b447f731fe6f08e63727a08633d7b32b2af970172ac164"
+---
+
+![Greybeard Hero](https://cdn.discordapp.com/attachments/1478146417766830112/1482726726898548896/greybeard-hero.png?ex=69b8005f&is=69b6aedf&hm=a9498bf4792c37d767b447f731fe6f08e63727a08633d7b32b2af970172ac164)
+
+You've seen it a hundred times:
+
+- Platform team builds a feature nobody uses
+- New abstraction that adds complexity instead of removing it
+- Tool selected because it's trendy, not because it solves the problem
+- Knowledge stuck in one person's head, blocking team growth
+
+Smart platform engineers ask hard questions **before shipping**.
+
+Today, I'm open-sourcing the framework we use for platform decisions: **Greybeard's Platform Engineering Pack** - a thinking tool that channels that wisdom.
+
+## The Problem: Most Platform Decisions Are Made Without a Framework
+
+When your team proposes a new abstraction, internal service, or deployment system, you probably ask:
+
+- "Does it solve the problem?"
+- "Is it technically sound?"
+
+But you're **missing the platform engineering questions**:
+
+- "Is this the right level of abstraction?"
+- "Can a single person understand and maintain it?"
+- "Will adoption be voluntary or mandated?"
+- "What happens when this breaks at 2am?"
+- "Are we solving a real problem, or building for a problem that doesn't exist?"
+
+Without these questions, platform teams build features that:
+
+❌ Solve problems for 1 team but not others  
+❌ Add complexity instead of removing it  
+❌ Require constant hand-holding from platform experts  
+❌ Fail in ways that block everyone's deploys  
+❌ Sit unused while teams build workarounds  
+
+## The Solution: A Platform Engineering Framework
+
+I built a Greybeard content pack that brings platform engineering thinking to decision reviews. It evaluates decisions through **six critical lenses**:
+
+### 1. **Abstraction Layers**
+
+Ask: Is this hiding complexity or delaying it? Who maintains it in 6 months?
+
+*Example:* Building a custom Kubernetes Operator might hide complexity from app developers but concentrate it with the platform team. Better question: Can Helm + docs solve this without the operator?
+
+### 2. **Developer Experience**
+
+Ask: Can a new engineer understand this? What's the learning curve vs the benefit?
+
+*Example:* A deployment system with 50 configuration options has a higher barrier than one with 5 smart defaults.
+
+### 3. **Tool Selection & Maturity**
+
+Ask: Is this tool stable? Do we have expertise? Can we drop it tomorrow if needed?
+
+*Example:* Adopting a beta database for critical workloads is riskier than using a boring, proven tool.
+
+### 4. **Team Scaling**
+
+Ask: Can this be maintained by 1 person? Can we scale knowledge?
+
+*Example:* If only one engineer understands your platform abstraction, knowledge loss = platform loss.
+
+### 5. **Self-Service vs Gating**
+
+Ask: Can teams self-serve? Are we preventing problems or preventing learning?
+
+*Example:* A review process that takes longer than the actual change is a smell. Can you gate with guardrails instead?
+
+### 6. **Adoption Metrics**
+
+Ask: How do you know if this works? What does success look like?
+
+*Example:* "We'll know it's successful when teams use it" - great, but what if only 2 of 15 teams do?
+
+## Real-World Example: The Case of the Unused Operator
+
+Let me walk you through a real scenario and show what Greybeard would catch.
+
+### The Proposal (Without Greybeard Review)
+
+Team X proposes building a custom Kubernetes Operator to standardize how deployments work internally. Benefits:
+
+- "More control over deployment patterns"
+- "Standardized configuration across all services"
+- "Reduces boilerplate in deployment manifests"
+
+**Decision made:** Build it. 6 weeks of engineering time allocated.
+
+### What Went Wrong (6 Months Later)
+
+- Only 2 of 15 teams use the Operator
+- 3 teams built their own workarounds (defeating the purpose)
+- The operator has bugs, but only one person knows how to fix it
+- New engineers: "Why is this so complicated? Can't we just use Helm?"
+- On-call incidents from operator changes required 2 hours to debug
+
+### What Greybeard Would Have Caught
+
+**Summary**
+
+"This is premature platforming. You're guessing at a need (1 team wants standardization) before validating the market (do others?). You'll build something useful to nobody."
+
+**Abstraction Assessment**
+
+- ❌ **Problem:** Custom operators are the wrong level of abstraction. They hide complexity instead of removing it.
+- ❌ **Maintenance cost:** Only 1 engineer can debug. Who maintains it in 6 months when that person is busy?
+- ❌ **Escape hatch:** Teams forced to use it or fork it (bad outcome both ways).
+
+**DX Impact**
+
+- ❌ **Learning curve:** New operators require Kubernetes expertise + custom CRD knowledge. High barrier.
+- ❌ **Error messages:** Operator errors are cryptic. No clear path for users to self-debug.
+- ❌ **Docs:** How do teams use this? How do they troubleshoot? Not clear.
+
+**Team Scaling Risks**
+
+- 🔴 **Critical:** Only 1 person understands this.
+- 🔴 **Training:** How do you onboard the next engineer? Wiki? Pair programming?
+- 🔴 **Runbooks:** What's the on-call playbook if this breaks?
+
+**Self-Service Opportunities**
+
+- ❌ **Gating:** Teams can't deploy without the operator working (not self-service).
+- ✅ **Alternative:** Make deployment easy with Helm + smart defaults. Teams self-serve, platform provides the guardrails.
+
+**Key Risks**
+
+- **Risk 1:** Build something nobody uses (high confidence: 60%)
+- **Risk 2:** Operator bugs surface at 2am with no clear recovery (high impact, medium probability)
+- **Risk 3:** Knowledge concentration blocks team growth (high impact, high probability)
+
+**Questions to Answer Before Proceeding**
+
+1. **Do 3+ independent teams already have this problem?** (Current: no, only 1 team asked for it)
+2. **Could Helm + better docs solve this without a custom operator?** (Likely yes)
+3. **Who will maintain this in 6 months?** (Current: "the platform team", but unclear who specifically)
+4. **If 50% of teams never adopt this, what will you have learned?** (Current: we'll build it anyway)
+5. **Can we validate this with 1-2 teams before building for everyone?** (Current: no pilot, straight to global rollout)
+
+### The Better Path
+
+**Instead of building an operator:**
+
+1. **Talk to teams:** Why do they want standardization? What problems are they solving?
+2. **Pick the highest-leverage problem:** Let's say it's "deploy safely and rollback fast"
+3. **Validate with 1-2 teams:** Build a Helm chart + docs + best practices. Iterate with real users for 2 weeks.
+4. **Measure:**
+   - How many teams adopted it?
+   - Do they use it? (deploys per week, version adoption)
+   - Do they like it? (survey, casual feedback)
+5. **If successful:** Document and generalize. Maybe now you've earned the right to build an operator. But probably you won't need to.
+
+**Outcome:**
+
+- 2-3 weeks vs 6 weeks
+- Validated with real users before scaling
+- Easy to maintain (no custom operator)
+- 80% adoption because it solves the real problem
+- Knowledge is in docs + examples, not one person's head
+
+### The Difference
+
+**Without Greybeard:**
+- Build for 6 weeks
+- Deploy to crickets
+- Spend 3 months convincing teams to use it
+- Operator debt for 2 years
+
+**With Greybeard (Platform pack):**
+- 1 hour to catch the assumptions
+- 2-3 weeks to validate
+- 80% adoption because it solves the real problem
+- Maintainable, documented, self-service
+
+---
+
+## How to Use the Pack
+
+```bash
+# Install greybeard
+pip install greybeard
+
+# Review a proposal or decision doc
+cat proposal.md | greybeard analyze --pack platform-eng
+
+# Use mentorship mode to understand the reasoning
+cat proposal.md | greybeard analyze --pack platform-eng --mode mentor
+```
+
+The pack will output a structured review covering all six lenses, red flags, and critical questions.
+
+---
+
+## What's Included
+
+The Platform Engineering pack includes:
+
+✅ **6 evaluation lenses** (the critical questions)  
+✅ **Red flags** (smells to watch for)  
+✅ **Green flags** (patterns that work)  
+✅ **Sample scenarios** (abstraction, tool selection, self-service, etc.)  
+✅ **Real examples** (what good decisions look like)  
+✅ **Customization guide** (adapt it for your domain/team stage)  
+
+Plus: Open source + community-editable (contribute scenarios, refine questions, share experiences).
+
+---
+
+## When This Pack Shines
+
+- ✅ Evaluating a new abstraction or platform feature
+- ✅ Picking between build vs buy vs use-existing
+- ✅ Designing systems that other teams will use
+- ✅ Scaling platform decisions as the org grows
+- ✅ Preventing "platforms that nobody uses"
+- ✅ Training new platform engineers on "how we think"
+
+---
+
+## The Bigger Picture
+
+Great platform teams don't just build faster. They **build smarter**.
+
+They ask hard questions. They validate assumptions. They prevent platforms that nobody uses.
+
+This pack is one tool for that. It's not a replacement for good judgment or team discussion. It's a **thinking partner** — the voice of experience that asks the uncomfortable questions before you ship.
+
+And it's open source. Use it. Share it. Improve it.
+
+Your future on-call self will thank you.
+
+---
+
+## Join the Community
+
+Have a platform engineering decision you're wrestling with? Want to share how the pack helped (or where it fell short)? 
+
+Join us in **Brian's Tech Corner** Discord community:
+
+- **#platform-prep**: Discuss platform engineering challenges, architecture decisions, and best practices
+- **#general**: Platform engineering topics, homelab projects, AI tooling, and career growth
+- **Ask questions**: Get feedback from other platform engineers navigating similar tradeoffs
+- **Share scenarios**: Help improve the pack by sharing real-world decisions the pack helped with
+
+We're building a space where platform engineers can think out loud, learn from each other, and get feedback before shipping.
+
+[Join the Discord](https://discord.gg/your-invite-link) - we'd love to hear about your platform engineering journey.
+
+---
+
+## Get Started
+
+- **GitHub:** [btotharye/greybeard](https://github.com/btotharye/greybeard)
+- **Pack location:** `packs/platform-eng/`
+- **Example walkthrough:** See `packs/platform-eng/PLATFORM-ENG-EXAMPLE.md`
+
+Questions? Ideas? Scenarios the pack doesn't cover? Open an issue or PR.
+
+---
+
+**Building better platforms, one good decision at a time.** 🚀
