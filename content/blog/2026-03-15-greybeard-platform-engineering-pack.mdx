@@ -1,13 +1,11 @@
 ---
 title: "How to Think Like a Platform Engineer: Introducing Greybeard's Platform Engineering Pack"
-description: "A thinking tool to catch bad platform decisions before they cost 6 months of engineering time"
-date: "2026-03-15"
-author: "Brian Hopkins"
-tags: ["platform-engineering", "architecture-decisions", "greybeard", "developer-experience"]
-image: "https://cdn.discordapp.com/attachments/1478146417766830112/1482726726898548896/greybeard-hero.png?ex=69b8005f&is=69b6aedf&hm=a9498bf4792c37d767b447f731fe6f08e63727a08633d7b32b2af970172ac164"
+description: 'A thinking tool to catch bad platform decisions before they cost 6 months of engineering time'
+date: '2026-03-15'
+tags:
+  ['platform-engineering', 'architecture-decisions', 'greybeard', 'developer-experience']
+image: '/post-images/greybeard-hero.png'
 ---
-
-![Greybeard Hero](https://cdn.discordapp.com/attachments/1478146417766830112/1482726726898548896/greybeard-hero.png?ex=69b8005f&is=69b6aedf&hm=a9498bf4792c37d767b447f731fe6f08e63727a08633d7b32b2af970172ac164)
 
 You've seen it a hundred times:
 
@@ -18,7 +16,7 @@ You've seen it a hundred times:
 
 Smart platform engineers ask hard questions **before shipping**.
 
-Today, I'm open-sourcing the framework we use for platform decisions: **Greybeard's Platform Engineering Pack** - a thinking tool that channels that wisdom.
+Today, I'm open-sourcing a framework to use for platform decisions: **Greybeard's Platform Engineering Pack** - a thinking tool that channels that wisdom.
 
 ## The Problem: Most Platform Decisions Are Made Without a Framework
 
@@ -41,7 +39,7 @@ Without these questions, platform teams build features that:
 ❌ Add complexity instead of removing it  
 ❌ Require constant hand-holding from platform experts  
 ❌ Fail in ways that block everyone's deploys  
-❌ Sit unused while teams build workarounds  
+❌ Sit unused while teams build workarounds
 
 ## The Solution: A Platform Engineering Framework
 
@@ -51,37 +49,37 @@ I built a Greybeard content pack that brings platform engineering thinking to de
 
 Ask: Is this hiding complexity or delaying it? Who maintains it in 6 months?
 
-*Example:* Building a custom Kubernetes Operator might hide complexity from app developers but concentrate it with the platform team. Better question: Can Helm + docs solve this without the operator?
+_Example:_ Building a custom Kubernetes Operator might hide complexity from app developers but concentrate it with the platform team. Better question: Can Helm + docs solve this without the operator?
 
 ### 2. **Developer Experience**
 
 Ask: Can a new engineer understand this? What's the learning curve vs the benefit?
 
-*Example:* A deployment system with 50 configuration options has a higher barrier than one with 5 smart defaults.
+_Example:_ A deployment system with 50 configuration options has a higher barrier than one with 5 smart defaults.
 
 ### 3. **Tool Selection & Maturity**
 
 Ask: Is this tool stable? Do we have expertise? Can we drop it tomorrow if needed?
 
-*Example:* Adopting a beta database for critical workloads is riskier than using a boring, proven tool.
+_Example:_ Adopting a beta database for critical workloads is riskier than using a boring, proven tool.
 
 ### 4. **Team Scaling**
 
 Ask: Can this be maintained by 1 person? Can we scale knowledge?
 
-*Example:* If only one engineer understands your platform abstraction, knowledge loss = platform loss.
+_Example:_ If only one engineer understands your platform abstraction, knowledge loss = platform loss.
 
 ### 5. **Self-Service vs Gating**
 
 Ask: Can teams self-serve? Are we preventing problems or preventing learning?
 
-*Example:* A review process that takes longer than the actual change is a smell. Can you gate with guardrails instead?
+_Example:_ A review process that takes longer than the actual change is a smell. Can you gate with guardrails instead?
 
 ### 6. **Adoption Metrics**
 
 Ask: How do you know if this works? What does success look like?
 
-*Example:* "We'll know it's successful when teams use it" - great, but what if only 2 of 15 teams do?
+_Example:_ "We'll know it's successful when teams use it" - great, but what if only 2 of 15 teams do?
 
 ## Real-World Example: The Case of the Unused Operator
 
@@ -172,12 +170,14 @@ Team X proposes building a custom Kubernetes Operator to standardize how deploym
 ### The Difference
 
 **Without Greybeard:**
+
 - Build for 6 weeks
 - Deploy to crickets
 - Spend 3 months convincing teams to use it
 - Operator debt for 2 years
 
 **With Greybeard (Platform pack):**
+
 - 1 hour to catch the assumptions
 - 2-3 weeks to validate
 - 80% adoption because it solves the real problem
@@ -202,6 +202,76 @@ The pack will output a structured review covering all six lenses, red flags, and
 
 ---
 
+## Use Any LLM You Want
+
+One of the best things about Greybeard? **It works with any LLM backend**. No vendor lock-in. Want to use OpenAI, Claude, a local model, or something custom? You've got options.
+
+### Pick Your LLM
+
+**OpenAI (default)** — GPT-4o, GPT-4o-mini, or GPT-4 Turbo
+
+```bash
+# Use the default (GPT-4o)
+greybeard analyze < proposal.md
+
+# Or use a cheaper model
+greybeard config set llm.model gpt-4o-mini
+greybeard analyze < proposal.md
+```
+
+**Anthropic (Claude)** — If you prefer Claude 3.5 Sonnet
+
+```bash
+uv pip install "greybeard[anthropic]"
+export ANTHROPIC_API_KEY=sk-ant-...
+greybeard config set llm.backend anthropic
+greybeard analyze < proposal.md
+```
+
+**Local & Free** — Run models offline with Ollama or LM Studio
+
+```bash
+# Option 1: Ollama (pull once, run forever, no API key)
+ollama pull llama3.1:8b
+greybeard config set llm.backend ollama
+greybeard config set llm.model llama3.1:8b
+greybeard analyze < proposal.md
+
+# Option 2: LM Studio (download UI, select model, click "Start Server")
+greybeard config set llm.backend lmstudio
+greybeard analyze < proposal.md
+```
+
+**Custom Endpoints** — If you have your own OpenAI-compatible proxy or service
+
+```bash
+greybeard config set llm.backend openai
+greybeard config set llm.base_url https://my-proxy.example.com/v1
+greybeard config set llm.api_key_env MY_PROXY_KEY
+greybeard analyze < proposal.md
+```
+
+### Why This Matters
+
+- **Cost control:** Use gpt-4o-mini at 90% less cost, or run Ollama for free
+- **Privacy:** Run Ollama locally — your decision doc never touches an API
+- **No lock-in:** Start with Claude, switch to GPT-4 tomorrow, run Llama next week
+- **Offline workflows:** Ollama works completely offline. Good for classified or sensitive proposals
+- **Flexibility:** Pick models based on the task (fast for quick reviews, powerful for complex decisions)
+
+### Good Models for Platform Review
+
+If you're using Ollama and wondering which model to pick:
+
+| Model              | Size | Best For                            |
+| ------------------ | ---- | ----------------------------------- |
+| `llama3.2`         | 3B   | Quick reviews, lightweight          |
+| `llama3.1:8b`      | 8B   | Good reasoning, balanced            |
+| `llama3.1:70b`     | 70B  | Complex decisions (needs 16GB VRAM) |
+| `qwen2.5-coder:7b` | 7B   | Code and technical architecture     |
+
+---
+
 ## What's Included
 
 The Platform Engineering pack includes:
@@ -211,7 +281,7 @@ The Platform Engineering pack includes:
 ✅ **Green flags** (patterns that work)  
 ✅ **Sample scenarios** (abstraction, tool selection, self-service, etc.)  
 ✅ **Real examples** (what good decisions look like)  
-✅ **Customization guide** (adapt it for your domain/team stage)  
+✅ **Customization guide** (adapt it for your domain/team stage)
 
 Plus: Open source + community-editable (contribute scenarios, refine questions, share experiences).
 
@@ -244,18 +314,18 @@ Your future on-call self will thank you.
 
 ## Join the Community
 
-Have a platform engineering decision you're wrestling with? Want to share how the pack helped (or where it fell short)? 
+Have a platform engineering decision you're wrestling with? Want to share how the pack helped (or where it fell short)?
 
 Join us in **Brian's Tech Corner** Discord community:
 
-- **#platform-prep**: Discuss platform engineering challenges, architecture decisions, and best practices
+- **#platform-engineering**: Discuss platform engineering challenges, architecture decisions, and best practices
 - **#general**: Platform engineering topics, homelab projects, AI tooling, and career growth
 - **Ask questions**: Get feedback from other platform engineers navigating similar tradeoffs
 - **Share scenarios**: Help improve the pack by sharing real-world decisions the pack helped with
 
 We're building a space where platform engineers can think out loud, learn from each other, and get feedback before shipping.
 
-[Join the Discord](https://discord.gg/your-invite-link) - we'd love to hear about your platform engineering journey.
+[Join the Discord](https://discord.gg/9hVCrNQRMh) - we'd love to hear about your platform engineering journey.
 
 ---
 
