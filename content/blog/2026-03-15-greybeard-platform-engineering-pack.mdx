@@ -200,6 +200,28 @@ cat proposal.md | greybeard analyze --pack platform-eng --mode mentor
 
 The pack will output a structured review covering all six lenses, red flags, and critical questions.
 
+### What the Output Looks Like
+
+Here's a real example of greybeard analyzing the Kubernetes Operator proposal from earlier:
+
+<ClickableImage
+  src="/post-images/greybeard-example-output.png"
+  alt="Greybeard example output showing Summary, Key Risks, Tradeoffs, and Questions sections for the operator proposal"
+  caption="Real greybeard output analyzing the Kubernetes Operator proposal"
+  width={1200}
+  height={800}
+/>
+
+Notice what it captures:
+
+- **Summary:** Identifies this as premature platforming with specific concerns
+- **Key Risks:** Three ranked risks with operational impact, long-term ownership, and user experience breakdowns
+- **Tradeoffs:** What you gain (standardization) vs what you lose (complexity, time, clarity)
+- **Questions to Answer:** Concrete questions the team should discuss _before_ building
+- **Communication Language:** Suggests how to discuss concerns non-confrontationally
+
+This is what Staff-level review looks like — not "no," but "here's what you need to think about first."
+
 ---
 
 ## Use Any LLM You Want
