@@ -76,7 +76,7 @@ const categories: ResourceCategory[] = [
       {
         name: 'Synology NAS (DS923+)',
         description:
-          'Network storage for backups, media, and persistent volume backing. Synology's DSM is mature and the ecosystem is solid.',
+          'Network storage for backups, media, and persistent volume backing. Synology\'s DSM is mature and the ecosystem is solid.',
         href: 'https://www.synology.com/en-us/products/DS923+',
       },
     ],
