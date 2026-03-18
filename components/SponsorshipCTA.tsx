@@ -13,15 +13,17 @@ export function SponsorshipCTA() {
       <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-amber-900 dark:text-amber-200">
-            Interested in Sponsoring?
+            Reach Engineers Who Build Platforms
           </h2>
           <p className="mt-2 text-amber-800 dark:text-amber-300">
-            I write for platform engineers, staff engineers, and technical leaders in the DevOps/SRE
-            space. My audience makes infrastructure decisions.
+            My readers are Staff Engineers, Platform Engineers, and DevOps/SRE leads — the people
+            who evaluate, buy, and recommend infrastructure tooling at their companies.
           </p>
-          <p className="mt-3 text-sm text-amber-700 dark:text-amber-400">
-            Reach out to discuss partnership opportunities and sponsorship options.
-          </p>
+          <ul className="mt-3 space-y-1 text-sm text-amber-700 dark:text-amber-400">
+            <li>→ Sponsored posts, newsletter placements, and resource page features available</li>
+            <li>→ Audience: platform engineering, Kubernetes, GitOps, and homelab builders</li>
+            <li>→ Formats tailored to technical audiences — no generic ad copy</li>
+          </ul>
         </div>
         <a
           href={mailtoLink}
