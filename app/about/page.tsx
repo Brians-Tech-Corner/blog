@@ -39,51 +39,51 @@ export default function AboutPage() {
       <h1 className="text-3xl font-bold tracking-tight">About</h1>
 
       <p className="mt-6 text-lg text-zinc-700 dark:text-zinc-300">
-        Hey, I&apos;m Brian — Staff Platform Engineer by day, open source builder and homelab
+        Hey, I&apos;m Brian &mdash; Staff Platform Engineer by day, open source builder and homelab
         tinkerer by night.
       </p>
 
       <h2 className="mt-10 text-xl font-semibold">What You&apos;ll Find Here</h2>
 
       <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-        This site is my public notebook — a mix of platform engineering deep-dives,
+        This site is my public notebook &mdash; a mix of platform engineering deep-dives,
         homelab projects, and documentation for the open source tools I build. Main topics:
       </p>
 
       <ul className="mt-4 list-inside list-disc space-y-2 text-zinc-600 dark:text-zinc-400">
         <li>
-          <strong>Platform engineering</strong> — internal developer platforms, developer
+          <strong>Platform engineering</strong> &mdash; internal developer platforms, developer
           experience, Terraform, Port.io, SonarCloud, CI/CD, and everything that makes
           engineering teams move faster
         </li>
         <li>
-          <strong>Open source projects</strong> —&nbsp;
+          <strong>Open source projects</strong> &mdash;&nbsp;
           <a href="https://github.com/btotharye/greybeard" className={linkClassName} target="_blank" rel="noopener noreferrer">Greybeard</a>
           {' '}(AI code reviewer), ProxiClaw (personal AI agent), and whatever I build next
         </li>
         <li>
-          <strong>Building in public</strong> — documenting{' '}
+          <strong>Building in public</strong> &mdash; documenting{' '}
           <a href="https://www.herpops.com" className={linkClassName} target="_blank" rel="noopener noreferrer">Herp Ops</a>,
-          a reptile care SaaS I&apos;m building solo — from architecture decisions to
+          a reptile care SaaS I&apos;m building solo &mdash; from architecture decisions to
           production incidents
         </li>
         <li>
-          <strong>Homelab projects</strong> — Kubernetes on Mini PCs, self-hosted services,
+          <strong>Homelab projects</strong> &mdash; Kubernetes on Mini PCs, self-hosted services,
           GitOps, and infrastructure experimentation
         </li>
         <li>
-          <strong>Home automation</strong> — Home Assistant, smart home setups, and
+          <strong>Home automation</strong> &mdash; Home Assistant, smart home setups, and
           automation workflows
         </li>
         <li>
-          <strong>Home networking</strong> — VLANs, DNS, firewalls, and UniFi gear
+          <strong>Home networking</strong> &mdash; VLANs, DNS, firewalls, and UniFi gear
         </li>
       </ul>
 
       <h2 className="mt-10 text-xl font-semibold">Background</h2>
 
       <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-        By day I work as a Staff Platform Engineer — building internal developer platforms,
+        By day I work as a Staff Platform Engineer &mdash; building internal developer platforms,
         managing infrastructure at scale, and helping engineering teams ship faster.
         The tools I reach for at work (Kubernetes, Terraform, GitOps, observability stacks)
         are the same ones I run at home, just scaled way down.
@@ -94,7 +94,7 @@ export default function AboutPage() {
         <a href="https://github.com/btotharye/greybeard" className={linkClassName} target="_blank" rel="noopener noreferrer">Greybeard</a>{' '}
         is an AI code reviewer that models how Staff engineers think about systems.{' '}
         <a href="https://www.herpops.com" className={linkClassName} target="_blank" rel="noopener noreferrer">Herp Ops</a>{' '}
-        is a reptile care SaaS I&apos;m building from scratch — it&apos;s as much a platform
+        is a reptile care SaaS I&apos;m building from scratch &mdash; it&apos;s as much a platform
         engineering case study as it is a product.
       </p>
 
@@ -102,7 +102,7 @@ export default function AboutPage() {
 
       <p className="mt-4 text-zinc-600 dark:text-zinc-400">
         Writing forces me to think clearly. When I solve something tricky, build something
-        useful, or make a decision I want to remember — I write it down here. Some posts
+        useful, or make a decision I want to remember &mdash; I write it down here. Some posts
         are comprehensive guides, others are quick notes for future reference.
       </p>
 

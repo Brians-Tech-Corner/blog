@@ -155,10 +155,10 @@ export default function StartHerePage() {
       <div className="mt-8 rounded-2xl border border-zinc-200 bg-zinc-50 p-6 dark:border-zinc-700 dark:bg-zinc-800/50">
         <h2 className="font-semibold dark:text-zinc-100">What is Brian&apos;s Tech Corner?</h2>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          I&apos;m Brian — a Staff Platform Engineer by day, homelab builder and open source
+          I&apos;m Brian &mdash; a Staff Platform Engineer by day, homelab builder and open source
           developer by night. This site is my public notebook: deep technical dives on the
           tools and decisions I actually use at work and at home. No fluff, no beginner
-          hand-holding — just real configs, real trade-offs, and real experience.
+          hand-holding &mdash; just real configs, real trade-offs, and real experience.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link

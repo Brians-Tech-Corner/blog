@@ -16,13 +16,13 @@ export function SponsorshipCTA() {
             Reach Engineers Who Build Platforms
           </h2>
           <p className="mt-2 text-amber-800 dark:text-amber-300">
-            My readers are Staff Engineers, Platform Engineers, and DevOps/SRE leads — the people
+            My readers are Staff Engineers, Platform Engineers, and DevOps/SRE leads &mdash; the people
             who evaluate, buy, and recommend infrastructure tooling at their companies.
           </p>
           <ul className="mt-3 space-y-1 text-sm text-amber-700 dark:text-amber-400">
             <li>→ Sponsored posts, newsletter placements, and resource page features available</li>
             <li>→ Audience: platform engineering, Kubernetes, GitOps, and homelab builders</li>
-            <li>→ Formats tailored to technical audiences — no generic ad copy</li>
+            <li>→ Formats tailored to technical audiences &mdash; no generic ad copy</li>
           </ul>
         </div>
         <a

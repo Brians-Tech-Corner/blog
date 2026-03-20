@@ -10,7 +10,7 @@ export function SubscribeCTA() {
       </h2>
       <p className="mb-2 text-blue-800 dark:text-blue-300">
         One email a week. Deep dives on Kubernetes, homelab builds, platform tooling, and
-        building in public — from someone who does this for a living.
+        building in public &mdash; from someone who does this for a living.
       </p>
       <p className="mb-6 text-sm text-blue-700 dark:text-blue-400">
         No fluff, no sponsored blasts. Unsubscribe any time.
@@ -22,7 +22,7 @@ export function SubscribeCTA() {
           rel="noopener noreferrer"
           className="inline-block rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
-          Subscribe — it&apos;s free
+          Subscribe &mdash; it&apos;s free
         </a>
       </div>
     </section>
