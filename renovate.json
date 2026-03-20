@@ -4,6 +4,7 @@
     "config:recommended"
   ],
   "rangeStrategy": "bump",
+  "postUpdateOptions": ["pnpmDedupe"],
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["before 5am on Monday"]
