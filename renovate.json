@@ -2,5 +2,45 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 5am on Monday"]
+  },
+  "node": {
+    "renovateNodeVersion": false
+  },
+  "packageRules": [
+    {
+      "description": "Automerge minor and patch devDependency updates",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Group all ESLint packages together",
+      "matchPackagePatterns": ["^eslint"],
+      "groupName": "eslint packages"
+    },
+    {
+      "description": "Group all testing packages together",
+      "matchPackagePatterns": ["^vitest", "^@vitest", "^@testing-library"],
+      "groupName": "testing packages"
+    },
+    {
+      "description": "Group Next.js and React packages together",
+      "matchPackageNames": ["next", "react", "react-dom"],
+      "matchPackagePatterns": ["^@next/", "^@types/react"],
+      "groupName": "next.js + react"
+    },
+    {
+      "description": "Group TypeScript and type packages",
+      "matchPackageNames": ["typescript"],
+      "matchPackagePatterns": ["^@types/", "typescript-eslint"],
+      "groupName": "typescript packages"
+    }
   ]
 }
