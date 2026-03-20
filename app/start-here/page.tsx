@@ -52,27 +52,27 @@ const paths: ReadingPath[] = [
     posts: [
       {
         title: 'Planning Your Kubernetes Homelab Hardware',
-        slug: 'kubernetes-homelab-planning-hardware',
+        slug: '2026-01-03-kubernetes-homelab-part-1-planning-hardware',
         description: 'How to choose Mini PCs, networking gear, and storage for a power-efficient homelab.',
       },
       {
         title: 'Proxmox VM Templates for Kubernetes',
-        slug: 'kubernetes-homelab-proxmox-vm-template',
+        slug: '2026-01-04-kubernetes-homelab-part-3-proxmox-vm-template',
         description: 'Create reusable cloud-init VM templates as the foundation for your cluster nodes.',
       },
       {
         title: 'Persistent Storage with Longhorn',
-        slug: 'kubernetes-homelab-persistent-storage-longhorn',
+        slug: '2026-01-04-kubernetes-homelab-part-6-pv-longhorn',
         description: 'Add replicated persistent volumes to your homelab cluster with Longhorn.',
       },
       {
         title: 'GitOps with ArgoCD',
-        slug: 'kubernetes-homelab-gitops-argocd',
+        slug: '2026-01-08-kubernetes-homelab-part-11-argocd',
         description: 'Manage your entire cluster declaratively from a git repo.',
       },
       {
         title: 'Homelab Monitoring with Grafana & Prometheus',
-        slug: 'homelab-observability-monitoring-grafana-prometheus',
+        slug: '2026-01-18-monitoring-homelab-with-grafana',
         description: 'Full observability stack — metrics, dashboards, and alerting.',
       },
     ],
@@ -86,12 +86,12 @@ const paths: ReadingPath[] = [
     posts: [
       {
         title: 'Platform Engineering for Solo Builders',
-        slug: 'platform-engineering-for-solo-builders',
+        slug: '2026-03-03-platform-engineering-solo-saas',
         description: 'Apply enterprise-grade platform patterns to indie projects without the overhead.',
       },
       {
         title: 'The Greybeard Platform Engineering Pack',
-        slug: 'greybeard-platform-engineering-pack-intro',
+        slug: '2026-03-15-greybeard-platform-engineering-pack',
         description: 'A thinking framework for making architecture decisions like a Staff engineer.',
       },
     ],
@@ -105,12 +105,12 @@ const paths: ReadingPath[] = [
     posts: [
       {
         title: 'Why I Switched to UniFi (And Whether You Should)',
-        slug: 'why-i-switched-to-unifi',
+        slug: '2026-01-01-why-I-switched-to-unifi',
         description: 'An honest look at UniFi — the good, the trade-offs, and who it\'s for.',
       },
       {
         title: 'Pi-hole for Homelab DNS and Wildcard Records',
-        slug: 'pihole-dns-homelab-wildcards',
+        slug: '2026-01-16-pihole-homelab-dns',
         description: 'Block ads network-wide and use Pi-hole as your homelab\'s internal DNS resolver.',
       },
     ],
