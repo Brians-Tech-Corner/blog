@@ -9,7 +9,7 @@
     "schedule": ["before 5am on Monday"]
   },
   "node": {
-    "renovateNodeVersion": false
+    "enabled": false
   },
   "packageRules": [
     {
