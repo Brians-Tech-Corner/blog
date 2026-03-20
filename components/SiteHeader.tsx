@@ -4,7 +4,9 @@ import { ThemeToggle } from './ThemeToggle';
 import { headerSocialLinks } from '@/lib/social-links';
 
 const links = [
+  { href: '/start-here', label: 'Start Here' },
   { href: '/blog', label: 'Blog' },
+  { href: '/resources', label: 'Resources' },
   { href: '/projects', label: 'Projects' },
   { href: '/discord', label: 'Discord' },
   { href: '/about', label: 'About' },

@@ -43,7 +43,7 @@ export default async function HomePage() {
 
       <main className="mx-auto max-w-5xl px-4 py-14">
         {/* Hero Section */}
-        <HomeHero />
+        <HomeHero postCount={posts.length} />
 
         {/* Topics */}
         <section className="mb-12">
