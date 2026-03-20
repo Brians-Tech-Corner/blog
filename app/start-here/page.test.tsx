@@ -50,7 +50,7 @@ describe('StartHerePage', () => {
     const homeLabLink = screen.getByRole('link', {
       name: /Planning Your Kubernetes Homelab Hardware/i,
     });
-    expect(homeLabLink).toHaveAttribute('href', '/blog/2026-01-03-kubernetes-homelab-part-1-planning-hardware');
+    expect(homeLabLink).toHaveAttribute('href', '/blog/kubernetes-homelab-planning-hardware');
   });
 
   it('renders the browse all posts CTA', () => {
