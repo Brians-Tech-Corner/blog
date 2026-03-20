@@ -6,6 +6,8 @@ settings:
 
 overrides:
   minimatch: 9.0.9
+  flatted: '>=3.4.2'
+  dompurify: '>=3.3.2'
 
 importers:
 
@@ -127,8 +129,8 @@ importers:
         specifier: ^8.5.8
         version: 8.5.8
       prettier:
-        specifier: ^3.5.3
-        version: 3.7.4
+        specifier: ^3.8.1
+        version: 3.8.1
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
@@ -2046,8 +2048,8 @@ packages:
   dom-accessibility-api@0.6.3:
     resolution: {integrity: sha512-7ZgogeTnjuHbo+ct10G9Ffp0mif17idi0IyWNVA/wcwcm7NPOD/WEHVP3n7n3MhXqxoIYm8d6MuZohYWIZ4T3w==}
 
-  dompurify@3.3.1:
-    resolution: {integrity: sha512-qkdCKzLNtrgPFP1Vo+98FRzJnBRGe4ffyCea9IwHB1fyxPOeNTHpLKYGd4Uk9xvNoH0ZoOjwZxNptyMwqrId1Q==}
+  dompurify@3.3.3:
+    resolution: {integrity: sha512-Oj6pzI2+RqBfFG+qOaOLbFXLQ90ARpcGG6UePL82bJLtdsa6CYJD7nmiU8MW9nQNOtCHV3lZ/Bzq1X0QYbBZCA==}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -2340,11 +2342,8 @@ packages:
     resolution: {integrity: sha512-f7ccFPK3SXFHpx15UIGyRJ/FJQctuKZ0zVuN3frBo4HnK3cay9VEW0R6yPYFHC0AgqhukPzKjq22t5DmAyqGyw==}
     engines: {node: '>=16'}
 
-  flatted@3.3.3:
-    resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
-
-  flatted@3.4.0:
-    resolution: {integrity: sha512-kC6Bb+ooptOIvWj5B63EQWkF0FEnNjV2ZNkLMLZRDDduIiWeFF4iKnslwhiWxjAdbg4NzTNo6h0qLuvFrcx+Sw==}
+  flatted@3.4.2:
+    resolution: {integrity: sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA==}
 
   for-each@0.3.5:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
@@ -3293,8 +3292,8 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  prettier@3.7.4:
-    resolution: {integrity: sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA==}
+  prettier@3.8.1:
+    resolution: {integrity: sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -5269,7 +5268,7 @@ snapshots:
     dependencies:
       '@vitest/utils': 4.1.0
       fflate: 0.8.2
-      flatted: 3.4.0
+      flatted: 3.4.2
       pathe: 2.0.3
       sirv: 3.0.2
       tinyglobby: 0.2.15
@@ -5862,7 +5861,7 @@ snapshots:
 
   dom-accessibility-api@0.6.3: {}
 
-  dompurify@3.3.1:
+  dompurify@3.3.3:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
@@ -6333,12 +6332,10 @@ snapshots:
 
   flat-cache@4.0.1:
     dependencies:
-      flatted: 3.3.3
+      flatted: 3.4.2
       keyv: 4.5.4
 
-  flatted@3.3.3: {}
-
-  flatted@3.4.0: {}
+  flatted@3.4.2: {}
 
   for-each@0.3.5:
     dependencies:
@@ -7115,7 +7112,7 @@ snapshots:
       d3-sankey: 0.12.3
       dagre-d3-es: 7.0.14
       dayjs: 1.11.19
-      dompurify: 3.3.1
+      dompurify: 3.3.3
       katex: 0.16.33
       khroma: 2.1.0
       lodash-es: 4.17.23
@@ -7662,7 +7659,7 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier@3.7.4: {}
+  prettier@3.8.1: {}
 
   pretty-format@27.5.1:
     dependencies:
