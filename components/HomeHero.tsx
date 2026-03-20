@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { discordUrl } from '@/lib/social-links';
 
 interface HomeHeroProps {
   postCount?: number;
@@ -34,7 +35,7 @@ export function HomeHero({ postCount }: HomeHeroProps) {
             <span>{postCount} posts published</span>
             <span className="hidden sm:inline">·</span>
             <a
-              href="https://discord.gg/q2N7R2KDRs"
+              href={discordUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-zinc-700 dark:hover:text-zinc-200"

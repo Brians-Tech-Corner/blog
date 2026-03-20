@@ -57,6 +57,18 @@ export async function GET() {
       priority: 0.8,
     },
     {
+      url: '/start-here',
+      lastModified: defaultStaticLastModified,
+      changeFreq: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: '/resources',
+      lastModified: defaultStaticLastModified,
+      changeFreq: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: '/projects',
       lastModified: defaultStaticLastModified,
       changeFreq: 'monthly',

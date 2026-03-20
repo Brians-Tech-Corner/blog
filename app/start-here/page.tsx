@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { discordUrl } from '@/lib/social-links';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
@@ -167,7 +168,7 @@ export default function StartHerePage() {
             Read the full about page
           </Link>
           <a
-            href="https://discord.gg/q2N7R2KDRs"
+            href={discordUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm font-medium text-zinc-700 underline underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"

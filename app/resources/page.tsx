@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { discordUrl } from '@/lib/social-links';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
 
@@ -225,14 +226,15 @@ export default function ResourcesPage() {
       <h1 className="text-3xl font-bold tracking-tight dark:text-zinc-100">Resources</h1>
 
       <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-300">
-        Tools, gear, and services I actually use. No sponsored placements — just honest
-        recommendations from building homelabs, running platform engineering at scale, and
-        shipping indie software.
+        Tools, gear, and services I actually use — curated from building homelabs, running
+        platform engineering at scale, and shipping indie software. Recommendations are based
+        on real use, and any sponsored features or paid placements are clearly labeled.
       </p>
 
       <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
-        Some links may be affiliate links. If you purchase through them I may earn a small
-        commission at no extra cost to you. I only recommend things I use myself.
+        Some links may be affiliate links or feature partners. If you purchase through them I
+        may earn a small commission at no extra cost to you. I only recommend things I use
+        myself, and any paid relationships are explicitly disclosed.
       </p>
 
       <div className="mt-12 space-y-16">
@@ -277,7 +279,7 @@ export default function ResourcesPage() {
           If you&apos;re looking for a recommendation on a specific tool or have a suggestion,
           reach out on{' '}
           <a
-            href="https://discord.gg/q2N7R2KDRs"
+            href={discordUrl}
             target="_blank"
             rel="noopener noreferrer"
             className={linkClassName}

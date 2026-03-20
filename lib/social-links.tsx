@@ -91,5 +91,8 @@ export const socialLinks: SocialLink[] = [
 // Header social links (excludes Instagram due to space constraints on mobile)
 export const headerSocialLinks = socialLinks.filter((link) => link.name !== 'Instagram');
 
+// Convenience URL exports — single source of truth for social URLs
+export const discordUrl = socialLinks.find((l) => l.name === 'Discord')!.href;
+
 // Export individual icon components for reuse
 export { DiscordIcon, YouTubeIcon, XIcon, InstagramIcon, GitHubIcon };
