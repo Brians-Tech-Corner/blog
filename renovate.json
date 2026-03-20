@@ -4,12 +4,10 @@
     "config:recommended"
   ],
   "rangeStrategy": "bump",
+  "ignoreDeps": ["node"],
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["before 5am on Monday"]
-  },
-  "node": {
-    "enabled": false
   },
   "packageRules": [
     {
@@ -22,24 +20,22 @@
     },
     {
       "description": "Group all ESLint packages together",
-      "matchPackagePatterns": ["^eslint"],
+      "matchPackageNames": ["eslint", "eslint-*", "@eslint/*", "eslint-config-next"],
       "groupName": "eslint packages"
     },
     {
       "description": "Group all testing packages together",
-      "matchPackagePatterns": ["^vitest", "^@vitest", "^@testing-library"],
+      "matchPackageNames": ["vitest", "@vitest/*", "@testing-library/*", "happy-dom", "jsdom"],
       "groupName": "testing packages"
     },
     {
       "description": "Group Next.js and React packages together",
-      "matchPackageNames": ["next", "react", "react-dom"],
-      "matchPackagePatterns": ["^@next/", "^@types/react"],
+      "matchPackageNames": ["next", "react", "react-dom", "@next/*", "@types/react", "@types/react-dom"],
       "groupName": "next.js + react"
     },
     {
       "description": "Group TypeScript and type packages",
-      "matchPackageNames": ["typescript"],
-      "matchPackagePatterns": ["^@types/", "typescript-eslint"],
+      "matchPackageNames": ["typescript", "typescript-eslint", "@types/*"],
       "groupName": "typescript packages"
     }
   ]
