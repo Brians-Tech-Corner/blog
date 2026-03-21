@@ -392,6 +392,16 @@ Once connected, you can ask natural language questions and Claude will figure ou
 
 That last one is the fun one. Claude will call `get_pods` to find alertmanager, then call `describe_pod` to check the events, then reason through what it finds — all without you typing a single kubectl command.
 
+Here's what it actually looks like in Claude Desktop — tools being called, results coming back, and Claude reasoning through the output in real time:
+
+<ClickableImage
+  src="/post-images/homelab-mcp-claude-ss.png"
+  alt="Claude Desktop using the homelab MCP server to query a Kubernetes cluster"
+  caption="Claude Desktop calling the homelab MCP tools directly — no copy-pasting required"
+  width={1200}
+  height={800}
+/>
+
 ## Extending the Server
 
 The seven tools we built are just a starting point. Here are some directions worth exploring:
