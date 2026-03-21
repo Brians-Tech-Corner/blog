@@ -33,6 +33,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const AMAZON_AFFILIATE_TAG = 'brianstechcor-20';
+
+export function amazonUrl(query: string): string {
+  return `https://www.amazon.com/s?${new URLSearchParams({ k: query, tag: AMAZON_AFFILIATE_TAG }).toString()}`;
+}
+
 const linkClassName =
   'font-medium text-blue-600 underline decoration-blue-300 underline-offset-4 hover:text-blue-800 dark:text-blue-400 dark:decoration-blue-600 dark:hover:text-blue-200';
 
