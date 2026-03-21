@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ResourcesPage, { metadata } from './page';
+import ResourcesPage, { metadata, AMAZON_AFFILIATE_TAG, amazonUrl } from './page';
 
 describe('ResourcesPage', () => {
   it('renders the page heading', () => {
@@ -73,5 +73,35 @@ describe('ResourcesPage metadata', () => {
 
   it('has correct Twitter card type', () => {
     expect((metadata.twitter as Record<string, unknown>)?.card).toBe('summary_large_image');
+  });
+});
+
+describe('Amazon affiliate helpers', () => {
+  it('AMAZON_AFFILIATE_TAG matches expected value', () => {
+    expect(AMAZON_AFFILIATE_TAG).toBe('brianstechcor-20');
+  });
+
+  it('amazonUrl builds a URL containing the affiliate tag', () => {
+    const url = amazonUrl('raspberry pi 5');
+    expect(url).toContain('tag=brianstechcor-20');
+    expect(url).toContain('k=raspberry+pi+5');
+  });
+
+  it('amazonUrl encodes special characters correctly', () => {
+    const url = amazonUrl('synology ds923+');
+    expect(url).toContain('k=synology+ds923%2B');
+    expect(url).toContain('tag=brianstechcor-20');
+  });
+
+  it('all Amazon links rendered on the page include the affiliate tag', () => {
+    render(<ResourcesPage />);
+    const allLinks = screen.getAllByRole('link');
+    const amazonLinks = allLinks.filter((l) =>
+      l.getAttribute('href')?.startsWith('https://www.amazon.com/'),
+    );
+    expect(amazonLinks.length).toBeGreaterThan(0);
+    amazonLinks.forEach((link) => {
+      expect(link.getAttribute('href')).toContain(`tag=${AMAZON_AFFILIATE_TAG}`);
+    });
   });
 });
