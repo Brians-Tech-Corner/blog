@@ -11,7 +11,7 @@ vi.mock('./CopyButton', () => ({
     const [text, setText] = useState('');
     useEffect(() => {
       setText(getText());
-    }, []);
+    }, [getText]);
     return <button data-testid="copy-button">Copy {text.substring(0, 10)}</button>;
   },
 }));
@@ -60,7 +60,9 @@ describe('CodeBlock', () => {
   it('should pass code to CopyButton via DOM textContent', async () => {
     render(
       <CodeBlock className="language-typescript">
-        <pre><code>{mockCode}</code></pre>
+        <pre>
+          <code>{mockCode}</code>
+        </pre>
       </CodeBlock>,
     );
     const button = screen.getByTestId('copy-button');
@@ -126,7 +128,11 @@ describe('CodeBlock', () => {
 
   it('should return empty string gracefully when no pre element is present', () => {
     // Without a <pre> descendant the ref querySelector returns null — should not throw.
-    render(<CodeBlock className="language-javascript"><span /></CodeBlock>);
+    render(
+      <CodeBlock className="language-javascript">
+        <span />
+      </CodeBlock>,
+    );
     const button = screen.getByTestId('copy-button');
     expect(button).toBeInTheDocument();
   });
