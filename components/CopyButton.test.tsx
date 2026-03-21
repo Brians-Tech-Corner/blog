@@ -25,17 +25,17 @@ describe('CopyButton', () => {
   });
 
   it('should render copy button', () => {
-    render(<CopyButton text={mockText} />);
+    render(<CopyButton getText={() => mockText} />);
     expect(screen.getByRole('button', { name: /copy code to clipboard/i })).toBeInTheDocument();
   });
 
   it('should display "Copy" text initially', () => {
-    render(<CopyButton text={mockText} />);
+    render(<CopyButton getText={() => mockText} />);
     expect(screen.getByText('Copy')).toBeInTheDocument();
   });
 
   it('should copy text to clipboard when clicked', async () => {
-    render(<CopyButton text={mockText} />);
+    render(<CopyButton getText={() => mockText} />);
     const button = screen.getByRole('button');
 
     fireEvent.click(button);
@@ -46,7 +46,7 @@ describe('CopyButton', () => {
   });
 
   it('should show "Copied!" after successful copy', async () => {
-    render(<CopyButton text={mockText} />);
+    render(<CopyButton getText={() => mockText} />);
     const button = screen.getByRole('button');
 
     fireEvent.click(button);
@@ -57,7 +57,7 @@ describe('CopyButton', () => {
   });
 
   it('should revert to "Copy" after 2 seconds', async () => {
-    render(<CopyButton text={mockText} />);
+    render(<CopyButton getText={() => mockText} />);
     const button = screen.getByRole('button');
 
     fireEvent.click(button);
@@ -80,7 +80,7 @@ describe('CopyButton', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockWriteText.mockRejectedValueOnce(new Error('Clipboard API not available'));
 
-    render(<CopyButton text={mockText} />);
+    render(<CopyButton getText={() => mockText} />);
     const button = screen.getByRole('button');
 
     fireEvent.click(button);
@@ -103,7 +103,7 @@ describe('CopyButton', () => {
   });
 
   it('should handle rapid successive clicks', async () => {
-    render(<CopyButton text={mockText} />);
+    render(<CopyButton getText={() => mockText} />);
     const button = screen.getByRole('button');
 
     // Click multiple times rapidly
@@ -123,7 +123,7 @@ describe('CopyButton', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockWriteText.mockRejectedValueOnce(new Error('Clipboard API not available'));
 
-    render(<CopyButton text={mockText} />);
+    render(<CopyButton getText={() => mockText} />);
     const button = screen.getByRole('button');
 
     // First click fails
@@ -147,7 +147,7 @@ describe('CopyButton', () => {
   it('should clear existing success timeout when error occurs', async () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    render(<CopyButton text={mockText} />);
+    render(<CopyButton getText={() => mockText} />);
     const button = screen.getByRole('button');
 
     // First click succeeds and sets a timeout

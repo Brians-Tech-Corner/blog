@@ -1,12 +1,19 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { useState, useEffect } from 'react';
 import { CodeBlock } from './CodeBlock';
 
-// Mock CopyButton
+// Mock CopyButton — accepts a getText fn instead of a static text string.
+// We use useEffect to call getText() after the ref is committed to the DOM,
+// which mirrors how it works in production (called on button click, not render).
 vi.mock('./CopyButton', () => ({
-  CopyButton: ({ text }: { text: string }) => (
-    <button data-testid="copy-button">Copy {text.substring(0, 10)}</button>
-  ),
+  CopyButton: ({ getText }: { getText: () => string }) => {
+    const [text, setText] = useState('');
+    useEffect(() => {
+      setText(getText());
+    }, []);
+    return <button data-testid="copy-button">Copy {text.substring(0, 10)}</button>;
+  },
 }));
 
 describe('CodeBlock', () => {
@@ -50,63 +57,19 @@ describe('CodeBlock', () => {
     expect(screen.queryByText('text')).not.toBeInTheDocument();
   });
 
-  it('should pass code to CopyButton', () => {
-    render(<CodeBlock className="language-typescript">{mockCode}</CodeBlock>);
-    const button = screen.getByTestId('copy-button');
-    expect(button).toHaveTextContent('Copy const gree'); // First 10 chars
-  });
-
-  it('should extract text from nested React elements', () => {
-    const nestedContent = (
-      <pre>
-        <code>
-          <span>Line 1</span>
-          <span>Line 2</span>
-        </code>
-      </pre>
+  it('should pass code to CopyButton via DOM textContent', async () => {
+    render(
+      <CodeBlock className="language-typescript">
+        <pre><code>{mockCode}</code></pre>
+      </CodeBlock>,
     );
-    render(<CodeBlock className="language-javascript">{nestedContent}</CodeBlock>);
     const button = screen.getByTestId('copy-button');
-    expect(button).toHaveTextContent('Copy Line 1Lin'); // Nested text extraction
+    await waitFor(() => expect(button).toHaveTextContent('Copy const gree')); // First 10 chars from DOM
   });
 
-  it('should handle number children', () => {
-    render(<CodeBlock className="language-javascript">{42}</CodeBlock>);
-    const button = screen.getByTestId('copy-button');
-    expect(button).toHaveTextContent('Copy 42');
-  });
-
-  it('should handle array children', () => {
-    render(<CodeBlock className="language-javascript">{['const ', 'x = 1;']}</CodeBlock>);
-    const button = screen.getByTestId('copy-button');
-    expect(button).toHaveTextContent('Copy const x =');
-  });
-
-  it('should handle undefined className', () => {
-    render(<CodeBlock>{mockCode}</CodeBlock>);
-    expect(screen.queryByText('text')).not.toBeInTheDocument();
-  });
-
-  it('should default to text language when className is undefined', () => {
-    render(<CodeBlock>{mockCode}</CodeBlock>);
-    // Should not display language badge for 'text' type
-    expect(screen.queryByText('text')).not.toBeInTheDocument();
-    // Should still render the code content
-    expect(screen.getByText(mockCode)).toBeInTheDocument();
-    // Should still render copy button
-    expect(screen.getByTestId('copy-button')).toBeInTheDocument();
-  });
-
-  it('should default to text language when className is empty string', () => {
-    render(<CodeBlock className="">{mockCode}</CodeBlock>);
-    // Should not display language badge for 'text' type
-    expect(screen.queryByText('text')).not.toBeInTheDocument();
-    // Copy button should still work
-    expect(screen.getByTestId('copy-button')).toBeInTheDocument();
-  });
-
-  it('should extract text from Prism-like token structures', () => {
-    // Simulate Prism's syntax highlighting structure
+  it('should read full text from deeply nested Prism-like token spans', async () => {
+    // Simulate rehype-prism wrapping every token in its own span — the old
+    // extractText traversal would lose tokens; the DOM ref approach gets all of them.
     const prismContent = (
       <pre>
         <code className="language-javascript">
@@ -121,11 +84,10 @@ describe('CodeBlock', () => {
     );
     render(<CodeBlock className="language-javascript">{prismContent}</CodeBlock>);
     const button = screen.getByTestId('copy-button');
-    // Should extract all text content, joining the tokens
-    expect(button.textContent).toContain('Copy const gre'); // Verifies text extraction works
+    await waitFor(() => expect(button.textContent).toContain('Copy const gre'));
   });
 
-  it('should extract text from deeply nested token structures', () => {
+  it('should read full text from line-wrapped token structures', async () => {
     const deeplyNested = (
       <pre>
         <code>
@@ -141,51 +103,31 @@ describe('CodeBlock', () => {
     );
     render(<CodeBlock className="language-javascript">{deeplyNested}</CodeBlock>);
     const button = screen.getByTestId('copy-button');
-    expect(button.textContent).toContain('Copy console.l');
+    await waitFor(() => expect(button.textContent).toContain('Copy console.l'));
   });
 
-  it('should handle mixed content types in nested structure', () => {
-    const mixedContent = (
-      <pre>
-        <code>
-          <span>Text</span>
-          {42}
-          <span>
-            <span>Nested</span>
-          </span>
-          {['Array', 'Items']}
-        </code>
-      </pre>
-    );
-    render(<CodeBlock className="language-javascript">{mixedContent}</CodeBlock>);
-    const button = screen.getByTestId('copy-button');
-    // Should extract: "Text42NestedArrayItems"
-    expect(button.textContent).toContain('Copy Text42Ne');
+  it('should handle undefined className', () => {
+    render(<CodeBlock>{mockCode}</CodeBlock>);
+    expect(screen.queryByText('text')).not.toBeInTheDocument();
   });
 
-  it('should handle empty React element props', () => {
-    // Test the case where a React element has no children prop
-    const emptySpan = <span />;
-    render(<CodeBlock className="language-javascript">{emptySpan}</CodeBlock>);
+  it('should default to text language when className is undefined', () => {
+    render(<CodeBlock>{mockCode}</CodeBlock>);
+    expect(screen.queryByText('text')).not.toBeInTheDocument();
+    expect(screen.getByText(mockCode)).toBeInTheDocument();
+    expect(screen.getByTestId('copy-button')).toBeInTheDocument();
+  });
+
+  it('should default to text language when className is empty string', () => {
+    render(<CodeBlock className="">{mockCode}</CodeBlock>);
+    expect(screen.queryByText('text')).not.toBeInTheDocument();
+    expect(screen.getByTestId('copy-button')).toBeInTheDocument();
+  });
+
+  it('should return empty string gracefully when no pre element is present', () => {
+    // Without a <pre> descendant the ref querySelector returns null — should not throw.
+    render(<CodeBlock className="language-javascript"><span /></CodeBlock>);
     const button = screen.getByTestId('copy-button');
-    // Should handle gracefully and return empty string for copy text
     expect(button).toBeInTheDocument();
-  });
-
-  it('should handle null and undefined in nested structure', () => {
-    const withNulls = (
-      <pre>
-        <code>
-          <span>Before</span>
-          {null}
-          {undefined}
-          <span>After</span>
-        </code>
-      </pre>
-    );
-    render(<CodeBlock className="language-javascript">{withNulls}</CodeBlock>);
-    const button = screen.getByTestId('copy-button');
-    // Should skip null/undefined and extract: "BeforeAfter"
-    expect(button.textContent).toContain('Copy BeforeAf');
   });
 });
