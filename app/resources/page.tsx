@@ -64,7 +64,7 @@ const categories: ResourceCategory[] = [
         name: 'Beelink Mini PCs (EQ12, EQ14)',
         description:
           'My go-to for Kubernetes nodes. Intel N100/N150, fanless options, ~10W idle. Great price-to-performance for homelab Kubernetes clusters.',
-        href: amazonUrl('beelink mini pc n100'),
+        href: 'https://www.amazon.com/s?k=beelink+mini+pc+n100&tag=brianstechcor-20',
         badge: 'What I Run',
       },
       {
@@ -78,13 +78,13 @@ const categories: ResourceCategory[] = [
         name: 'Raspberry Pi 5',
         description:
           'Still useful for lightweight control plane duties, Pi-hole DNS, and edge automation tasks. Pi 5 is a big jump over Pi 4.',
-        href: amazonUrl('raspberry pi 5'),
+        href: 'https://www.amazon.com/s?k=raspberry+pi+5&tag=brianstechcor-20',
       },
       {
         name: 'Synology NAS (DS923+)',
         description:
           'Network storage for backups, media, and persistent volume backing. Synology\'s DSM is mature and the ecosystem is solid.',
-        href: amazonUrl('synology ds923+'),
+        href: 'https://www.amazon.com/s?k=synology+ds923%2B&tag=brianstechcor-20',
       },
     ],
   },
@@ -202,13 +202,13 @@ const categories: ResourceCategory[] = [
         name: 'Platform Engineering on Kubernetes (O\'Reilly)',
         description:
           'The best book on building production-grade platforms on top of Kubernetes. Covers cloud-native patterns, GitOps, and developer experience.',
-        href: amazonUrl('platform engineering on kubernetes'),
+        href: 'https://www.amazon.com/s?k=platform+engineering+on+kubernetes&tag=brianstechcor-20',
       },
       {
         name: 'The Phoenix Project',
         description:
           'The novel that explains DevOps culture better than any technical book. Required reading for engineers moving into platform roles.',
-        href: amazonUrl('the phoenix project devops'),
+        href: 'https://www.amazon.com/s?k=the+phoenix+project+devops&tag=brianstechcor-20',
       },
       {
         name: 'Kubernetes Documentation',
