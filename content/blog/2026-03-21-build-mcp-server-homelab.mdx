@@ -371,25 +371,23 @@ Once connected, you can ask natural language questions and Claude will figure ou
 
 **Ops questions:**
 
-```
-"Are there any pods in a CrashLoopBackOff state?"
-"What's the oldest pod in the monitoring namespace?"
-"Show me the events for the grafana pod"
-```
+> "Are there any pods in a CrashLoopBackOff state?"
+
+> "What's the oldest pod in the monitoring namespace?"
+
+> "Show me the events for the grafana pod"
 
 **Resource questions:**
 
-```
-"Which nodes are under memory pressure?"
-"What's consuming the most disk space on the host?"
-"List everything running in the default namespace"
-```
+> "Which nodes are under memory pressure?"
+
+> "What's consuming the most disk space on the host?"
+
+> "List everything running in the default namespace"
 
 **Debugging sessions:**
 
-```
-"The alertmanager pod keeps restarting. What's going on?"
-```
+> "The alertmanager pod keeps restarting. What's going on?"
 
 That last one is the fun one. Claude will call `get_pods` to find alertmanager, then call `describe_pod` to check the events, then reason through what it finds — all without you typing a single kubectl command.
 
