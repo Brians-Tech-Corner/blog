@@ -1,0 +1,545 @@
+---
+title: 'Build Your First MCP Server: Give Claude Superpowers Over Your Homelab'
+description: 'Learn how to build a custom MCP server in Python that lets Claude directly query your Kubernetes cluster, check running containers, and manage your homelab. No more copy-pasting terminal output.'
+date: '2026-03-21'
+tags:
+  [
+    'mcp',
+    'claude',
+    'ai-agents',
+    'homelab',
+    'kubernetes',
+    'automation',
+    'python',
+    'developer-experience',
+  ]
+image: '/post-images/mcp-homelab-hero.png'
+---
+
+Picture this: you type "what pods are failing in my cluster right now?" into Claude, and instead of getting a polite reminder that it doesn't have access to your infrastructure, it just... checks. Then tells you exactly what's wrong.
+
+That's not magic. That's MCP.
+
+The [Model Context Protocol](https://modelcontextprotocol.io) is the open standard Anthropic released that lets AI models like Claude connect to real tools and data sources. It's one of the fastest-growing things in the AI ecosystem right now, and for homelab nerds, it's a gift.
+
+In this post, I'm going to show you how to build your own MCP server in Python that gives Claude direct access to your homelab. We'll expose Kubernetes, Docker, and a few other tools so you can have an actual conversation with your infrastructure.
+
+## What Is MCP and Why Should You Care?
+
+Think of MCP like USB-C for AI models. Instead of every LLM needing its own custom integration for every tool, MCP is a standardized protocol that any compliant AI can speak.
+
+On one side: **MCP Clients** (like Claude Desktop, Claude Code, or any app built on the Anthropic SDK).
+
+On the other side: **MCP Servers**, small programs that expose tools, resources, and prompts through the protocol.
+
+When you build an MCP server, you're defining a set of functions that Claude can call. Claude decides when to call them, what arguments to pass, and how to use the results. You just define the interface and the implementation.
+
+**Why does this matter for homelab?**
+
+- No more copy-pasting `kubectl get pods` output into the chat
+- Ask Claude to diagnose why something is down and it can actually look
+- Build natural language interfaces over your internal tooling
+- Chain multiple tools together (check Kubernetes → check Grafana → check logs)
+
+It's the difference between Claude as a smart rubber duck and Claude as an actual ops assistant.
+
+## What We're Building
+
+By the end of this post, you'll have an MCP server that exposes:
+
+| Tool                 | What it does                                    |
+| -------------------- | ----------------------------------------------- |
+| `get_pods`           | Lists pods in any namespace with status         |
+| `describe_pod`       | Describes a pod (events, conditions, resources) |
+| `get_namespaces`     | Lists all namespaces in the cluster             |
+| `get_node_status`    | Shows node health and resource pressure         |
+| `list_containers`    | Lists running Docker containers                 |
+| `get_container_logs` | Fetches recent logs from a container            |
+| `check_disk_usage`   | Checks disk usage on the host                   |
+
+By the end, you can open Claude Desktop and ask "what's consuming the most CPU in my homelab?" and get a real answer.
+
+## Prerequisites
+
+- Python 3.10+
+- `kubectl` configured and pointing at your cluster
+- Docker installed (optional, for container tools)
+- Claude Desktop or Claude Code installed
+- Familiarity with running Python scripts
+
+## Setting Up the Project
+
+First, let's create the project and install the MCP SDK.
+
+```bash
+mkdir homelab-mcp-server
+cd homelab-mcp-server
+python -m venv .venv
+source .venv/bin/activate
+
+pip install mcp kubernetes docker
+```
+
+The `mcp` package is Anthropic's official Python SDK for building MCP servers. `kubernetes` is the official Python client. `docker` is for the Docker SDK.
+
+Create the main server file:
+
+```bash
+touch server.py
+```
+
+## Building the MCP Server
+
+Here's the full `server.py`. I'll walk through each section after.
+
+```python
+import asyncio
+import subprocess
+import json
+from mcp.server import Server
+from mcp.server.models import InitializationOptions
+from mcp.server.lowlevel.server import NotificationOptions
+from mcp.server.stdio import stdio_server
+from mcp.types import Tool, TextContent
+
+# Initialize the MCP server
+app = Server("homelab-mcp")
+
+# ─────────────────────────────────────────────
+# Kubernetes Tools
+# ─────────────────────────────────────────────
+
+def run_kubectl(args: list[str]) -> str:
+    """Helper to run kubectl commands and return output."""
+    try:
+        result = subprocess.run(
+            ["kubectl"] + args,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if result.returncode != 0:
+            return f"Error: {result.stderr.strip()}"
+        return result.stdout.strip()
+    except subprocess.TimeoutExpired:
+        return "Error: kubectl command timed out after 30s"
+    except FileNotFoundError:
+        return "Error: kubectl not found in PATH"
+
+
+def run_docker(args: list[str]) -> str:
+    """Helper to run docker commands and return output."""
+    try:
+        result = subprocess.run(
+            ["docker"] + args,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if result.returncode != 0:
+            return f"Error: {result.stderr.strip()}"
+        return result.stdout.strip()
+    except subprocess.TimeoutExpired:
+        return "Error: docker command timed out after 30s"
+    except FileNotFoundError:
+        return "Error: docker not found in PATH"
+
+
+# ─────────────────────────────────────────────
+# Tool Definitions
+# ─────────────────────────────────────────────
+
+@app.list_tools()
+async def list_tools() -> list[Tool]:
+    return [
+        Tool(
+            name="get_pods",
+            description="List all pods in a Kubernetes namespace with their status, restarts, and age.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "namespace": {
+                        "type": "string",
+                        "description": "Kubernetes namespace. Use 'all' for all namespaces.",
+                        "default": "default",
+                    }
+                },
+            },
+        ),
+        Tool(
+            name="describe_pod",
+            description="Get detailed info about a specific pod including events, conditions, and resource usage.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "pod_name": {"type": "string", "description": "Name of the pod"},
+                    "namespace": {
+                        "type": "string",
+                        "description": "Namespace the pod lives in",
+                        "default": "default",
+                    },
+                },
+                "required": ["pod_name"],
+            },
+        ),
+        Tool(
+            name="get_namespaces",
+            description="List all namespaces in the Kubernetes cluster.",
+            inputSchema={"type": "object", "properties": {}},
+        ),
+        Tool(
+            name="get_node_status",
+            description="Check the health and resource pressure of all cluster nodes.",
+            inputSchema={"type": "object", "properties": {}},
+        ),
+        Tool(
+            name="list_containers",
+            description="List all running Docker containers with their status and port mappings.",
+            inputSchema={"type": "object", "properties": {}},
+        ),
+        Tool(
+            name="get_container_logs",
+            description="Fetch recent log lines from a Docker container.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "container_name": {
+                        "type": "string",
+                        "description": "Name or ID of the Docker container",
+                    },
+                    "lines": {
+                        "type": "integer",
+                        "description": "Number of log lines to return",
+                        "default": 50,
+                    },
+                },
+                "required": ["container_name"],
+            },
+        ),
+        Tool(
+            name="check_disk_usage",
+            description="Check disk usage on the host system.",
+            inputSchema={"type": "object", "properties": {}},
+        ),
+    ]
+
+
+# ─────────────────────────────────────────────
+# Tool Implementations
+# ─────────────────────────────────────────────
+
+@app.call_tool()
+async def call_tool(name: str, arguments: dict) -> list[TextContent]:
+    if name == "get_pods":
+        namespace = arguments.get("namespace", "default")
+        if namespace == "all":
+            output = run_kubectl(["get", "pods", "--all-namespaces", "-o", "wide"])
+        else:
+            output = run_kubectl(["get", "pods", "-n", namespace, "-o", "wide"])
+        return [TextContent(type="text", text=output)]
+
+    elif name == "describe_pod":
+        pod_name = arguments["pod_name"]
+        namespace = arguments.get("namespace", "default")
+        output = run_kubectl(["describe", "pod", pod_name, "-n", namespace])
+        return [TextContent(type="text", text=output)]
+
+    elif name == "get_namespaces":
+        output = run_kubectl(["get", "namespaces"])
+        return [TextContent(type="text", text=output)]
+
+    elif name == "get_node_status":
+        output = run_kubectl(["get", "nodes", "-o", "wide"])
+        # Also grab resource usage if metrics-server is available
+        metrics = run_kubectl(["top", "nodes"])
+        combined = f"=== Node Status ===\n{output}\n\n=== Resource Usage ===\n{metrics}"
+        return [TextContent(type="text", text=combined)]
+
+    elif name == "list_containers":
+        output = run_docker(["ps", "--format", "table {{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Image}}"])
+        return [TextContent(type="text", text=output)]
+
+    elif name == "get_container_logs":
+        container = arguments["container_name"]
+        lines = arguments.get("lines", 50)
+        output = run_docker(["logs", "--tail", str(lines), container])
+        return [TextContent(type="text", text=output)]
+
+    elif name == "check_disk_usage":
+        result = subprocess.run(["df", "-h"], capture_output=True, text=True)
+        return [TextContent(type="text", text=result.stdout)]
+
+    else:
+        return [TextContent(type="text", text=f"Unknown tool: {name}")]
+
+
+# ─────────────────────────────────────────────
+# Entry Point
+# ─────────────────────────────────────────────
+
+async def main():
+    async with stdio_server() as (read_stream, write_stream):
+        await app.run(
+            read_stream,
+            write_stream,
+            InitializationOptions(
+                server_name="homelab-mcp",
+                server_version="0.1.0",
+                capabilities=app.get_capabilities(
+                    notification_options=NotificationOptions(),
+                    experimental_capabilities={},
+                ),
+            ),
+        )
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+Let's break down the important parts.
+
+### The Server Setup
+
+```python
+app = Server("homelab-mcp")
+```
+
+This creates your MCP server with a name. That name shows up in Claude Desktop's tool list so you can see what's connected.
+
+### Tool Definitions vs Implementations
+
+MCP separates **declaring** what tools exist from **implementing** what they do:
+
+- `@app.list_tools()` returns the schema: name, description, and input shape
+- `@app.call_tool()` handles the actual execution
+
+The descriptions matter a lot. Claude uses them to decide _which_ tool to call and _when_. Write them like you're explaining to a smart colleague what the tool does.
+
+### The `stdio_server()` Pattern
+
+MCP servers can run over different transports. For local desktop use, `stdio` (standard input/output) is the simplest. Claude Desktop spawns your server as a subprocess and communicates over stdin/stdout. No HTTP server, no ports, no config.
+
+## Connecting to Claude Desktop
+
+Now that the server is built, you need to tell Claude Desktop about it. Find your Claude Desktop config file:
+
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux:** `~/.config/Claude/claude_desktop_config.json`
+
+Add your server to the `mcpServers` section:
+
+```json
+{
+  "mcpServers": {
+    "homelab": {
+      "command": "/path/to/homelab-mcp-server/.venv/bin/python",
+      "args": ["/path/to/homelab-mcp-server/server.py"],
+      "env": {
+        "KUBECONFIG": "/home/youruser/.kube/config"
+      }
+    }
+  }
+}
+```
+
+Replace the paths with your actual paths. The `KUBECONFIG` env var ensures kubectl finds your cluster config even when spawned as a subprocess.
+
+**Using Rancher Desktop?** Your kubeconfig is at `~/.kube/config` by default, same as most setups, but kubectl itself lives at `~/.rd/bin/kubectl`. Make sure that path is in your `PATH` env var in the config:
+
+```json
+"env": {
+  "KUBECONFIG": "/Users/youruser/.kube/config",
+  "PATH": "/Users/youruser/.rd/bin:/usr/local/bin:/usr/bin:/bin"
+}
+```
+
+Restart Claude Desktop. The hammer icon in the chat window means MCP tools are loaded.
+
+## Connecting to Claude Code
+
+If you use Claude Code (the terminal-based version), add the server to your project or global Claude config:
+
+```bash
+# Add to the current project
+claude mcp add homelab /path/to/.venv/bin/python -- /path/to/server.py
+
+# Or add globally for all projects
+claude mcp add --global homelab /path/to/.venv/bin/python -- /path/to/server.py
+```
+
+Verify it's connected:
+
+```bash
+claude mcp list
+```
+
+## Actually Using It
+
+Once connected, you can ask natural language questions and Claude will figure out which tools to call. Some examples I use regularly:
+
+**Ops questions:**
+
+> "Are there any pods in a CrashLoopBackOff state?"
+
+> "What's the oldest pod in the monitoring namespace?"
+
+> "Show me the events for the grafana pod"
+
+**Resource questions:**
+
+> "Which nodes are under memory pressure?"
+
+> "What's consuming the most disk space on the host?"
+
+> "List everything running in the default namespace"
+
+**Debugging sessions:**
+
+> "The alertmanager pod keeps restarting. What's going on?"
+
+That last one is the fun one. Claude will call `get_pods` to find alertmanager, then `describe_pod` to check the events, then reason through what it finds. No kubectl required.
+
+Here's what it looks like in Claude Desktop:
+
+<ClickableImage
+  src="/post-images/homelab-mcp-claude-ss.png"
+  alt="Claude Desktop using the homelab MCP server to query a Kubernetes cluster"
+  caption="Claude Desktop calling the homelab MCP tools directly, no copy-pasting required"
+  width={1200}
+  height={800}
+/>
+
+After confirming the tool call, Claude fetches the logs and starts diagnosing what's wrong:
+
+<ClickableImage
+  src="/post-images/homelab-mcp-claude-ss-logs.png"
+  alt="Claude Desktop showing container logs and diagnosing the issue"
+  caption="Claude pulling logs and finding the root cause"
+  width={1200}
+  height={800}
+/>
+
+## Extending the Server
+
+The seven tools we built are just a starting point. Here are some directions worth exploring:
+
+### Prometheus/Grafana Metrics
+
+If you're running Prometheus, you can add tools that query the API directly:
+
+```python
+import httpx
+
+@app.call_tool()
+async def call_tool(name: str, arguments: dict) -> list[TextContent]:
+    # ... existing tools ...
+
+    elif name == "query_metrics":
+        query = arguments["query"]
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                "http://prometheus.monitoring.svc:9090/api/v1/query",
+                params={"query": query},
+            )
+            data = resp.json()
+        return [TextContent(type="text", text=json.dumps(data, indent=2))]
+```
+
+Now you can ask "what's the average CPU usage across all nodes over the last hour?" and get an actual answer from your real metrics.
+
+### Proxmox Integration
+
+If you're running Proxmox as your hypervisor, the [Proxmox API](https://pve.proxmox.com/wiki/Proxmox_VE_API) is easy to hit over HTTP:
+
+```python
+Tool(
+    name="list_vms",
+    description="List all VMs and LXC containers on the Proxmox host with their status.",
+    inputSchema={"type": "object", "properties": {}},
+),
+```
+
+### ArgoCD App Status
+
+If you're using ArgoCD for GitOps, expose app sync status:
+
+```python
+Tool(
+    name="get_argocd_apps",
+    description="Check the sync and health status of all ArgoCD applications.",
+    inputSchema={"type": "object", "properties": {}},
+),
+```
+
+Same pattern every time: define the tool schema, implement the call, plug in whatever API or CLI your homelab already has.
+
+## Security Considerations
+
+Before you get too excited: your MCP server runs with whatever permissions the spawning process has. A few things to keep in mind:
+
+**Scope what you expose.** Read-only tools (get, list, describe) are low risk. Write operations (delete pod, scale deployment, restart service) give Claude the ability to actually change things. Start read-only, add write operations deliberately.
+
+**Don't expose secrets in tool output.** If you have tools that touch Kubernetes Secrets or ConfigMaps with credentials, be thoughtful about what you return. Claude might include secret values in its response.
+
+**Local-only by default.** The stdio transport means your MCP server only accepts connections from Claude Desktop on your local machine. It's not a network service. Don't change this unless you know what you're doing.
+
+**Run under a least-privilege user.** Your MCP server doesn't need root. If your kubectl config is scoped to read-only via RBAC, that's a good default.
+
+## Troubleshooting
+
+**Claude doesn't show the hammer icon / tools aren't loading**
+
+Check the Claude Desktop logs:
+
+- macOS: `~/Library/Logs/Claude/mcp*.log`
+- Your server process likely failed to start. Usually it's a bad path in the config or a missing dependency.
+
+**"Error: kubectl not found in PATH"**
+
+The subprocess environment might not have your PATH. Add it explicitly in the Claude Desktop config:
+
+```json
+"env": {
+  "PATH": "/usr/local/bin:/usr/bin:/bin",
+  "KUBECONFIG": "/home/user/.kube/config"
+}
+```
+
+**Tools time out on first call**
+
+The first call can be slow if kubectl needs to refresh credentials (especially with cloud clusters). The 30-second timeout should handle most cases, but you can increase it if needed.
+
+**Claude calls the wrong tool**
+
+Improve your tool descriptions. If `get_pods` and `describe_pod` are getting confused, make the distinction clearer in the description. Claude uses these descriptions to route requests.
+
+## What's Next
+
+This is a solid foundation, but here's what I'm planning to add to mine:
+
+- **Slack notifications**: hook it up so Claude can actually page you when something breaks
+- **Runbook execution**: define runbooks as MCP tools and let Claude walk through them step by step
+- **Change history**: log every tool call so you have an audit trail of what Claude touched
+- **Multi-cluster support**: switch kubeconfig context based on which cluster you're asking about
+
+MCP turns Claude from a chat tool into something that actually participates in your workflow. Worth building for.
+
+---
+
+## Try It Yourself
+
+The code from this post is a working starting point. Clone it, extend it, break it, make it yours.
+
+If you run into issues or want to show off what you've built, come hang out in the Discord:
+
+- **#homelab**: Share your MCP server setups, ask questions, get unstuck
+- **#ai-tooling**: Discuss MCP patterns, LLM integrations, and automation ideas
+- **#general**: Everything else homelab and platform engineering
+
+[Join the Discord](https://discord.gg/9hVCrNQRMh) and drop what you built in #homelab.
+
+---
+
+**What tools are you going to expose first?** Drop it in the Discord.

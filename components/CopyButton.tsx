@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 
 type CopyButtonProps = {
-  text: string;
+  getText: () => string;
 };
 
-export function CopyButton({ text }: CopyButtonProps) {
+export function CopyButton({ getText }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -22,7 +22,7 @@ export function CopyButton({ text }: CopyButtonProps) {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(getText());
       setCopied(true);
       setError(false);
       
