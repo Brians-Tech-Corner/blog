@@ -1,6 +1,6 @@
 ---
 title: 'Build Your First MCP Server: Give Claude Superpowers Over Your Homelab'
-description: 'Learn how to build a custom MCP server in Python that lets Claude directly query your Kubernetes cluster, check running containers, and manage your homelab — no more copy-pasting terminal output.'
+description: 'Learn how to build a custom MCP server in Python that lets Claude directly query your Kubernetes cluster, check running containers, and manage your homelab. No more copy-pasting terminal output.'
 date: '2026-03-21'
 tags:
   [
@@ -20,7 +20,7 @@ Picture this: you type "what pods are failing in my cluster right now?" into Cla
 
 That's not magic. That's MCP.
 
-The [Model Context Protocol](https://modelcontextprotocol.io) is the open standard Anthropic released that lets AI models like Claude connect to real tools and data sources. It's one of the fastest-growing things in the AI ecosystem right now — and for homelab nerds, it's a gift.
+The [Model Context Protocol](https://modelcontextprotocol.io) is the open standard Anthropic released that lets AI models like Claude connect to real tools and data sources. It's one of the fastest-growing things in the AI ecosystem right now, and for homelab nerds, it's a gift.
 
 In this post, I'm going to show you how to build your own MCP server in Python that gives Claude direct access to your homelab. We'll expose Kubernetes, Docker, and a few other tools so you can have an actual conversation with your infrastructure.
 
@@ -30,7 +30,7 @@ Think of MCP like USB-C for AI models. Instead of every LLM needing its own cust
 
 On one side: **MCP Clients** (like Claude Desktop, Claude Code, or any app built on the Anthropic SDK).
 
-On the other side: **MCP Servers** — small programs that expose tools, resources, and prompts through the protocol.
+On the other side: **MCP Servers**, small programs that expose tools, resources, and prompts through the protocol.
 
 When you build an MCP server, you're defining a set of functions that Claude can call. Claude decides when to call them, what arguments to pass, and how to use the results. You just define the interface and the implementation.
 
@@ -311,14 +311,14 @@ This creates your MCP server with a name. That name shows up in Claude Desktop's
 
 MCP separates **declaring** what tools exist from **implementing** what they do:
 
-- `@app.list_tools()` returns the schema — name, description, and input shape
+- `@app.list_tools()` returns the schema: name, description, and input shape
 - `@app.call_tool()` handles the actual execution
 
 The descriptions matter a lot. Claude uses them to decide _which_ tool to call and _when_. Write them like you're explaining to a smart colleague what the tool does.
 
 ### The `stdio_server()` Pattern
 
-MCP servers can run over different transports. For local desktop use, `stdio` (standard input/output) is the simplest — Claude Desktop spawns your server as a subprocess and communicates over stdin/stdout. No HTTP server, no ports, no config.
+MCP servers can run over different transports. For local desktop use, `stdio` (standard input/output) is the simplest. Claude Desktop spawns your server as a subprocess and communicates over stdin/stdout. No HTTP server, no ports, no config.
 
 ## Connecting to Claude Desktop
 
@@ -346,7 +346,7 @@ Add your server to the `mcpServers` section:
 
 Replace the paths with your actual paths. The `KUBECONFIG` env var ensures kubectl finds your cluster config even when spawned as a subprocess.
 
-Restart Claude Desktop. You should see a hammer icon in the chat window — that means MCP tools are loaded.
+Restart Claude Desktop. The hammer icon in the chat window means MCP tools are loaded.
 
 ## Connecting to Claude Code
 
@@ -390,24 +390,24 @@ Once connected, you can ask natural language questions and Claude will figure ou
 
 > "The alertmanager pod keeps restarting. What's going on?"
 
-That last one is the fun one. Claude will call `get_pods` to find alertmanager, then call `describe_pod` to check the events, then reason through what it finds — all without you typing a single kubectl command.
+That last one is the fun one. Claude will call `get_pods` to find alertmanager, then `describe_pod` to check the events, then reason through what it finds. No kubectl required.
 
-Here's what it actually looks like in Claude Desktop — tools being called, results coming back, and Claude reasoning through the output in real time:
+Here's what it looks like in Claude Desktop:
 
 <ClickableImage
   src="/post-images/homelab-mcp-claude-ss.png"
   alt="Claude Desktop using the homelab MCP server to query a Kubernetes cluster"
-  caption="Claude Desktop calling the homelab MCP tools directly — no copy-pasting required"
+  caption="Claude Desktop calling the homelab MCP tools directly, no copy-pasting required"
   width={1200}
   height={800}
 />
 
-After confirming the tool call, Claude fetches the logs and immediately starts diagnosing what's wrong — no terminal switching, no copy-pasting:
+After confirming the tool call, Claude fetches the logs and starts diagnosing what's wrong:
 
 <ClickableImage
   src="/post-images/homelab-mcp-claude-ss-logs.png"
   alt="Claude Desktop showing container logs and diagnosing the issue"
-  caption="Claude pulling logs and pinpointing the root cause in one shot"
+  caption="Claude pulling logs and finding the root cause"
   width={1200}
   height={800}
 />
@@ -464,7 +464,7 @@ Tool(
 ),
 ```
 
-The pattern is always the same: define the tool schema, implement the call, plug in whatever API or CLI your homelab already has.
+Same pattern every time: define the tool schema, implement the call, plug in whatever API or CLI your homelab already has.
 
 ## Security Considerations
 
@@ -480,7 +480,7 @@ Before you get too excited: your MCP server runs with whatever permissions the s
 
 ## Troubleshooting
 
-**Claude doesn't show the hammer icon — tools aren't loading**
+**Claude doesn't show the hammer icon / tools aren't loading**
 
 Check the Claude Desktop logs:
 
@@ -508,13 +508,14 @@ Improve your tool descriptions. If `get_pods` and `describe_pod` are getting con
 
 ## What's Next
 
-This is a solid foundation, but here's what I'm planning to add to mine: **Slack notifications** — Ask Claude "alert me in #alerts if any pod crashes" and have it actually wire up a watcher
+This is a solid foundation, but here's what I'm planning to add to mine:
 
-- **Runbook execution** — Define runbooks as MCP tools, let Claude walk through them
-- **Change history** — Log every tool call so you have an audit trail of what Claude touched
-- **Multi-cluster support** — Switch kubeconfig context based on which cluster you're asking about
+- **Slack notifications**: hook it up so Claude can actually page you when something breaks
+- **Runbook execution**: define runbooks as MCP tools and let Claude walk through them step by step
+- **Change history**: log every tool call so you have an audit trail of what Claude touched
+- **Multi-cluster support**: switch kubeconfig context based on which cluster you're asking about
 
-The bigger picture here is that MCP is turning AI from a smart chat partner into an actual participant in your workflow. That's worth building for.
+MCP turns Claude from a chat tool into something that actually participates in your workflow. Worth building for.
 
 ---
 
@@ -528,7 +529,7 @@ If you run into issues or want to show off what you've built, come hang out in t
 - **#ai-tooling**: Discuss MCP patterns, LLM integrations, and automation ideas
 - **#general**: Everything else homelab and platform engineering
 
-[Join the Discord](https://discord.gg/9hVCrNQRMh) — would love to see what tools people build on top of this.
+[Join the Discord](https://discord.gg/9hVCrNQRMh) and drop what you built in #homelab.
 
 ---
 
