@@ -346,6 +346,15 @@ Add your server to the `mcpServers` section:
 
 Replace the paths with your actual paths. The `KUBECONFIG` env var ensures kubectl finds your cluster config even when spawned as a subprocess.
 
+**Using Rancher Desktop?** Your kubeconfig is at `~/.kube/config` by default, same as most setups, but kubectl itself lives at `~/.rd/bin/kubectl`. Make sure that path is in your `PATH` env var in the config:
+
+```json
+"env": {
+  "KUBECONFIG": "/Users/youruser/.kube/config",
+  "PATH": "/Users/youruser/.rd/bin:/usr/local/bin:/usr/bin:/bin"
+}
+```
+
 Restart Claude Desktop. The hammer icon in the chat window means MCP tools are loaded.
 
 ## Connecting to Claude Code
