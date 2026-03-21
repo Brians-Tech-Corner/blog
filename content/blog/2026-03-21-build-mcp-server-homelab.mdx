@@ -1,6 +1,6 @@
 ---
-title: "Build Your First MCP Server: Give Claude Superpowers Over Your Homelab"
-description: "Learn how to build a custom MCP server in Python that lets Claude directly query your Kubernetes cluster, check running containers, and manage your homelab — no more copy-pasting terminal output."
+title: 'Build Your First MCP Server: Give Claude Superpowers Over Your Homelab'
+description: 'Learn how to build a custom MCP server in Python that lets Claude directly query your Kubernetes cluster, check running containers, and manage your homelab — no more copy-pasting terminal output.'
 date: '2026-03-21'
 tags:
   [
@@ -47,15 +47,15 @@ It's the difference between Claude as a smart rubber duck and Claude as an actua
 
 By the end of this post, you'll have an MCP server that exposes:
 
-| Tool                  | What it does                                      |
-| --------------------- | ------------------------------------------------- |
-| `get_pods`            | Lists pods in any namespace with status           |
-| `describe_pod`        | Describes a pod (events, conditions, resources)   |
-| `get_namespaces`      | Lists all namespaces in the cluster               |
-| `get_node_status`     | Shows node health and resource pressure           |
-| `list_containers`     | Lists running Docker containers                   |
-| `get_container_logs`  | Fetches recent logs from a container              |
-| `check_disk_usage`    | Checks disk usage on the host                     |
+| Tool                 | What it does                                    |
+| -------------------- | ----------------------------------------------- |
+| `get_pods`           | Lists pods in any namespace with status         |
+| `describe_pod`       | Describes a pod (events, conditions, resources) |
+| `get_namespaces`     | Lists all namespaces in the cluster             |
+| `get_node_status`    | Shows node health and resource pressure         |
+| `list_containers`    | Lists running Docker containers                 |
+| `get_container_logs` | Fetches recent logs from a container            |
+| `check_disk_usage`   | Checks disk usage on the host                   |
 
 By the end, you can open Claude Desktop and ask "what's consuming the most CPU in my homelab?" and get a real answer.
 
@@ -453,7 +453,7 @@ Before you get too excited: your MCP server runs with whatever permissions the s
 
 **Scope what you expose.** Read-only tools (get, list, describe) are low risk. Write operations (delete pod, scale deployment, restart service) give Claude the ability to actually change things. Start read-only, add write operations deliberately.
 
-**Don't expose secrets in tool output.** If you have tools that touch Kubernetes Secrets or config maps with credentials, be thoughtful about what you return. Claude might include secret values in its response.
+**Don't expose secrets in tool output.** If you have tools that touch Kubernetes Secrets or ConfigMaps with credentials, be thoughtful about what you return. Claude might include secret values in its response.
 
 **Local-only by default.** The stdio transport means your MCP server only accepts connections from Claude Desktop on your local machine. It's not a network service. Don't change this unless you know what you're doing.
 
@@ -461,9 +461,10 @@ Before you get too excited: your MCP server runs with whatever permissions the s
 
 ## Troubleshooting
 
-**Claude doesn't show the hammer icon / tools aren't loading**
+**Claude doesn't show the hammer icon — tools aren't loading**
 
 Check the Claude Desktop logs:
+
 - macOS: `~/Library/Logs/Claude/mcp*.log`
 - Your server process likely failed to start. Usually it's a bad path in the config or a missing dependency.
 
@@ -488,9 +489,8 @@ Improve your tool descriptions. If `get_pods` and `describe_pod` are getting con
 
 ## What's Next
 
-This is a solid foundation, but here's what I'm planning to add to mine:
+This is a solid foundation, but here's what I'm planning to add to mine: **Slack notifications** — Ask Claude "alert me in #alerts if any pod crashes" and have it actually wire up a watcher
 
-- **Slack notifications** — Ask Claude "alert me in #alerts if any pod crashes" and have it actually wire up a watcher
 - **Runbook execution** — Define runbooks as MCP tools, let Claude walk through them
 - **Change history** — Log every tool call so you have an audit trail of what Claude touched
 - **Multi-cluster support** — Switch kubeconfig context based on which cluster you're asking about
