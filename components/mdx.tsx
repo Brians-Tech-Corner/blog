@@ -3,6 +3,7 @@ import { Callout } from '@/components/Callout';
 import { CodeBlock } from '@/components/CodeBlock';
 import { Mermaid } from '@/components/Mermaid';
 import { ClickableImage } from '@/components/ClickableImage';
+import { SubscribeCTA } from '@/components/SubscribeCTA';
 
 export const mdxComponents: Record<string, React.ComponentType<any>> = {
   a: (props) => {
@@ -45,4 +46,5 @@ export const mdxComponents: Record<string, React.ComponentType<any>> = {
   Callout,
   Mermaid,
   ClickableImage,
+  SubscribeCTA,
 };

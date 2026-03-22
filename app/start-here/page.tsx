@@ -3,16 +3,17 @@ import type { Metadata } from 'next';
 import { discordUrl } from '@/lib/social-links';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
+const beehiivUrl = process.env.NEXT_PUBLIC_BEEHIIV_URL;
 
 const ogImage = `${siteUrl}/api/og?${new URLSearchParams({
   title: 'Start Here',
-  description: 'New to Brian\'s Tech Corner? Here\'s where to start based on what you want to learn.',
+  description: "New to Brian's Tech Corner? Here's where to start based on what you want to learn.",
 }).toString()}`;
 
 export const metadata: Metadata = {
   title: 'Start Here',
   description:
-    "New to Brian's Tech Corner? Here's the best starting point based on what you want to learn — homelabs, platform engineering, or building in public.",
+    "New to Brian's Tech Corner? Here's the best starting point based on what you want to learn: homelabs, platform engineering, AI tooling, or building in public.",
   alternates: {
     canonical: `${siteUrl}/start-here`,
   },
@@ -73,7 +74,26 @@ const paths: ReadingPath[] = [
       {
         title: 'Homelab Monitoring with Grafana & Prometheus',
         slug: '2026-01-18-monitoring-homelab-with-grafana',
-        description: 'Full observability stack — metrics, dashboards, and alerting.',
+        description: 'Full observability stack: metrics, dashboards, and alerting.',
+      },
+    ],
+  },
+  {
+    title: 'AI Tooling for Your Homelab',
+    audience: 'For engineers who want AI assistants that actually know their infrastructure',
+    description:
+      'Practical AI integrations for homelab and platform engineers. Not chatbots — tools that connect Claude and other models directly to your infrastructure so they can actually help.',
+    color: 'amber',
+    posts: [
+      {
+        title: 'Build Your First MCP Server: Give Claude Access to Your Homelab',
+        slug: '2026-03-21-build-mcp-server-homelab',
+        description: 'Build a Python MCP server that lets Claude query your Kubernetes cluster, Docker containers, and homelab tools.',
+      },
+      {
+        title: 'How to Think Like a Platform Engineer: The Greybeard Pack',
+        slug: '2026-03-15-greybeard-platform-engineering-pack',
+        description: 'An AI-powered thinking tool that catches bad architecture decisions before they cost you six months.',
       },
     ],
   },
@@ -81,7 +101,7 @@ const paths: ReadingPath[] = [
     title: 'Platform Engineering',
     audience: 'For engineers building internal developer platforms or improving engineering velocity',
     description:
-      'Practical platform engineering — from self-service scaffolding to AI-powered code review. Content drawn from my experience as a Staff Platform Engineer.',
+      'Practical platform engineering: from self-service scaffolding to AI-powered code review. Content from my work as a Staff Platform Engineer.',
     color: 'purple',
     posts: [
       {
@@ -106,12 +126,12 @@ const paths: ReadingPath[] = [
       {
         title: 'Why I Switched to UniFi (And Whether You Should)',
         slug: '2026-01-01-why-I-switched-to-unifi',
-        description: 'An honest look at UniFi — the good, the trade-offs, and who it\'s for.',
+        description: "An honest look at UniFi: the good, the trade-offs, and who it's for.",
       },
       {
         title: 'Pi-hole for Homelab DNS and Wildcard Records',
         slug: '2026-01-16-pihole-homelab-dns',
-        description: 'Block ads network-wide and use Pi-hole as your homelab\'s internal DNS resolver.',
+        description: 'Block ads network-wide and use Pi-hole as your homelab internal DNS resolver.',
       },
     ],
   },
@@ -124,6 +144,13 @@ const colorMap: Record<string, { border: string; bg: string; badge: string; badg
     badge: 'bg-blue-100 dark:bg-blue-900/40',
     badgeText: 'text-blue-700 dark:text-blue-300',
     link: 'text-blue-700 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200',
+  },
+  amber: {
+    border: 'border-amber-200 dark:border-amber-900/40',
+    bg: 'bg-amber-50 dark:bg-amber-950/30',
+    badge: 'bg-amber-100 dark:bg-amber-900/40',
+    badgeText: 'text-amber-700 dark:text-amber-300',
+    link: 'text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200',
   },
   purple: {
     border: 'border-purple-200 dark:border-purple-900/40',
@@ -142,6 +169,8 @@ const colorMap: Record<string, { border: string; bg: string; badge: string; badg
 };
 
 export default function StartHerePage() {
+  const showNewsletter = beehiivUrl && beehiivUrl !== 'undefined';
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-bold tracking-tight dark:text-zinc-100">Start Here</h1>
@@ -151,21 +180,21 @@ export default function StartHerePage() {
         point based on what you want to learn.
       </p>
 
-      {/* About section */}
+      {/* Who is this for */}
       <div className="mt-8 rounded-2xl border border-zinc-200 bg-zinc-50 p-6 dark:border-zinc-700 dark:bg-zinc-800/50">
         <h2 className="font-semibold dark:text-zinc-100">What is Brian&apos;s Tech Corner?</h2>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          I&apos;m Brian &mdash; a Staff Platform Engineer by day, homelab builder and open source
-          developer by night. This site is my public notebook: deep technical dives on the
-          tools and decisions I actually use at work and at home. No fluff, no beginner
-          hand-holding &mdash; just real configs, real trade-offs, and real experience.
+          I&apos;m Brian, a Staff Platform Engineer by day and homelab builder by night. This
+          site is where I write about the tools and decisions I actually use: Kubernetes,
+          platform engineering, AI integrations, and homelab infrastructure. Real configs,
+          real trade-offs, no filler.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
             href="/about"
             className="text-sm font-medium text-zinc-700 underline underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
           >
-            Read the full about page
+            Full about page
           </Link>
           <a
             href={discordUrl}
@@ -173,8 +202,18 @@ export default function StartHerePage() {
             rel="noopener noreferrer"
             className="text-sm font-medium text-zinc-700 underline underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
           >
-            Join the Discord community
+            Join the Discord
           </a>
+          {showNewsletter && (
+            <a
+              href={beehiivUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-zinc-700 underline underline-offset-4 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+            >
+              Subscribe to the newsletter
+            </a>
+          )}
         </div>
       </div>
 
@@ -223,16 +262,56 @@ export default function StartHerePage() {
         })}
       </div>
 
-      {/* All posts CTA */}
-      <div className="mt-16 text-center">
-        <p className="text-zinc-600 dark:text-zinc-400">
-          Ready to explore everything?
-        </p>
+      {/* Stay connected */}
+      <section className="mt-16 space-y-4">
+        <h2 className="text-xl font-semibold dark:text-zinc-100">Stay Connected</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* Newsletter */}
+          {showNewsletter && (
+            <a
+              href={beehiivUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group rounded-2xl border border-blue-200 bg-blue-50 p-5 transition hover:border-blue-300 hover:bg-blue-100 dark:border-blue-900/40 dark:bg-blue-950/30 dark:hover:bg-blue-950/50"
+            >
+              <div className="text-lg font-semibold text-blue-900 dark:text-blue-200">Newsletter</div>
+              <p className="mt-1 text-sm text-blue-800 dark:text-blue-300">
+                One email a week: Kubernetes deep dives, homelab builds, AI tooling, and
+                platform engineering from someone who does this for real.
+              </p>
+              <span className="mt-3 inline-block text-sm font-medium text-blue-700 underline underline-offset-4 group-hover:text-blue-900 dark:text-blue-400 dark:group-hover:text-blue-200">
+                Subscribe free
+              </span>
+            </a>
+          )}
+
+          {/* Discord */}
+          <a
+            href={discordUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group rounded-2xl border border-indigo-200 bg-indigo-50 p-5 transition hover:border-indigo-300 hover:bg-indigo-100 dark:border-indigo-900/40 dark:bg-indigo-950/30 dark:hover:bg-indigo-950/50"
+          >
+            <div className="text-lg font-semibold text-indigo-900 dark:text-indigo-200">Discord Community</div>
+            <p className="mt-1 text-sm text-indigo-800 dark:text-indigo-300">
+              Ask questions, share your homelab, get unstuck. Channels for Kubernetes,
+              homelab, platform engineering, and AI tooling.
+            </p>
+            <span className="mt-3 inline-block text-sm font-medium text-indigo-700 underline underline-offset-4 group-hover:text-indigo-900 dark:text-indigo-400 dark:group-hover:text-indigo-200">
+              Join the server
+            </span>
+          </a>
+        </div>
+      </section>
+
+      {/* Browse everything CTA */}
+      <div className="mt-12 text-center">
+        <p className="text-zinc-600 dark:text-zinc-400">Ready to explore everything?</p>
         <Link
           href="/blog"
           className="mt-3 inline-block rounded-lg bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
-          Browse all posts →
+          Browse all posts
         </Link>
       </div>
     </main>
