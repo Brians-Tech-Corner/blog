@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export function SponsorshipCTA() {
   return (
     <section className="my-12 rounded-2xl border border-amber-200 bg-amber-50 p-8 dark:border-amber-900/40 dark:bg-amber-950">
@@ -16,12 +18,12 @@ export function SponsorshipCTA() {
             <li>→ Formats tailored to technical audiences — no generic ad copy</li>
           </ul>
         </div>
-        <a
+        <Link
           href="/sponsor"
           className="mt-2 flex-shrink-0 whitespace-nowrap rounded-lg bg-amber-600 px-4 py-2 text-white shadow transition hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-400 sm:mt-0"
         >
           See Formats
-        </a>
+        </Link>
       </div>
     </section>
   );

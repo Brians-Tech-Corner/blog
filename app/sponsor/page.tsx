@@ -2,7 +2,11 @@ import type { Metadata } from 'next';
 import { discordUrl } from '@/lib/social-links';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://brianstechcorner.com';
-const sponsorEmail = process.env.NEXT_PUBLIC_SPONSOR_EMAIL ?? 'brian@brianstechcorner.com';
+const rawSponsorEmail = process.env.NEXT_PUBLIC_SPONSOR_EMAIL;
+const sponsorEmail =
+  rawSponsorEmail && rawSponsorEmail.trim() && rawSponsorEmail.trim().toLowerCase() !== 'undefined'
+    ? rawSponsorEmail.trim()
+    : 'brian@brianstechcorner.com';
 
 const ogImage = `${siteUrl}/api/og?${new URLSearchParams({
   title: 'Sponsor',
@@ -102,7 +106,7 @@ const faqs = [
 ];
 
 export default function SponsorPage() {
-  const mailtoLink = `mailto:${sponsorEmail}?subject=Sponsorship%20Inquiry%20-%20Brian's%20Tech%20Corner`;
+  const mailtoLink = `mailto:${sponsorEmail}?${new URLSearchParams({ subject: "Sponsorship Inquiry - Brian's Tech Corner" }).toString()}`;
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
