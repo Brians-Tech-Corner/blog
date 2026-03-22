@@ -38,12 +38,12 @@ const formats = [
   {
     title: 'Sponsored Post',
     description:
-      "A dedicated post written in my voice covering your tool, platform, or product. Includes a real hands-on walkthrough where I actually use what you're building — not a press release. Permanent placement, SEO-optimized, shared across all channels.",
+      "A dedicated post written in my voice covering your tool, platform, or product. Includes a real hands-on walkthrough where I actually use what you're building - not a press release. Permanent placement, SEO-optimized, shared across all channels.",
     includes: [
       'Full post written by me in my style',
       'Honest, hands-on coverage',
       'Shared to Discord, X, and newsletter',
-      'Permanent — no expiry',
+      'Permanent, no expiry',
       'Labeled as sponsored per FTC guidelines',
     ],
   },
@@ -61,7 +61,7 @@ const formats = [
   {
     title: 'Resources Page Feature',
     description:
-      "A permanent listing on the /resources page alongside the tools I personally use and recommend. The resources page is where readers go when they're actively evaluating tools — high buyer intent.",
+      "A permanent listing on the /resources page alongside the tools I personally use and recommend. The resources page is where readers go when they're actively evaluating tools. High buyer intent.",
     includes: [
       'Listed in the relevant category',
       'Custom description written by me',
@@ -81,7 +81,7 @@ const audience = [
 const faqs = [
   {
     q: 'Do you write the sponsored content yourself?',
-    a: "Yes. I write everything in my own voice. I won't publish content that reads like marketing copy — it has to be something I'd actually want to read. If that's not a fit, a sponsored post probably isn't the right format.",
+    a: "Yes. I write everything in my own voice. I won't publish content that reads like marketing copy. It has to be something I'd actually want to read. If that's not a fit, a sponsored post probably isn't the right format.",
   },
   {
     q: 'Do you only cover tools you actually use?',
@@ -109,7 +109,7 @@ export default function SponsorPage() {
       <h1 className="text-3xl font-bold tracking-tight dark:text-zinc-100">Sponsor</h1>
 
       <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-300">
-        Brian's Tech Corner reaches platform engineers, DevOps leads, and homelab builders — the
+        Brian's Tech Corner reaches platform engineers, DevOps leads, and homelab builders: the
         people who evaluate infrastructure tooling, write the Jira tickets for new platforms, and
         recommend tools to their teams.
       </p>
@@ -172,7 +172,7 @@ export default function SponsorPage() {
           {[
             'Infrastructure and DevOps tooling (Kubernetes, GitOps, observability, CI/CD)',
             'Internal developer platforms and self-service tooling',
-            'Homelab hardware — mini PCs, networking gear, NAS, storage',
+            'Homelab hardware: mini PCs, networking gear, NAS, storage',
             'AI coding assistants and developer productivity tools',
             'Cloud providers, VPS hosting, and managed infrastructure',
             'Security tooling for engineers and platform teams',
