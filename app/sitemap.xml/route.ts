@@ -75,6 +75,12 @@ export async function GET() {
       priority: 0.8,
     },
     {
+      url: '/sponsor',
+      lastModified: defaultStaticLastModified,
+      changeFreq: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: '/blog',
       // Falls back to defaultStaticLastModified if no posts exist
       lastModified: latestPostLastModified
