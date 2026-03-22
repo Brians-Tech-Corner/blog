@@ -109,15 +109,15 @@ export default function SponsorPage() {
       <h1 className="text-3xl font-bold tracking-tight dark:text-zinc-100">Sponsor</h1>
 
       <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-300">
-        Brian's Tech Corner reaches platform engineers, DevOps leads, and homelab builders: the
+        Brian&apos;s Tech Corner reaches platform engineers, DevOps leads, and homelab builders: the
         people who evaluate infrastructure tooling, write the Jira tickets for new platforms, and
         recommend tools to their teams.
       </p>
 
       <p className="mt-3 text-zinc-600 dark:text-zinc-300">
-        This isn't a generic tech blog. The content is deep and practical: Kubernetes homelab
+        This isn&apos;t a generic tech blog. The content is deep and practical: Kubernetes homelab
         builds, platform engineering patterns, AI tooling integrations, GitOps. Readers come here
-        because they're building something, not just browsing.
+        because they&apos;re building something, not just browsing.
       </p>
 
       {/* Audience */}
@@ -165,7 +165,7 @@ export default function SponsorPage() {
       <section className="mt-12">
         <h2 className="text-xl font-semibold dark:text-zinc-100">Good Fits</h2>
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          Sponsorships work best when there's a genuine overlap with the audience. Things that tend
+          Sponsorships work best when there&apos;s a genuine overlap with the audience. Things that tend
           to land well:
         </p>
         <ul className="mt-4 space-y-2">
@@ -202,7 +202,7 @@ export default function SponsorPage() {
       <section className="mt-12 rounded-2xl border border-amber-200 bg-amber-50 p-8 dark:border-amber-900/40 dark:bg-amber-950">
         <h2 className="text-xl font-bold text-amber-900 dark:text-amber-200">Get in Touch</h2>
         <p className="mt-2 text-amber-800 dark:text-amber-300">
-          Send an email with a bit about your product and what you're looking to do. I'll get back
+          Send an email with a bit about your product and what you&apos;re looking to do. I&apos;ll get back
           to you within a couple of days.
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
