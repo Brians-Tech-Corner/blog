@@ -97,7 +97,7 @@ importers:
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
         specifier: ^5.2.0
-        version: 5.2.0(vite@8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))
+        version: 5.2.0(vite@8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))
       '@vitest/coverage-v8':
         specifier: ^4.1.2
         version: 4.1.2(vitest@4.1.2)
@@ -120,8 +120,8 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1(eslint@9.39.4(jiti@1.21.7))
       happy-dom:
-        specifier: ^20.8.4
-        version: 20.8.4
+        specifier: ^20.8.9
+        version: 20.8.9
       jsdom:
         specifier: ^27.4.0
         version: 27.4.0
@@ -145,7 +145,7 @@ importers:
         version: 8.58.0(eslint@9.39.4(jiti@1.21.7))(typescript@5.9.3)
       vitest:
         specifier: ^4.1.2
-        version: 4.1.2(@types/node@20.19.39)(@vitest/ui@4.1.2)(happy-dom@20.8.4)(jsdom@27.4.0)(vite@8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))
+        version: 4.1.2(@types/node@20.19.39)(@vitest/ui@4.1.2)(happy-dom@20.8.9)(jsdom@27.4.0)(vite@8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))
 
 packages:
 
@@ -598,8 +598,11 @@ packages:
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
 
-  '@napi-rs/wasm-runtime@1.1.1':
-    resolution: {integrity: sha512-p64ah1M1ld8xjWv3qbvFwHiFVWrq1yFvV4f7w+mzaqiR4IlSgkqhcRdHwsGgomwzBH51sRY4NEowLxnaBjcW/A==}
+  '@napi-rs/wasm-runtime@1.1.2':
+    resolution: {integrity: sha512-sNXv5oLJ7ob93xkZ1XnxisYhGYXfaG9f65/ZgYuAu3qt7b3NadcOEhLvx28hv31PgX8SZJRYrAIPQilQmFpLVw==}
+    peerDependencies:
+      '@emnapi/core': ^1.7.1
+      '@emnapi/runtime': ^1.7.1
 
   '@next/env@16.2.1':
     resolution: {integrity: sha512-n8P/HCkIWW+gVal2Z8XqXJ6aB3J0tuM29OcHpCsobWlChH/SITBs1DFBk/HajgrwDkqqBXPbuUuzgDvUekREPg==}
@@ -2177,8 +2180,8 @@ packages:
   hachure-fill@0.5.2:
     resolution: {integrity: sha512-3GKBOn+m2LX9iq+JC1064cSFprJY4jL1jCXTcpnfER5HYE2l/4EfWSGzkPa/ZDBmYI0ZOEj5VHV/eKnPGkHuOg==}
 
-  happy-dom@20.8.4:
-    resolution: {integrity: sha512-GKhjq4OQCYB4VLFBzv8mmccUadwlAusOZOI7hC1D9xDIT5HhzkJK17c4el2f6R6C715P9xB4uiMxeKUa2nHMwQ==}
+  happy-dom@20.8.9:
+    resolution: {integrity: sha512-Tz23LR9T9jOGVZm2x1EPdXqwA37G/owYMxRwU0E4miurAtFsPMQ1d2Jc2okUaSjZqAFz2oEn3FLXC5a0a+siyA==}
     engines: {node: '>=20.0.0'}
 
   has-bigints@1.1.0:
@@ -3034,6 +3037,10 @@ packages:
 
   picomatch@4.0.3:
     resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
+    engines: {node: '>=12'}
+
+  picomatch@4.0.4:
+    resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
 
   pify@2.3.0:
@@ -4301,7 +4308,7 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@napi-rs/wasm-runtime@1.1.1':
+  '@napi-rs/wasm-runtime@1.1.2(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
     dependencies:
       '@emnapi/core': 1.9.1
       '@emnapi/runtime': 1.9.1
@@ -4405,9 +4412,12 @@ snapshots:
   '@rolldown/binding-openharmony-arm64@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-wasm32-wasi@1.0.0-rc.10':
+  '@rolldown/binding-wasm32-wasi@1.0.0-rc.10(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.1.1
+      '@napi-rs/wasm-runtime': 1.1.2(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
     optional: true
 
   '@rolldown/binding-win32-arm64-msvc@1.0.0-rc.10':
@@ -4843,7 +4853,7 @@ snapshots:
     optionalDependencies:
       sharp: 0.34.5
 
-  '@vitejs/plugin-react@5.2.0(vite@8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))':
+  '@vitejs/plugin-react@5.2.0(vite@8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.29.0)
@@ -4851,7 +4861,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-rc.3
       '@types/babel__core': 7.20.5
       react-refresh: 0.18.0
-      vite: 8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3)
+      vite: 8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -4867,7 +4877,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.0.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.2(@types/node@20.19.39)(@vitest/ui@4.1.2)(happy-dom@20.8.4)(jsdom@27.4.0)(vite@8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))
+      vitest: 4.1.2(@types/node@20.19.39)(@vitest/ui@4.1.2)(happy-dom@20.8.9)(jsdom@27.4.0)(vite@8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))
 
   '@vitest/expect@4.1.2':
     dependencies:
@@ -4878,13 +4888,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.2(vite@8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))':
+  '@vitest/mocker@4.1.2(vite@8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))':
     dependencies:
       '@vitest/spy': 4.1.2
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3)
+      vite: 8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3)
 
   '@vitest/pretty-format@4.1.2':
     dependencies:
@@ -4913,7 +4923,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.1.0
-      vitest: 4.1.2(@types/node@20.19.39)(@vitest/ui@4.1.2)(happy-dom@20.8.4)(jsdom@27.4.0)(vite@8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))
+      vitest: 4.1.2(@types/node@20.19.39)(@vitest/ui@4.1.2)(happy-dom@20.8.9)(jsdom@27.4.0)(vite@8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))
 
   '@vitest/utils@4.1.2':
     dependencies:
@@ -6028,7 +6038,7 @@ snapshots:
 
   hachure-fill@0.5.2: {}
 
-  happy-dom@20.8.4:
+  happy-dom@20.8.9:
     dependencies:
       '@types/node': 20.19.39
       '@types/whatwg-mimetype': 3.0.2
@@ -7240,6 +7250,8 @@ snapshots:
 
   picomatch@4.0.3: {}
 
+  picomatch@4.0.4: {}
+
   pify@2.3.0: {}
 
   pirates@4.0.7: {}
@@ -7511,7 +7523,7 @@ snapshots:
 
   robust-predicates@3.0.3: {}
 
-  rolldown@1.0.0-rc.10:
+  rolldown@1.0.0-rc.10(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1):
     dependencies:
       '@oxc-project/types': 0.120.0
       '@rolldown/pluginutils': 1.0.0-rc.10
@@ -7528,9 +7540,12 @@ snapshots:
       '@rolldown/binding-linux-x64-gnu': 1.0.0-rc.10
       '@rolldown/binding-linux-x64-musl': 1.0.0-rc.10
       '@rolldown/binding-openharmony-arm64': 1.0.0-rc.10
-      '@rolldown/binding-wasm32-wasi': 1.0.0-rc.10
+      '@rolldown/binding-wasm32-wasi': 1.0.0-rc.10(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
       '@rolldown/binding-win32-arm64-msvc': 1.0.0-rc.10
       '@rolldown/binding-win32-x64-msvc': 1.0.0-rc.10
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
   roughjs@4.6.6:
     dependencies:
@@ -8076,23 +8091,26 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite@8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3):
+  vite@8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3):
     dependencies:
       lightningcss: 1.32.0
-      picomatch: 4.0.3
+      picomatch: 4.0.4
       postcss: 8.5.8
-      rolldown: 1.0.0-rc.10
+      rolldown: 1.0.0-rc.10(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
       tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 20.19.39
       fsevents: 2.3.3
       jiti: 1.21.7
       yaml: 2.8.3
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
-  vitest@4.1.2(@types/node@20.19.39)(@vitest/ui@4.1.2)(happy-dom@20.8.4)(jsdom@27.4.0)(vite@8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3)):
+  vitest@4.1.2(@types/node@20.19.39)(@vitest/ui@4.1.2)(happy-dom@20.8.9)(jsdom@27.4.0)(vite@8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3)):
     dependencies:
       '@vitest/expect': 4.1.2
-      '@vitest/mocker': 4.1.2(vite@8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))
+      '@vitest/mocker': 4.1.2(vite@8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3))
       '@vitest/pretty-format': 4.1.2
       '@vitest/runner': 4.1.2
       '@vitest/snapshot': 4.1.2
@@ -8109,12 +8127,12 @@ snapshots:
       tinyexec: 1.0.4
       tinyglobby: 0.2.15
       tinyrainbow: 3.1.0
-      vite: 8.0.1(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3)
+      vite: 8.0.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@20.19.39)(jiti@1.21.7)(yaml@2.8.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 20.19.39
       '@vitest/ui': 4.1.2(vitest@4.1.2)
-      happy-dom: 20.8.4
+      happy-dom: 20.8.9
       jsdom: 27.4.0
     transitivePeerDependencies:
       - msw
