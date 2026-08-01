@@ -1,0 +1,269 @@
+---
+title: "Building a Platform Engineering Onboarding Program That Actually Works"
+date: "2026-04-04"
+description: "How to onboard new platform engineers effectively. A checklist, roadmap, and lessons from real experience."
+tags: ["platform-engineering", "devops", "onboarding", "leadership", "infrastructure"]
+image: "/post-images/platform-onboarding-hero.jpg"
+---
+
+# Building a Platform Engineering Onboarding Program That Actually Works
+
+You're the new Lead at a company. Your team is about to grow. Or maybe you're joining as a new platform engineer and the onboarding is chaos. Either way, you've realized: **platform engineering onboarding is different from regular engineering onboarding.**
+
+Why? Because platform engineers need context across systems. They need to understand infrastructure, deployment pipelines, cost models, reliability metrics, and team dynamics—all while being useful on day one.
+
+I'm doing this right now at my new role. Here's what I'm learning.
+
+---
+
+## The Problem
+
+Bad onboarding for platform teams looks like:
+
+- Day 1: "Here's Slack, here's our GitHub. Figure it out."
+- Week 1: 47 different Confluence docs, none current
+- Week 2: You're in meetings about systems you don't understand
+- Week 3: You touch production and break something because nobody explained the gotchas
+- Month 2: You're still not sure what the actual priorities are
+
+Good onboarding is intentional. It's a 30-day plan with clear milestones.
+
+---
+
+## Week 1: Get Your Bearings
+
+### First 72 Hours Checklist
+
+- [ ] **Access**: AWS console, Kubernetes clusters, CI/CD platform, VPN, internal tools
+- [ ] **Documentation**: Current architecture diagrams, runbooks, on-call playbooks
+- [ ] **Relationships**: Meet your team lead, key stakeholders, customer contacts
+- [ ] **First task**: Something *low-risk but visible* (docs, small bug fix, ops task)
+
+**Why this order?** You need access before you can do anything. You need docs before you understand what you're doing. You need relationships before you need them in an emergency.
+
+### Day 1 Meeting Template
+
+Ask your manager:
+1. "What's the top infrastructure pain point you're hiring me to solve?"
+2. "What should I absolutely not touch in my first month?"
+3. "Who's the tribal knowledge keeper for [system]?"
+4. "What's your definition of success for my first 90 days?"
+
+Write down the answers. You'll reference them constantly.
+
+### Documentation Sprint
+
+Assign your week-1 afternoon to:
+- [ ] Read the current architecture overview (30 mins)
+- [ ] Skim the runbooks for common incidents (30 mins)
+- [ ] Map out your current tech stack (services, databases, deployment targets)
+- [ ] Identify what's *outdated* (mark for updates)
+
+**Pro tip:** When you find docs are wrong, that's a data point. Track it. You'll fix these in week 2.
+
+---
+
+## Week 2-3: Build Muscle Memory
+
+### Systems Audit
+
+Pick 3 critical systems:
+1. The deployment pipeline (how code gets to production)
+2. The observability system (how you know things are broken)
+3. The incident response process (what happens when it all goes wrong)
+
+For each, create a one-pager:
+- What is it?
+- Why do we use it?
+- How do you access it?
+- Common issues and fixes
+- Who's the expert?
+
+This becomes your reference guide *and* your study material.
+
+### First Code Change
+
+Don't touch the main code yet. Instead:
+- Documentation fix (update a README, fix a broken link)
+- CI/CD improvement (add a missing check, fix a flaky test)
+- Ops task (update a runbook, fix a monitoring alert)
+
+**Why?** You learn the deployment process without risking production. And your PRs get reviewed, which surfaces the team's standards.
+
+### Meetings You Should Be In
+
+- Architecture discussion (weekly)
+- On-call handoff (if applicable)
+- Sprint planning (see the workflow)
+- One-on-ones with engineers (learn their perspective)
+
+**Meetings to skip initially:**
+- Strategic planning (you don't have context yet)
+- Quarterly reviews (not your domain)
+- Sales engineering calls (unless you're customer-facing)
+
+---
+
+## Weeks 3-4: Prove You Can Help
+
+### First Real Project
+
+Pick something that's:
+- **Medium complexity** (not trivial, not critical)
+- **Has clear success criteria** (you'll know when you're done)
+- **Improves something** (the team sees value)
+
+Examples:
+- Set up a staging environment that actually mirrors production
+- Write a disaster recovery runbook and test it
+- Add cost monitoring for a service
+- Automate a manual ops process
+
+**Why this timing?** You have enough context to not be dangerous. You're confident enough to ask good questions. The team's ready to trust your work.
+
+### Blocker Escalation
+
+By week 3, you'll be stuck on something. **Good.** That's where you find:
+- Knowledge gaps (learn from the team)
+- Process gaps (candidate for improvement)
+- Documentation gaps (mark for fixes)
+
+When you're blocked:
+1. Try to unblock yourself (check docs, search Slack history)
+2. Ask one person (preferably your manager or tech lead)
+3. If still blocked after 30 mins, escalate
+
+This teaches you the team's communication patterns.
+
+---
+
+## First 30 Days: Metrics That Matter
+
+Track these:
+
+- **Accessibility**: Can you run the main services locally? Can you deploy? (Week 1 → Week 2)
+- **Context**: Can you explain the architecture in a diagram? (Week 2 → Week 3)
+- **Contribution**: Can you unblock yourself and help others? (Week 3 → Week 4)
+- **Credibility**: Does the team trust your judgment on technical decisions? (Ongoing)
+
+By day 30, you should be:
+- ✅ Fully able to deploy and roll back
+- ✅ Understanding the major architectural decisions
+- ✅ Making small improvements without supervision
+- ✅ Known for asking smart questions
+
+---
+
+## Common Pitfalls (That I've Seen)
+
+### 1. **Rushing Into Big Changes**
+
+You see something broken. You want to fix it immediately. *Don't.* You don't know why it's that way. Ask first.
+
+**Better:** Document the issue, propose a solution, get buy-in, then execute.
+
+### 2. **Skipping the Relationship Building**
+
+You think: "I'll just focus on the work." Wrong. The work *depends* on relationships. Who do you call when production is down? Who can grant access? Who knows where the tribal knowledge is?
+
+**Better:** Coffee chats, ask questions, let people know you're earnest.
+
+### 3. **Information Overload**
+
+Everything is new. You're reading docs, sitting in meetings, taking on tasks, trying to understand the architecture *simultaneously*.
+
+**Better:** One thing at a time. Week 1 = access + docs. Week 2 = systems audit. Week 3+ = contribution.
+
+### 4. **Not Documenting Your Learning**
+
+You figure something out. You think, "I'll remember this." You won't. And the next person will be confused too.
+
+**Better:** Every time you learn something, write it down. Update docs. Share it.
+
+---
+
+## Your 30-Day Roadmap Template
+
+```
+Week 1: Get access, read docs, meet the team
+  - Goal: Understand what you've signed up for
+  - Win: Deploy a test to staging
+  - Blocker: Can't access something
+
+Week 2: Understand critical systems
+  - Goal: Know how code gets to prod, how you detect issues, what happens in an emergency
+  - Win: Write a one-pager on each system
+  - Blocker: Docs are outdated
+
+Week 3: Make your first contribution
+  - Goal: Prove you can help
+  - Win: Merge a meaningful PR (code, docs, or ops)
+  - Blocker: Architecture questions
+
+Week 4: Get unblocked and help unblock others
+  - Goal: Become a resource
+  - Win: Resolve a team question or improve a process
+  - Blocker: Missing access or knowledge
+```
+
+---
+
+## For Managers: How to Onboard Someone
+
+If you're hiring a platform engineer:
+
+1. **Prepare the environment** (access, docs, sandbox)
+2. **Assign a buddy** (someone who's been here >6 months)
+3. **Have a plan** (this one, customized to your team)
+4. **Check in daily week 1**, weekly weeks 2-4
+5. **Celebrate small wins** (they're learning fast under pressure)
+6. **Course-correct early** (if something's confusing, fix it now)
+
+The time you invest in onboarding pays dividends in retention, confidence, and cultural fit.
+
+---
+
+## What I'm Learning Right Now
+
+I'm in week 2 of my new role. Here's what's already different from what I expected:
+
+- The infrastructure is more complex than the docs suggest
+- The team is incredibly collaborative (good sign)
+- The actual priorities are different from what was in the job description (normal)
+- I've already found 3 quick wins (docs, alerts, runbooks)
+
+I'm documenting it all. I'm asking questions. I'm not trying to be the hero on day one.
+
+---
+
+## The Real Goal
+
+You're not trying to be productive on day one. You're trying to be *effective in 30 days*.
+
+That means:
+- Understanding the systems
+- Building relationships
+- Establishing trust
+- Identifying where you can help
+
+Everything after that is momentum.
+
+---
+
+## Questions for the Discord
+
+- What's been your worst onboarding experience? What made it awful?
+- What's the best platform team onboarding you've seen? What made it work?
+- What should I add to my first 30 days plan?
+
+Share your experience. The more we talk about this, the better we all onboard.
+
+---
+
+## Next Steps
+
+- If you're onboarding soon: Use this as your 30-day plan. Customize it to your team.
+- If you're hiring: Use this to structure your onboarding program. Share it with new hires.
+- If you're a manager: Block 30 minutes to review this with your new team member.
+
+Good onboarding is a multiplier. Do it right once, and it compounds.
