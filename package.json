@@ -70,7 +70,7 @@
   "pnpm": {
     "overrides": {
       "minimatch": "9.0.9",
-      "flatted": ">=3.4.2",
+      "flatted": ">=3.4.4",
       "dompurify": ">=3.3.3"
     }
   }
